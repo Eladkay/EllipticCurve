@@ -1,5 +1,6 @@
 package eladkay.ellipticcurve.mathengine
 
+@Suppress("EXTENSION_SHADOWED_BY_MEMBER") // not how we use it
 abstract class Field {
 
     abstract fun belongsTo(number: Double): Boolean
@@ -19,9 +20,9 @@ abstract class Field {
         else exp(a, n - 1) * a
     }
 
-    infix fun Number.af(b: Double): Number = this@Field.add(this.toDouble(), b)
-    infix fun Number.mf(b: Double): Number = this@Field.multiply(this.toDouble(), b)
-    infix fun Double.ef(b: Int): Double = this@Field.exp(this.toDouble(), b)
+    infix fun Double.af(b: Double): Double = this@Field.add(this, b)
+    infix fun Double.mf(b: Double): Double = this@Field.multiply(this, b)
+    infix fun Double.ef(b: Int): Double = this@Field.exp(this, b)
     fun Double.nf(): Double = this@Field.neg(this)
     fun Double.inf(): Double = this@Field.inv(this)
     operator fun contains(d: Double) = belongsTo(d)
@@ -29,11 +30,11 @@ abstract class Field {
 
     // need to test
 
-    operator fun Double.plus(b: Double): Double = this.af(b.toDouble()).toDouble()
-    operator fun Double.minus(b: Double): Double = this.af(b.toDouble().nf()).toDouble()
-    operator fun Double.times(b: Double): Double = this.mf(b.toDouble()).toDouble()
-    operator fun Double.div(b: Double): Double = this.mf(b.toDouble().inf()).toDouble()
-    operator fun Double.unaryMinus(): Double = this.toDouble().nf().toDouble()
+    operator fun Double.plus(b: Double): Double = this.af(b)
+    operator fun Double.minus(b: Double): Double = this.af(b.nf())
+    operator fun Double.times(b: Double): Double = this.mf(b)
+    operator fun Double.div(b: Double): Double = this.mf(b.inf())
+    operator fun Double.unaryMinus(): Double = this.nf()
 
     // end need to test
 
@@ -48,7 +49,7 @@ abstract class Field {
         }
 
         override fun add(a: Double, b: Double): Double {
-            println("works")
+
             return a + b
         }
 
@@ -73,10 +74,11 @@ abstract class Field {
         }
 
         override fun realsToField(number: Double): Double {
-            return if (number.toInt().toDouble() != number) 0.0 else number % 5
+            return (number % 5).toInt().toDouble()
         }
 
         override fun add(a: Double, b: Double): Double {
+            //println("works")
             return (a + b) % modulo
         }
 

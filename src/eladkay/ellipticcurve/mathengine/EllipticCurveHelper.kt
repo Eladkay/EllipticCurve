@@ -4,7 +4,9 @@ class EllipticCurveHelper(private val curve: EllipticCurve) {
     private val field: Field = curve.field
 
     fun add(a: Point, b: Point): Point {
-        if (!curve.isPointOnCurve(a) || !curve.isPointOnCurve(b)) throw IllegalArgumentException("points not on curve!")
+        if (!curve.isPointOnCurve(a)) throw IllegalArgumentException("point $a not on curve!")
+        if (!curve.isPointOnCurve(b)) throw IllegalArgumentException("point $b not on curve!")
+
         val (x1, y1) = a
         val (x2, y2) = b
         return field {

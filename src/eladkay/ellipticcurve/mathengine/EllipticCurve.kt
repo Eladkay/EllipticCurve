@@ -26,6 +26,12 @@ class EllipticCurve(val aValue: Double, val bValue: Double, val field: Field) {
     }
 
     fun isPointOnCurve(p: Point): Boolean {
-        return field.exp(p.y, 2) == field.add(field.exp(p.x, 3), field.add(field.multiply(p.x, aValue), bValue))
+        return field { p.y.ef(2) == p.x.ef(3) + aValue*p.x + bValue }
     }
+
+    operator fun <T> invoke(action: EllipticCurve.()->T) = this.action()
+    operator fun Point.plus(b: Point): Point = EllipticCurveHelper(this@EllipticCurve).add(this, b)
+    operator fun Point.minus(b: Point): Point = EllipticCurveHelper(this@EllipticCurve).add(this, -b)
+    operator fun Point.times(b: Int): Point = EllipticCurveHelper(this@EllipticCurve).multiply(this, b)
+    operator fun Point.unaryMinus(): Point = this.invertY()
 }
