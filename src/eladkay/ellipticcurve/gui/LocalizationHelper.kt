@@ -10,6 +10,6 @@ fun getTranslatedString(key: String) =
         File("trans_$currentLoc.lang")
                 .readLines()
                 .map { it.split("=") }
-                .first { it[0] == key }[1]
+                .firstOrNull { it[0] == key }?.get(1) ?: key
 
 operator fun String.unaryPlus() = getTranslatedString(this)

@@ -9,7 +9,7 @@ object MathHelper {
     }
 
     fun slope(p1: Vec2d, p2: Vec2d): Double {
-        if(p1 == Vec2d.PT_AT_INF || p2 == Vec2d.PT_AT_INF) return Double.POSITIVE_INFINITY
-        return (p1.y-p2.y)/(p1.x-p2.x)
+        if (p1 == Vec2d.PT_AT_INF || p2 == Vec2d.PT_AT_INF) return Double.POSITIVE_INFINITY
+        return (p1.y - p2.y) / (p1.x - p2.x)
     }
 }

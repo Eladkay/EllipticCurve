@@ -26,7 +26,7 @@ class EllipticCurve(val aValue: Double, val bValue: Double, val field: Field) {
     }
 
     fun isPointOnCurve(p: Vec2d): Boolean {
-        return p.x in field && p.y in field && field { !p.y.ef(2) == !p.x.ef(3) + !(aValue*p.x) + !bValue }
+        return p.x in field && p.y in field && field { (!p.y exp 2) == (!p.x exp 3) + !(aValue * p.x) + !bValue }
     }
 
     /**
@@ -35,9 +35,9 @@ class EllipticCurve(val aValue: Double, val bValue: Double, val field: Field) {
      * then there exists an x3 between x1 and x2 such that (x3, y) is on the curve. This is a direct consequence of the
      * mean value theorem.
      */
-    fun difference(x: Double, y: Double) = !field { !y.ef(2) - !x.ef(3) - !(aValue*x) - !bValue }
+    fun difference(x: Double, y: Double) = !field { (!y exp 2) - (!x exp 3) - !(aValue * x) - !bValue }
 
-    operator fun <T> invoke(action: EllipticCurve.()->T) = this.action()
+    operator fun <T> invoke(action: EllipticCurve.() -> T) = this.action()
     operator fun Vec2d.plus(b: Vec2d): Vec2d = EllipticCurveHelper(this@EllipticCurve).add(this, b)
     operator fun Vec2d.minus(b: Vec2d): Vec2d = EllipticCurveHelper(this@EllipticCurve).add(this, -b)
     operator fun Vec2d.times(b: Int): Vec2d = EllipticCurveHelper(this@EllipticCurve).multiply(this, b)

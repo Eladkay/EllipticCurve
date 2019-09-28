@@ -2,3 +2,5 @@ gui.mainscreen=Elliptic Curve Visualizer
 gui.operationcalculator=Operation Calculator
 gui.encryptionHelper=Encryption/Decryption Helper
 gui.studyHelper=Study Helper
+gui.welcomeL1=Welcome to the Elliptic Curve
+gui.welcomeL2=Cryptography Study Tool

@@ -7,5 +7,5 @@ interface CurveFrame {
     fun drawLine(a: Vec2i, b: Vec2i)
     fun frameSize(): Vec2i
     fun drawText(vec2i: Vec2i, string: String)
-    operator fun <T> invoke(action: CurveFrame.()->T) = action()
+    operator fun <T> invoke(action: CurveFrame.() -> T) = action()
 }
