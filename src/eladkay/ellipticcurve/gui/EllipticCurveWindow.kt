@@ -25,6 +25,7 @@ open class EllipticCurveWindow(xSize: Int, ySize: Int) : JFrame(), ActionListene
         setSize(xSize, ySize)
         setLocationRelativeTo(null)
         isResizable = false
+        layout = null
     }
     open fun createAndShow() {
         isVisible = true

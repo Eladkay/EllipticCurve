@@ -6,7 +6,7 @@ import eladkay.ellipticcurve.mathengine.Vec2i
 import kotlin.math.sign
 
 object EllipticSimulator {
-    val X_OFFSET = -200
+    var X_OFFSET = -700
     fun drawCurve(ellipticCurve: EllipticCurve, frame: CurveFrame, xScale: Int = 180, yScale: Int = 40) {
         ellipticCurve.field {
             var last: Vec2i? = null
@@ -25,7 +25,7 @@ object EllipticSimulator {
         }
     }
 
-    fun drawCurveApprox(ellipticCurve: EllipticCurve, frame: CurveFrame, error: Double, drawText: Boolean, xScale: Int = 180, yScale: Int = 40) {
+    fun drawCurveApprox(ellipticCurve: EllipticCurve, frame: CurveFrame, error: Double, drawText: Boolean, xScale: Int = 180, yScale: Int = 10) {
         ellipticCurve.field {
             var last: Vec2i? = null
             for(x in 0..frame.frameSize().x)

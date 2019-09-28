@@ -10,11 +10,30 @@ import javax.swing.JButton
 import javax.swing.JFrame
 import javax.swing.JPanel
 
-object MainScreen : EllipticCurveWindow((getScreenSize()*2)/3) {
+object MainScreen : EllipticCurveWindow((getScreenSize()*2)/3 ) {
     init {
-        add(ButtonsPanel)
-        //layout = null
-        //pack()
+        val operationCalc = JButton(+"gui.operationcalculator")
+        operationCalc.mnemonic = KeyEvent.VK_C
+        operationCalc.actionCommand = "operationcalculator"
+        operationCalc.setBounds(size.x*1/12, size.y*7/8, 200, 40)
+        operationCalc.addActionListener(MainScreen)
+        add(operationCalc)
+
+
+        val encryptionHelper = JButton(+"gui.encryptionHelper")
+        encryptionHelper.mnemonic = KeyEvent.VK_E
+        encryptionHelper.actionCommand = "encryptionHelper"
+        encryptionHelper.setBounds(size.x*9/24, size.y*7/8, 200, 40)
+        encryptionHelper.addActionListener(MainScreen)
+        add(encryptionHelper)
+
+
+        val studyHelper = JButton(+"gui.studyHelper")
+        studyHelper.mnemonic = KeyEvent.VK_S
+        studyHelper.actionCommand = "studyHelper"
+        studyHelper.setBounds(size.x*2/3, size.y*7/8, 200, 40)
+        studyHelper.addActionListener(MainScreen)
+        add(studyHelper)
     }
 
     override fun actionPerformed(e: ActionEvent?) {
@@ -23,6 +42,7 @@ object MainScreen : EllipticCurveWindow((getScreenSize()*2)/3) {
            "operationcalculator" -> OperationCalculator.createAndShow()
         }
     }
+
     private object ButtonsPanel : JPanel() {
         init {
             val operationCalc = JButton(+"gui.operationcalculator")

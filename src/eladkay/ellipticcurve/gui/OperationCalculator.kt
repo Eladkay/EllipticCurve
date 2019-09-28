@@ -14,12 +14,17 @@ import java.awt.Graphics
 import java.awt.Graphics2D
 import java.awt.geom.Line2D
 import javax.swing.JPanel
+import javax.swing.WindowConstants
 
 object OperationCalculator : EllipticCurveWindow(getScreenSize()) {
 
 
     private object CurvePanel : CurveFrame, JPanel() {
 
+        init {
+            setBounds(0,0,OperationCalculator.size.x, OperationCalculator.size.y/3);
+            background = Color.gray;
+        }
 
         override fun frameSize(): Vec2i {
             return Vec2i(size.width, size.height)
@@ -31,8 +36,8 @@ object OperationCalculator : EllipticCurveWindow(getScreenSize()) {
 
         override fun paint(g: Graphics?) {
             super.paint(g)
-            //drawCurveApprox(EllipticCurve(4.0, 1.0, Field.REALS/*Field.createModuloField(5)*/), this, 0.02, false)
-            drawCurveApprox(EllipticCurve(4.0, 1.0, Field.createModuloField(5)), this, 0.0, false)
+            drawCurveApprox(EllipticCurve(4.0, 1.0, Field.REALS/*Field.createModuloField(5)*/), this, 0.02, false)
+            //drawCurveApprox(EllipticCurve(4.0, 1.0, Field.createModuloField(5)), this, 0.0, false)
             drawAxis(this)
             val g2 = g as Graphics2D
             g2.color = Color(0, 0, 0)
@@ -60,6 +65,8 @@ object OperationCalculator : EllipticCurveWindow(getScreenSize()) {
 
     init {
         contentPane.add(CurvePanel)
+        defaultCloseOperation = WindowConstants.DISPOSE_ON_CLOSE
+        isResizable = true
     }
 
 

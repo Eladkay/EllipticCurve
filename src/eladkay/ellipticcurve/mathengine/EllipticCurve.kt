@@ -32,7 +32,8 @@ class EllipticCurve(val aValue: Double, val bValue: Double, val field: Field) {
     /**
      * 0 if and only if (x, y) is on the curve.
      * Let wlog y be constant anc consider difference(x). If x1!=x2 implies sgn(difference(x1)) != sgn(difference(x2))
-     * then there exists an x3 between x1 and x2 such that (x3, y) is on the curve. This is a direct consequenc
+     * then there exists an x3 between x1 and x2 such that (x3, y) is on the curve. This is a direct consequence of the
+     * mean value theorem.
      */
     fun difference(x: Double, y: Double) = !field { !y.ef(2) - !x.ef(3) - !(aValue*x) - !bValue }
 
