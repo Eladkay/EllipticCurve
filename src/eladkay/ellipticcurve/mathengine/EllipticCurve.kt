@@ -26,8 +26,15 @@ class EllipticCurve(val aValue: Double, val bValue: Double, val field: Field) {
     }
 
     fun isPointOnCurve(p: Vec2d): Boolean {
-        return field { p.y.ef(2) == p.x.ef(3) + aValue*p.x + bValue }
+        return p.x in field && p.y in field && field { !p.y.ef(2) == !p.x.ef(3) + !(aValue*p.x) + !bValue }
     }
+
+    /**
+     * 0 if and only if (x, y) is on the curve.
+     * Let wlog y be constant anc consider difference(x). If x1!=x2 implies sgn(difference(x1)) != sgn(difference(x2))
+     * then there exists an x3 between x1 and x2 such that (x3, y) is on the curve. This is a direct consequenc
+     */
+    fun difference(x: Double, y: Double) = !field { !y.ef(2) - !x.ef(3) - !(aValue*x) - !bValue }
 
     operator fun <T> invoke(action: EllipticCurve.()->T) = this.action()
     operator fun Vec2d.plus(b: Vec2d): Vec2d = EllipticCurveHelper(this@EllipticCurve).add(this, b)

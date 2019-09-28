@@ -28,15 +28,50 @@ abstract class Field {
     operator fun contains(d: Double) = belongsTo(d)
     operator fun <T> invoke(action: Field.()->T) = this.action()
 
+
+    // yeah this won't work. i need another plan
     // need to test
 
+    /*
     operator fun Double.plus(b: Double): Double = this.af(b)
     operator fun Double.minus(b: Double): Double = this.af(b.nf())
     operator fun Double.times(b: Double): Double = this.mf(b)
     operator fun Double.div(b: Double): Double = this.mf(b.inf())
     operator fun Double.unaryMinus(): Double = this.nf()
+    */
 
     // end need to test
+
+    // maybe this will save the day?
+    operator fun Double.not() = NumberWrapper(this, this@Field)
+    class NumberWrapper(val numberInternal: Number, val field: Field) {
+        val number get() = numberInternal.toDouble()
+        operator fun component1() = numberInternal
+        override fun toString(): String {
+            return numberInternal.toString()
+        }
+
+        override fun equals(other: Any?): Boolean {
+            return other is NumberWrapper && other.numberInternal == this.numberInternal
+        }
+
+        // let's um, just not use that, k?
+        override fun hashCode(): Int {
+            return numberInternal.toInt()
+        }
+
+        operator fun not() = number
+        // :/
+        private operator fun Double.not() = NumberWrapper(this, field)
+        operator fun plus(b: NumberWrapper): NumberWrapper = !field.add(!this, !b)
+        operator fun minus(b: NumberWrapper): NumberWrapper = !field.add(!this, field.neg(!b))
+        operator fun times(b: NumberWrapper): NumberWrapper = !field.multiply(!this, !b)
+        operator fun div(b: NumberWrapper): NumberWrapper = !field.multiply(!this, field.inv(!b))
+        operator fun unaryMinus(): NumberWrapper = !field.neg(!this)
+    }
+
+
+
 
     private class RealsField : Field() {
 
@@ -94,7 +129,7 @@ abstract class Field {
             if (a == 0.0) throw IllegalArgumentException("no inverse for additive identity")
             // Euler's theorem
             var aInv = 1.0
-            for (i in 0 until modulo - 2) aInv = aInv * a
+            for (i in 0 until modulo - 2) aInv *= a
             return aInv % modulo
         }
     }

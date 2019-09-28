@@ -8,6 +8,7 @@ import eladkay.ellipticcurve.simulationengine.CurveFrame
 import eladkay.ellipticcurve.simulationengine.EllipticSimulator
 import eladkay.ellipticcurve.simulationengine.EllipticSimulator.drawAxis
 import eladkay.ellipticcurve.simulationengine.EllipticSimulator.drawCurve
+import eladkay.ellipticcurve.simulationengine.EllipticSimulator.drawCurveApprox
 import java.awt.Color
 import java.awt.Graphics
 import java.awt.Graphics2D
@@ -30,7 +31,8 @@ object OperationCalculator : EllipticCurveWindow(getScreenSize()) {
 
         override fun paint(g: Graphics?) {
             super.paint(g)
-            drawCurve(EllipticCurve(-1.0, 1.0, Field.REALS), this)
+            //drawCurveApprox(EllipticCurve(4.0, 1.0, Field.REALS/*Field.createModuloField(5)*/), this, 0.02, false)
+            drawCurveApprox(EllipticCurve(4.0, 1.0, Field.createModuloField(5)), this, 0.0, false)
             drawAxis(this)
             val g2 = g as Graphics2D
             g2.color = Color(0, 0, 0)
