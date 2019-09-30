@@ -5,9 +5,14 @@ import java.awt.Toolkit
 import java.awt.event.ActionEvent
 import java.awt.event.ActionListener
 import javax.swing.JFrame
+import javax.swing.event.ChangeEvent
+import javax.swing.event.ChangeListener
 
 @Suppress("LeakingThis") // it's fine, trust me
-open class EllipticCurveWindow(xSize: Int, ySize: Int) : JFrame(), ActionListener {
+open class EllipticCurveWindow(xSize: Int, ySize: Int) : JFrame(), ActionListener, ChangeListener {
+    override fun stateChanged(e: ChangeEvent?) {
+
+    }
 
     override fun actionPerformed(e: ActionEvent?) {
 

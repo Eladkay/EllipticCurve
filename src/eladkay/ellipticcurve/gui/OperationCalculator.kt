@@ -3,78 +3,58 @@ package eladkay.ellipticcurve.gui
 import eladkay.ellipticcurve.mathengine.EllipticCurve
 import eladkay.ellipticcurve.mathengine.Field
 import eladkay.ellipticcurve.mathengine.Vec2i
-import eladkay.ellipticcurve.simulationengine.CurveFrame
-import eladkay.ellipticcurve.simulationengine.EllipticSimulator.drawAxis
-import eladkay.ellipticcurve.simulationengine.EllipticSimulator.drawCurveApprox
-import java.awt.Color
-import java.awt.Graphics
-import java.awt.Graphics2D
-import java.awt.geom.Line2D
-import javax.swing.JPanel
+import eladkay.ellipticcurve.simulationengine.CurvePanel
+import java.awt.Font
+import java.awt.Font.BOLD
+import java.awt.event.ActionEvent
+import java.awt.event.KeyEvent
+import javax.swing.JButton
+import javax.swing.JSlider
 import javax.swing.WindowConstants
+import javax.swing.event.ChangeEvent
+
 
 object OperationCalculator : EllipticCurveWindow(getScreenSize()) {
 
-
-    private object CurvePanel : CurveFrame, JPanel() {
-
-        init {
-            setBounds(0, 0, OperationCalculator.size.x, OperationCalculator.size.y / 3);
-            background = Color.gray;
-        }
-
-        override fun frameSize(): Vec2i {
-            return Vec2i(size.width, size.height)
-        }
-
-        val points: MutableList<Vec2i> = mutableListOf()
-        val lines: MutableList<Pair<Vec2i, Vec2i>> = mutableListOf()
-        val strings: MutableList<Pair<Vec2i, String>> = mutableListOf()
-
-        override fun paint(g: Graphics?) {
-            super.paint(g)
-
-            // start handling by EllipticSimulator
-
-            // obviously, Zp is discrete, while the reals are continuous. Should keep this in mind, therefore both of
-            // the following rows are necessary and loved, though one at a time
-            drawCurveApprox(EllipticCurve(4.0, 1.0, Field.REALS), this, 0.02, false)
-            //drawCurve(EllipticCurve(4.0, 1.0, Field.createModuloField(5)), this, false)
-
-            drawAxis(this)
-
-            // end handling by EllipticSimulator
-
-            val g2 = g as Graphics2D
-            g2.color = Color(0, 0, 0)
-            for (line in lines)
-                g2.draw(Line2D.Double(line.first.x.toDouble(), line.first.y.toDouble(), line.second.x.toDouble(), line.second.y.toDouble()))
-            for (point in points)
-                g2.fillOval(point.x, point.y, 6, 6)
-            for (string in strings)
-                g2.drawString(string.second, string.first.x, string.first.y)
-            points.clear()
-            lines.clear()
-            strings.clear()
-        }
-
-        override fun drawPoint(vec2i: Vec2i) {
-            points.add(vec2i)
-        }
-
-        override fun drawLine(a: Vec2i, b: Vec2i) {
-            lines.add(a to b)
-        }
-
-        override fun drawText(vec2i: Vec2i, string: String) {
-            strings.add(vec2i to string)
-        }
-    }
-
+    var panel = CurvePanel(Vec2i(size.x, size.y/3), EllipticCurve(-1.0, 1.0, Field.REALS))
+    val sliderA = JSlider(JSlider.HORIZONTAL, -5, 5, -1)
     init {
-        contentPane.add(CurvePanel)
+        contentPane.add(panel)
         defaultCloseOperation = WindowConstants.DISPOSE_ON_CLOSE
         isResizable = true
+
+        sliderA.setBounds(size.x * 40 / 81, size.y * 5 / 8, 400, 40)
+        sliderA.majorTickSpacing = 1
+        sliderA.paintLabels = true
+        sliderA.paintTicks = true
+        val font = Font("Serif", BOLD, 15)
+        sliderA.font = font
+        sliderA.addChangeListener(this)
+        add(sliderA)
+
+        val update = JButton("update")
+        update.mnemonic = KeyEvent.VK_S
+        update.actionCommand = "update"
+        update.setBounds(size.x * 2 / 3, size.y * 7 / 8, 200, 40)
+        update.addActionListener(this)
+        add(update)
+    }
+
+    override fun stateChanged(e: ChangeEvent?) {
+        super.stateChanged(e!!)
+        val slider = e.source as JSlider
+        if(!slider.valueIsAdjusting) panel.curve = EllipticCurve(slider.value.toDouble(), 1.0, Field.REALS)
+    }
+
+    override fun actionPerformed(e: ActionEvent?) {
+        super.actionPerformed(e!!)
+        when (e.actionCommand) {
+            "update" -> {
+                remove(panel)
+                panel = CurvePanel(Vec2i(size.x, size.y/3), EllipticCurve(sliderA.value.toDouble(), 1.0, Field.REALS))
+                add(panel)
+            }
+        }
     }
 
 
