@@ -46,12 +46,13 @@ class CurvePanel(val size: Vec2i, var curve: EllipticCurve) : CurveFrame, JPanel
         super.paint(g)
 
         // start handling by EllipticSimulator
+        if(points.isEmpty()) {
+            EllipticSimulator.drawCurveApprox(curve, this, ::errorFunction, false)
+            //EllipticSimulator.drawCurveApprox(EllipticCurve(-1.0, 1.0, Field.REALS), this, ::errorFunction, false)
+            //drawCurve(EllipticCurve(4.0, 1.0, Field.createModuloField(5)), this, false)
 
-        EllipticSimulator.drawCurveApprox(curve, this, ::errorFunction, false)
-        //EllipticSimulator.drawCurveApprox(EllipticCurve(-1.0, 1.0, Field.REALS), this, ::errorFunction, false)
-        //drawCurve(EllipticCurve(4.0, 1.0, Field.createModuloField(5)), this, false)
-
-        EllipticSimulator.drawAxis(this)
+            EllipticSimulator.drawAxis(this)
+        }
 
         // end handling by EllipticSimulator
 
@@ -63,9 +64,9 @@ class CurvePanel(val size: Vec2i, var curve: EllipticCurve) : CurveFrame, JPanel
             g2.fillOval(point.x, point.y, 3, 3)
         for (string in strings)
             g2.drawString(string.second, string.first.x, string.first.y)
-        points.clear()
+        /*points.clear()
         lines.clear()
-        strings.clear()
+        strings.clear()*/
     }
 
     override fun drawPoint(vec2i: Vec2i) {
