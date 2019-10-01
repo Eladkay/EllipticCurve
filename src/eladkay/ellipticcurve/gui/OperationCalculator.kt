@@ -1,9 +1,6 @@
 package eladkay.ellipticcurve.gui
 
-import eladkay.ellipticcurve.mathengine.EllipticCurve
-import eladkay.ellipticcurve.mathengine.Field
-import eladkay.ellipticcurve.mathengine.Vec2d
-import eladkay.ellipticcurve.mathengine.Vec2i
+import eladkay.ellipticcurve.mathengine.*
 import eladkay.ellipticcurve.simulationengine.CurvePanel
 import eladkay.ellipticcurve.simulationengine.EllipticSimulator
 import java.awt.Color
@@ -14,6 +11,7 @@ import java.awt.event.KeyEvent
 import java.awt.event.MouseEvent
 import java.awt.event.MouseListener
 import javax.swing.JButton
+import javax.swing.JOptionPane
 import javax.swing.JSlider
 import javax.swing.WindowConstants
 import javax.swing.event.ChangeEvent
@@ -21,36 +19,59 @@ import kotlin.math.sign
 
 
 object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener {
+
+    var p1: Vec2i? = null
+    var p2: Vec2i? = null
+
     override fun mouseReleased(e: MouseEvent?) { }
 
     override fun mouseEntered(e: MouseEvent?) { }
 
     override fun mouseExited(e: MouseEvent?) { }
 
+    private fun modifyX(x: Number): Double = (x.toDouble() - panel.frameSize().x / 2 - EllipticSimulator.X_OFFSET) / EllipticSimulator.defaultXScale.toDouble()
+    private fun modifyY(y: Number): Double = (-y.toDouble() + panel.frameSize().y / 2) / EllipticSimulator.defaultYScale.toDouble()
     override fun mousePressed(e: MouseEvent) {
         val x = e.x
         val y = e.y
-        val xModified = (x - panel.frameSize().x / 2 - EllipticSimulator.X_OFFSET) / EllipticSimulator.defaultXScale.toDouble()
-        val yModified = (-y + panel.frameSize().y / 2) / EllipticSimulator.defaultYScale.toDouble()
+        val xModified = modifyX(x)
+        val yModified = modifyY(y)
         var condition = panel.curve.isPointOnCurve(Vec2d(xModified, yModified))
         val errorTerm = panel.errorFunction(xModified, yModified)*Math.sin(Math.PI/4) // this can but should not be replaced with 1/sqrt2.
         if (!condition && panel.curve.difference(xModified + errorTerm, yModified + errorTerm).sign
                 != panel.curve.difference(xModified - errorTerm, yModified - errorTerm).sign)
             condition = true;
 
-
         panel.changeColor(Color.GREEN)
         panel.changePointSize(5)
-        if(condition) panel.drawPoint(Vec2i(x, y))
+        if(condition) {
+            if(p1 == null) {
+                p1 = Vec2i(x, y)
+                panel.drawPoint(Vec2i(x, y))
+            } else if(p2 == null) {
+                p2 = Vec2i(x, y)
+                panel.drawPoint(Vec2i(x, y))
+                panel.drawLine(p1!!, p2!!)
+                val slope = MathHelper.slope(Vec2d(xModified, yModified), Vec2d(modifyX(p1!!.x), modifyY(p1!!.y)))
+                println(slope)
+                val sum = panel.curve { Vec2d(xModified, yModified) + Vec2d(modifyX(p1!!.x), modifyY(p1!!.y)) }
+                println(Vec2i(EllipticSimulator.demodifyX(sum.x, panel), EllipticSimulator.demodifyX(sum.y, panel)))
+                panel.drawPoint(Vec2i(EllipticSimulator.demodifyX(sum.x, panel), EllipticSimulator.demodifyX(sum.y, panel)))
+            } else {
+                p1 = null
+                p2 = null
+            }
+        }
         panel.changeColor(Color.BLACK)
         panel.changePointSize(3)
-        repaint()
+        panel.repaint()
     }
 
     override fun mouseClicked(e: MouseEvent) { }
 
     var panel = CurvePanel(Vec2i(size.x, size.y/3), EllipticCurve(-1.0, 1.0, Field.REALS))
     val sliderA = JSlider(JSlider.HORIZONTAL, -5, 5, -1)
+    val sliderB = JSlider(JSlider.HORIZONTAL, -5, 5, 1)
     init {
         contentPane.add(panel)
         panel.addMouseListener(this)
@@ -66,12 +87,14 @@ object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener
         sliderA.addChangeListener(this)
         add(sliderA)
 
-        val update = JButton("update")
-        update.mnemonic = KeyEvent.VK_S
-        update.actionCommand = "update"
-        update.setBounds(size.x * 2 / 3, size.y * 7 / 8, 200, 40)
-        update.addActionListener(this)
-        add(update)
+        sliderB.setBounds(size.x * 40 / 81, size.y * 6 / 8, 400, 40)
+        sliderB.majorTickSpacing = 1
+        sliderB.paintLabels = true
+        sliderB.paintTicks = true
+        sliderB.font = font
+        sliderB.addChangeListener(this)
+        add(sliderB)
+
     }
 
     override fun stateChanged(e: ChangeEvent?) {
@@ -79,21 +102,15 @@ object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener
         val slider = e.source as JSlider
         panel.clear()
         if(!slider.valueIsAdjusting) {
-            panel.curve = EllipticCurve(slider.value.toDouble(), 1.0, Field.REALS)
+            try {
+                panel.curve = EllipticCurve(sliderA.value.toDouble(), sliderB.value.toDouble(), Field.REALS)
+            } catch(e: IllegalArgumentException) {
+                JOptionPane.showMessageDialog(null, "Invalid elliptic curve!");
+            }
             panel.repaint()
         }
     }
 
-    /*override fun actionPerformed(e: ActionEvent?) {
-        super.actionPerformed(e!!)
-        when (e.actionCommand) {
-            "update" -> {
-                remove(panel)
-                panel = CurvePanel(Vec2i(size.x, size.y/3), EllipticCurve(sliderA.value.toDouble(), 1.0, Field.REALS))
-                add(panel)
-            }
-        }
-    }*/
 
 
 }

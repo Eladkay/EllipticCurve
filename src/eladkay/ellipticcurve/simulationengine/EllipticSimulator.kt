@@ -61,8 +61,8 @@ object EllipticSimulator {
         }
     }
 
-    private fun demodifyY(y: Double, frame: CurveFrame, yScale: Int) = (-yScale * y + frame.frameSize().y/2).toInt()
-    private fun demodifyX(x: Double, frame: CurveFrame, xScale: Int) = (x*xScale + X_OFFSET + frame.frameSize().x/2).toInt()
+    fun demodifyY(y: Double, frame: CurveFrame, yScale: Int = defaultYScale) = (-yScale * y + frame.frameSize().y/2).toInt()
+    fun demodifyX(x: Double, frame: CurveFrame, xScale: Int = defaultXScale) = (x*xScale + X_OFFSET + frame.frameSize().x/2).toInt()
 
     fun drawAxis(frame: CurveFrame) {
         frame.drawLine(Vec2i(0, frame.frameSize().y / 2), Vec2i(frame.frameSize().x, frame.frameSize().y / 2))
