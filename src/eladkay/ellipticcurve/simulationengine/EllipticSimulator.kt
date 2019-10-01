@@ -8,8 +8,11 @@ import kotlin.math.sign
 
 object EllipticSimulator {
     var X_OFFSET = -500
-    val defaultYScale = 15
-    val defaultXScale = 200
+    var scale = 1
+    val defaultYScale
+        get() = 15/scale
+    val defaultXScale
+        get() = 200/scale
 
     fun drawCurve(ellipticCurve: EllipticCurve, frame: CurveFrame, drawText: Boolean, xScale: Int = defaultXScale, yScale: Int = defaultYScale) {
         ellipticCurve.field {

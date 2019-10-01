@@ -6,19 +6,13 @@ import eladkay.ellipticcurve.simulationengine.EllipticSimulator
 import java.awt.Color
 import java.awt.Font
 import java.awt.Font.BOLD
-import java.awt.event.ActionEvent
-import java.awt.event.KeyEvent
-import java.awt.event.MouseEvent
-import java.awt.event.MouseListener
-import javax.swing.JButton
-import javax.swing.JOptionPane
-import javax.swing.JSlider
-import javax.swing.WindowConstants
+import java.awt.event.*
+import javax.swing.*
 import javax.swing.event.ChangeEvent
 import kotlin.math.sign
 
 
-object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener {
+object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener, ItemListener {
 
     var p1: Vec2i? = null
     var p2: Vec2i? = null
@@ -72,6 +66,8 @@ object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener
     var panel = CurvePanel(Vec2i(size.x, size.y/3), EllipticCurve(-1.0, 1.0, Field.REALS))
     val sliderA = JSlider(JSlider.HORIZONTAL, -5, 5, -1)
     val sliderB = JSlider(JSlider.HORIZONTAL, -5, 5, 1)
+    val sliderScale = JSlider(JSlider.HORIZONTAL, 1, 10, 1)
+    val gridsAndTicksCheckbox = JCheckBox()
     init {
         contentPane.add(panel)
         panel.addMouseListener(this)
@@ -95,20 +91,39 @@ object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener
         sliderB.addChangeListener(this)
         add(sliderB)
 
+        sliderScale.setBounds(size.x * 40 / 81, size.y * 7 / 8, 400, 40)
+        sliderScale.majorTickSpacing = 1
+        sliderScale.paintLabels = true
+        sliderScale.paintTicks = true
+        sliderScale.font = font
+        sliderScale.addChangeListener(this)
+        add(sliderScale)
+
+        gridsAndTicksCheckbox.setBounds(size.x * 35 / 81, size.y * 7 / 8, 40, 40)
+        gridsAndTicksCheckbox.addItemListener(this)
+        add(gridsAndTicksCheckbox)
+
     }
 
     override fun stateChanged(e: ChangeEvent?) {
         super.stateChanged(e!!)
-        val slider = e.source as JSlider
+        val slider = e.source as? JSlider
         panel.clear()
-        if(!slider.valueIsAdjusting) {
+        if(slider?.valueIsAdjusting?.not() ?: false) {
             try {
                 panel.curve = EllipticCurve(sliderA.value.toDouble(), sliderB.value.toDouble(), Field.REALS)
+                EllipticSimulator.scale = sliderScale.value
             } catch(e: IllegalArgumentException) {
                 JOptionPane.showMessageDialog(null, "Invalid elliptic curve!");
             }
             panel.repaint()
         }
+
+    }
+
+    override fun itemStateChanged(e: ItemEvent?) {
+        panel.gridsAndTicks = gridsAndTicksCheckbox.isSelected
+        panel.repaint()
     }
 
 

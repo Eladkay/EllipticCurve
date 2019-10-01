@@ -51,6 +51,7 @@ class CurvePanel(val size: Vec2i, curve: EllipticCurve) : CurveFrame, JPanel() {
     }
 
     var redraw: Boolean = false
+    var gridsAndTicks: Boolean = false
 
     override fun paint(g: Graphics?) {
         super.paint(g)
@@ -61,8 +62,10 @@ class CurvePanel(val size: Vec2i, curve: EllipticCurve) : CurveFrame, JPanel() {
             //EllipticSimulator.drawCurveApprox(EllipticCurve(-1.0, 1.0, Field.REALS), this, ::errorFunction, false)
             //drawCurve(EllipticCurve(4.0, 1.0, Field.createModuloField(5)), this, false)
             EllipticSimulator.drawAxis(this)
-            EllipticSimulator.drawTicks(this)
-            EllipticSimulator.drawGridlines(this)
+            if(gridsAndTicks) {
+                EllipticSimulator.drawTicks(this)
+                EllipticSimulator.drawGridlines(this)
+            }
             redraw = false
         }
 
