@@ -30,10 +30,7 @@ class CurvePanel(val size: Vec2i, curve: EllipticCurve) : CurveFrame, JPanel() {
         return size
     }
 
-    val points: MutableList<Vec2i> = mutableListOf()
-    val lines: MutableList<Pair<Vec2i, Vec2i>> = mutableListOf()
-    val strings: MutableList<Pair<Vec2i, String>> = mutableListOf()
-
+    val operations: MutableList<Pair<Any, Any>> = mutableListOf() // forgive me as i have sinned
 
     /**
      * Let (x,y) be a point on the grid, and e=error(x, y) be a real number.
@@ -53,7 +50,7 @@ class CurvePanel(val size: Vec2i, curve: EllipticCurve) : CurveFrame, JPanel() {
         super.paint(g)
 
         // start handling by EllipticSimulator
-        if(points.isEmpty()) {
+        if(operations.isEmpty()) {
             EllipticSimulator.drawCurveApprox(curve, this, ::errorFunction, false)
             //EllipticSimulator.drawCurveApprox(EllipticCurve(-1.0, 1.0, Field.REALS), this, ::errorFunction, false)
             //drawCurve(EllipticCurve(4.0, 1.0, Field.createModuloField(5)), this, false)
@@ -65,29 +62,31 @@ class CurvePanel(val size: Vec2i, curve: EllipticCurve) : CurveFrame, JPanel() {
 
         val g2 = g as Graphics2D
         g2.color = Color(0, 0, 0)
-        for (line in lines)
-            g2.draw(Line2D.Double(line.first.x.toDouble(), line.first.y.toDouble(), line.second.x.toDouble(), line.second.y.toDouble()))
-        for (point in points)
-            g2.fillOval(point.x, point.y, 3, 3)
-        for (string in strings)
-            g2.drawString(string.second, string.first.x, string.first.y)
+        for(operation in operations) {
+            val (first, second) = operation
+            if(first is Vec2i) {
+                when (second) {
+                    first -> g2.fillOval(first.x, first.y, 3, 3)
+                    is Vec2i -> g2.draw(Line2D.Double(first.x.toDouble(), first.y.toDouble(), second.x.toDouble(), second.y.toDouble()))
+                    is String -> g2.drawString(second, first.x, first.y)
+                }
+            }
+        }
     }
 
     fun clear() {
-        points.clear()
-        lines.clear()
-        strings.clear()
+        operations.clear()
     }
 
     override fun drawPoint(vec2i: Vec2i) {
-        points.add(vec2i)
+        operations.add(vec2i to vec2i)
     }
 
     override fun drawLine(a: Vec2i, b: Vec2i) {
-        lines.add(a to b)
+        operations.add(a to b)
     }
 
     override fun drawText(vec2i: Vec2i, string: String) {
-        strings.add(vec2i to string)
+        operations.add(vec2i to string)
     }
 }
