@@ -13,6 +13,9 @@ import java.awt.geom.Line2D
 import javax.swing.JPanel
 
 class CurvePanel(val size: Vec2i, curve: EllipticCurve) : CurveFrame, JPanel() {
+    override fun changeColor(color: Color) {
+        operations.add(color to color)
+    }
 
 
     var curve: EllipticCurve = curve
@@ -69,8 +72,12 @@ class CurvePanel(val size: Vec2i, curve: EllipticCurve) : CurveFrame, JPanel() {
                     first -> g2.fillOval(first.x, first.y, 3, 3)
                     is Vec2i -> g2.draw(Line2D.Double(first.x.toDouble(), first.y.toDouble(), second.x.toDouble(), second.y.toDouble()))
                     is String -> g2.drawString(second, first.x, first.y)
+                    else -> throw UnsupportedOperationException(operation.toString())
                 }
-            }
+            } else if(first is Color) {
+                if(second == first) g2.color = first
+                else throw UnsupportedOperationException(operation.toString())
+            } else throw UnsupportedOperationException(operation.toString())
         }
     }
 

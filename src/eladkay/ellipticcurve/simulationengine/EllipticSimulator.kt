@@ -3,6 +3,7 @@ package eladkay.ellipticcurve.simulationengine
 import eladkay.ellipticcurve.mathengine.EllipticCurve
 import eladkay.ellipticcurve.mathengine.Vec2d
 import eladkay.ellipticcurve.mathengine.Vec2i
+import java.awt.Color
 import kotlin.math.sign
 
 object EllipticSimulator {
@@ -65,7 +66,9 @@ object EllipticSimulator {
         frame.drawLine(Vec2i(frame.frameSize().x / 2 + X_OFFSET, 0), Vec2i(frame.frameSize().x / 2 + X_OFFSET, frame.frameSize().y))
     }
 
+    // yeah yeah, this is a bit weird with the values, but i actually don't mind that much
     fun drawTicks(frame: CurveFrame, xScale: Int = 180, yScale: Int = 7) {
+        frame.changeColor(Color.DARK_GRAY)
         val yUnit = 5*yScale
         val xUnit = 1*xScale
         var currentY = yUnit
@@ -83,6 +86,7 @@ object EllipticSimulator {
             frame.drawText(Vec2i(currentX, frame.frameSize().y / 2 - xUnit/20), "($xModified, 0)")
             currentX += xUnit
         }
+        frame.changeColor(Color.BLACK)
     }
 
 
