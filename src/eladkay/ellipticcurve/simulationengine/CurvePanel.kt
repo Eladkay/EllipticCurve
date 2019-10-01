@@ -12,7 +12,14 @@ import java.awt.Graphics2D
 import java.awt.geom.Line2D
 import javax.swing.JPanel
 
-class CurvePanel(val size: Vec2i, var curve: EllipticCurve) : CurveFrame, JPanel() {
+class CurvePanel(val size: Vec2i, curve: EllipticCurve) : CurveFrame, JPanel() {
+
+
+    var curve: EllipticCurve = curve
+        set(newCurve) {
+            clear()
+            field = newCurve
+        }
 
     init {
         setBounds(0, 0, size.x, size.y);
@@ -48,10 +55,10 @@ class CurvePanel(val size: Vec2i, var curve: EllipticCurve) : CurveFrame, JPanel
         // start handling by EllipticSimulator
         if(points.isEmpty()) {
             EllipticSimulator.drawCurveApprox(curve, this, ::errorFunction, false)
-            EllipticSimulator.drawCurveApprox(EllipticCurve(-1.0, 1.0, Field.REALS), this, ::errorFunction, false)
+            //EllipticSimulator.drawCurveApprox(EllipticCurve(-1.0, 1.0, Field.REALS), this, ::errorFunction, false)
             //drawCurve(EllipticCurve(4.0, 1.0, Field.createModuloField(5)), this, false)
-
             EllipticSimulator.drawAxis(this)
+            EllipticSimulator.drawTicks(this)
         }
 
         // end handling by EllipticSimulator
@@ -64,9 +71,12 @@ class CurvePanel(val size: Vec2i, var curve: EllipticCurve) : CurveFrame, JPanel
             g2.fillOval(point.x, point.y, 3, 3)
         for (string in strings)
             g2.drawString(string.second, string.first.x, string.first.y)
-        /*points.clear()
+    }
+
+    fun clear() {
+        points.clear()
         lines.clear()
-        strings.clear()*/
+        strings.clear()
     }
 
     override fun drawPoint(vec2i: Vec2i) {

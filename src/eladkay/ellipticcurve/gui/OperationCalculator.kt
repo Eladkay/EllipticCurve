@@ -43,10 +43,13 @@ object OperationCalculator : EllipticCurveWindow(getScreenSize()) {
     override fun stateChanged(e: ChangeEvent?) {
         super.stateChanged(e!!)
         val slider = e.source as JSlider
-        if(!slider.valueIsAdjusting) panel.curve = EllipticCurve(slider.value.toDouble(), 1.0, Field.REALS)
+        panel.clear()
+        if(!slider.valueIsAdjusting) {
+            panel.curve = EllipticCurve(slider.value.toDouble(), 1.0, Field.REALS)
+        }
     }
 
-    override fun actionPerformed(e: ActionEvent?) {
+    /*override fun actionPerformed(e: ActionEvent?) {
         super.actionPerformed(e!!)
         when (e.actionCommand) {
             "update" -> {
@@ -55,7 +58,7 @@ object OperationCalculator : EllipticCurveWindow(getScreenSize()) {
                 add(panel)
             }
         }
-    }
+    }*/
 
 
 }

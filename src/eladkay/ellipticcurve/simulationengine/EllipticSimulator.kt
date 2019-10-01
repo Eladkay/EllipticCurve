@@ -37,13 +37,15 @@ object EllipticSimulator {
                 for (y in 0..frame.frameSize().y) {
                     val xModified = (x - frame.frameSize().x / 2 - X_OFFSET) / xScale.toDouble()
                     val yModified = (-y + frame.frameSize().y / 2) / yScale.toDouble()
-                    if(yModified < 0) continue
+                    if(yModified < 0) continue // elliptic curves are always symmetric
+                    if(xModified < ellipticCurve.getPeak2().x) continue
 
                     // hmm, not so sure about this. todo
                     var condition = ellipticCurve.isPointOnCurve(Vec2d(xModified, yModified))
                             || ellipticCurve.isPointOnCurve(Vec2d(realsToField(xModified), realsToField(yModified)))
-                    if (!condition && ellipticCurve.difference(xModified + error(xModified, yModified), yModified + error(xModified, yModified)).sign
-                            != ellipticCurve.difference(xModified - error(xModified, yModified), yModified - error(xModified, yModified)).sign)
+                    val errorTerm = error(xModified, yModified)*Math.sin(Math.PI/4) // this can but should not be replaced with 1/sqrt2.
+                    if (!condition && ellipticCurve.difference(xModified + errorTerm, yModified + errorTerm).sign
+                            != ellipticCurve.difference(xModified - errorTerm, yModified - errorTerm).sign)
                         condition = true;
                     if (condition) {
                         frame.drawPoint(Vec2i(x, y))
@@ -56,11 +58,31 @@ object EllipticSimulator {
     }
 
     private fun demodifyY(y: Double, frame: CurveFrame, yScale: Int) = (-yScale * y + frame.frameSize().y/2).toInt()
-
+    private fun demodifyX(x: Double, frame: CurveFrame, xScale: Int) = (x*xScale + X_OFFSET + frame.frameSize().x/2).toInt()
 
     fun drawAxis(frame: CurveFrame) {
         frame.drawLine(Vec2i(0, frame.frameSize().y / 2), Vec2i(frame.frameSize().x, frame.frameSize().y / 2))
         frame.drawLine(Vec2i(frame.frameSize().x / 2 + X_OFFSET, 0), Vec2i(frame.frameSize().x / 2 + X_OFFSET, frame.frameSize().y))
+    }
+
+    fun drawTicks(frame: CurveFrame, xScale: Int = 180, yScale: Int = 7) {
+        val yUnit = 5*yScale
+        val xUnit = 1*xScale
+        var currentY = yUnit
+        while(currentY<frame.frameSize().y) {
+            val yModified = Math.round((-currentY + frame.frameSize().y / 2) / yScale.toDouble() * 100)/100.0
+            frame.drawLine(Vec2i(frame.frameSize().x / 2 + X_OFFSET - yUnit/5, currentY), Vec2i(frame.frameSize().x / 2 + X_OFFSET + yUnit/5, currentY))
+            frame.drawText(Vec2i(frame.frameSize().x / 2 + X_OFFSET + yUnit/5, currentY), "(0, $yModified)")
+            currentY += yUnit
+        }
+
+        var currentX = xUnit
+        while(currentX<frame.frameSize().x) {
+            val xModified = Math.round((currentX - frame.frameSize().x / 2 - X_OFFSET) / xScale.toDouble() * 100)/100.0
+            frame.drawLine(Vec2i(currentX, frame.frameSize().y / 2 - xUnit/20), Vec2i(currentX, frame.frameSize().y / 2 + xUnit/20))
+            frame.drawText(Vec2i(currentX, frame.frameSize().y / 2 - xUnit/20), "($xModified, 0)")
+            currentX += xUnit
+        }
     }
 
 

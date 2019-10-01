@@ -37,6 +37,24 @@ class EllipticCurve(val aValue: Double, val bValue: Double, val field: Field) {
      */
     fun difference(x: Double, y: Double) = !field { (!y exp 2) - (!x exp 3) - !(aValue * x) - !bValue }
 
+    // not fieldified, todo
+    // https://i.imgur.com/uSvI4bF.jpg
+    // i have no idea what this value means. it seems to be garbage and the real value is getPeak2
+    fun getPeak1(): Vec2d {
+        val k = aValue/3
+        val rec = Math.cbrt((-bValue + Math.sqrt(bValue*bValue + 4*k*k))/2)
+        return Vec2d(rec - k/rec, 0)
+    }
+
+    // not fieldified, todo
+    // https://i.imgur.com/uSvI4bF.jpg
+    // this seems to have a slight negative bias from the true value. that's okay
+    fun getPeak2(): Vec2d {
+        val k = aValue/3
+        val rec = Math.cbrt((-bValue - Math.sqrt(bValue*bValue + 4*k*k))/2)
+        return Vec2d(rec - k/rec, 0)
+    }
+
     operator fun <T> invoke(action: EllipticCurve.() -> T) = this.action()
     operator fun Vec2d.plus(b: Vec2d): Vec2d = EllipticCurveHelper(this@EllipticCurve).add(this, b)
     operator fun Vec2d.minus(b: Vec2d): Vec2d = EllipticCurveHelper(this@EllipticCurve).add(this, -b)
