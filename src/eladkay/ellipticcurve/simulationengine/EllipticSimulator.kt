@@ -7,8 +7,11 @@ import java.awt.Color
 import kotlin.math.sign
 
 object EllipticSimulator {
-    var X_OFFSET = -700
-    fun drawCurve(ellipticCurve: EllipticCurve, frame: CurveFrame, drawText: Boolean, xScale: Int = 180, yScale: Int = 7) {
+    var X_OFFSET = -500
+    val defaultYScale = 15
+    val defaultXScale = 200
+
+    fun drawCurve(ellipticCurve: EllipticCurve, frame: CurveFrame, drawText: Boolean, xScale: Int = defaultXScale, yScale: Int = defaultYScale) {
         ellipticCurve.field {
             for (x in 0..frame.frameSize().x)
                 for (y in 0..frame.frameSize().y) {
@@ -23,7 +26,7 @@ object EllipticSimulator {
         }
     }
 
-    fun drawCurveApprox(ellipticCurve: EllipticCurve, frame: CurveFrame, error: Double, drawText: Boolean, xScale: Int = 180, yScale: Int = 7) {
+    fun drawCurveApprox(ellipticCurve: EllipticCurve, frame: CurveFrame, error: Double, drawText: Boolean, xScale: Int = defaultXScale, yScale: Int = defaultYScale) {
         drawCurveApprox(ellipticCurve, frame, { _, _ -> error }, drawText, xScale, yScale)
     }
 
@@ -32,7 +35,7 @@ object EllipticSimulator {
     // are a temporary solution that only work for one specific curve and make other curves look disproportionate
     // i have, for posterity, attached a sketch of the function of the error part of drawCurveApprox:
     // https://i.imgur.com/8u49qkS.jpg
-    fun drawCurveApprox(ellipticCurve: EllipticCurve, frame: CurveFrame, error: (Double, Double) -> Double, drawText: Boolean, xScale: Int = 180, yScale: Int = 7) {
+    fun drawCurveApprox(ellipticCurve: EllipticCurve, frame: CurveFrame, error: (Double, Double) -> Double, drawText: Boolean, xScale: Int = defaultXScale, yScale: Int = defaultYScale) {
         ellipticCurve.field {
             for (x in 0..frame.frameSize().x)
                 for (y in 0..frame.frameSize().y) {
@@ -67,7 +70,7 @@ object EllipticSimulator {
     }
 
     // yeah yeah, this is a bit weird with the values, but i actually don't mind that much
-    fun drawTicks(frame: CurveFrame, xScale: Int = 180, yScale: Int = 7) {
+    fun drawTicks(frame: CurveFrame, xScale: Int = defaultXScale, yScale: Int = defaultYScale) {
         frame.changeColor(Color.DARK_GRAY)
         val yUnit = 5*yScale
         val xUnit = 1*xScale
@@ -84,6 +87,24 @@ object EllipticSimulator {
             val xModified = Math.round((currentX - frame.frameSize().x / 2 - X_OFFSET) / xScale.toDouble() * 100)/100.0
             frame.drawLine(Vec2i(currentX, frame.frameSize().y / 2 - xUnit/20), Vec2i(currentX, frame.frameSize().y / 2 + xUnit/20))
             frame.drawText(Vec2i(currentX, frame.frameSize().y / 2 - xUnit/20), "($xModified, 0)")
+            currentX += xUnit
+        }
+        frame.changeColor(Color.BLACK)
+    }
+
+    fun drawGridlines(frame: CurveFrame, xScale: Int = defaultXScale, yScale: Int = defaultYScale) {
+        frame.changeColor(Color.DARK_GRAY)
+        val yUnit = 5*yScale
+        val xUnit = 1*xScale
+        var currentY = yUnit
+        while(currentY<frame.frameSize().y) {
+            frame.drawLine(Vec2i(0, currentY), Vec2i(frame.frameSize().x, currentY))
+            currentY += yUnit
+        }
+
+        var currentX = xUnit
+        while(currentX<frame.frameSize().x) {
+            frame.drawLine(Vec2i(currentX, 0), Vec2i(currentX, frame.frameSize().y))
             currentX += xUnit
         }
         frame.changeColor(Color.BLACK)

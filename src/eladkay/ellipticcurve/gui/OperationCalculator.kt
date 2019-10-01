@@ -46,6 +46,7 @@ object OperationCalculator : EllipticCurveWindow(getScreenSize()) {
         panel.clear()
         if(!slider.valueIsAdjusting) {
             panel.curve = EllipticCurve(slider.value.toDouble(), 1.0, Field.REALS)
+            panel.repaint()
         }
     }
 
