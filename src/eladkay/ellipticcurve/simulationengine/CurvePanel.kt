@@ -47,9 +47,8 @@ class CurvePanel(val size: Vec2i, var curve: EllipticCurve) : CurveFrame, JPanel
 
         // start handling by EllipticSimulator
         if(points.isEmpty()) {
-            EllipticSimulator.drawCurveApprox(curve, this)
-            //EllipticSimulator.drawCurveApprox(curve, this, ::errorFunction, false)
-            //EllipticSimulator.drawCurveApprox(EllipticCurve(-1.0, 1.0, Field.REALS), this, ::errorFunction, false)
+            EllipticSimulator.drawCurveApprox(curve, this, ::errorFunction, false)
+            EllipticSimulator.drawCurveApprox(EllipticCurve(-1.0, 1.0, Field.REALS), this, ::errorFunction, false)
             //drawCurve(EllipticCurve(4.0, 1.0, Field.createModuloField(5)), this, false)
 
             EllipticSimulator.drawAxis(this)
