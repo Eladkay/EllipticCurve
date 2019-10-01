@@ -2,24 +2,58 @@ package eladkay.ellipticcurve.gui
 
 import eladkay.ellipticcurve.mathengine.EllipticCurve
 import eladkay.ellipticcurve.mathengine.Field
+import eladkay.ellipticcurve.mathengine.Vec2d
 import eladkay.ellipticcurve.mathengine.Vec2i
 import eladkay.ellipticcurve.simulationengine.CurvePanel
+import eladkay.ellipticcurve.simulationengine.EllipticSimulator
+import java.awt.Color
 import java.awt.Font
 import java.awt.Font.BOLD
 import java.awt.event.ActionEvent
 import java.awt.event.KeyEvent
+import java.awt.event.MouseEvent
+import java.awt.event.MouseListener
 import javax.swing.JButton
 import javax.swing.JSlider
 import javax.swing.WindowConstants
 import javax.swing.event.ChangeEvent
+import kotlin.math.sign
 
 
-object OperationCalculator : EllipticCurveWindow(getScreenSize()) {
+object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener {
+    override fun mouseReleased(e: MouseEvent?) { }
+
+    override fun mouseEntered(e: MouseEvent?) { }
+
+    override fun mouseExited(e: MouseEvent?) { }
+
+    override fun mousePressed(e: MouseEvent) {
+        val x = e.x
+        val y = e.y
+        val xModified = (x - panel.frameSize().x / 2 - EllipticSimulator.X_OFFSET) / EllipticSimulator.defaultXScale.toDouble()
+        val yModified = (-y + panel.frameSize().y / 2) / EllipticSimulator.defaultYScale.toDouble()
+        var condition = panel.curve.isPointOnCurve(Vec2d(xModified, yModified))
+        val errorTerm = panel.errorFunction(xModified, yModified)*Math.sin(Math.PI/4) // this can but should not be replaced with 1/sqrt2.
+        if (!condition && panel.curve.difference(xModified + errorTerm, yModified + errorTerm).sign
+                != panel.curve.difference(xModified - errorTerm, yModified - errorTerm).sign)
+            condition = true;
+
+
+        panel.changeColor(Color.GREEN)
+        panel.changePointSize(5)
+        if(condition) panel.drawPoint(Vec2i(x, y))
+        panel.changeColor(Color.BLACK)
+        panel.changePointSize(3)
+        repaint()
+    }
+
+    override fun mouseClicked(e: MouseEvent) { }
 
     var panel = CurvePanel(Vec2i(size.x, size.y/3), EllipticCurve(-1.0, 1.0, Field.REALS))
     val sliderA = JSlider(JSlider.HORIZONTAL, -5, 5, -1)
     init {
         contentPane.add(panel)
+        panel.addMouseListener(this)
         defaultCloseOperation = WindowConstants.DISPOSE_ON_CLOSE
         isResizable = true
 

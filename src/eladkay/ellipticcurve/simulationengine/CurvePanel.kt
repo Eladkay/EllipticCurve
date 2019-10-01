@@ -15,7 +15,7 @@ import java.awt.geom.Line2D
 import javax.swing.JPanel
 import kotlin.math.sign
 
-class CurvePanel(val size: Vec2i, curve: EllipticCurve) : CurveFrame, JPanel(), MouseListener {
+class CurvePanel(val size: Vec2i, curve: EllipticCurve) : CurveFrame, JPanel() {
 
 
 
@@ -26,7 +26,6 @@ class CurvePanel(val size: Vec2i, curve: EllipticCurve) : CurveFrame, JPanel(), 
         }
 
     init {
-        addMouseListener(this)
         setBounds(0, 0, size.x, size.y);
         background = Color.gray;
     }
@@ -41,7 +40,7 @@ class CurvePanel(val size: Vec2i, curve: EllipticCurve) : CurveFrame, JPanel(), 
      * Let (x,y) be a point on the grid, and e=error(x, y) be a real number.
      * Then (x,y) is colored in if and only if difference(x+e, x-e) is different in sign to difference(x-e, y-e)
      */
-    private fun errorFunction(x: Double, y: Double): Double {
+    fun errorFunction(x: Double, y: Double): Double {
         return Math.min(Math.max(1/Math.log(Math.abs(x*y)+1)/50, 0.03) + if(y>0 && x>0) 0.15 else if(y>0 && x<0) 0.02 else 0.0, 0.17)
 
         // alternative approach
@@ -119,31 +118,5 @@ class CurvePanel(val size: Vec2i, curve: EllipticCurve) : CurveFrame, JPanel(), 
         operations.add(int to int)
     }
 
-    override fun mouseReleased(e: MouseEvent?) { }
 
-    override fun mouseEntered(e: MouseEvent?) { }
-
-    override fun mouseExited(e: MouseEvent?) { }
-
-    override fun mousePressed(e: MouseEvent) {
-        val x = e.x
-        val y = e.y
-        val xModified = (x - frameSize().x / 2 - EllipticSimulator.X_OFFSET) / EllipticSimulator.defaultXScale.toDouble()
-        val yModified = (-y + frameSize().y / 2) / EllipticSimulator.defaultYScale.toDouble()
-        var condition = curve.isPointOnCurve(Vec2d(xModified, yModified))
-        val errorTerm = errorFunction(xModified, yModified)*Math.sin(Math.PI/4) // this can but should not be replaced with 1/sqrt2.
-        if (!condition && curve.difference(xModified + errorTerm, yModified + errorTerm).sign
-                != curve.difference(xModified - errorTerm, yModified - errorTerm).sign)
-            condition = true;
-
-
-        changeColor(Color.GREEN)
-        changePointSize(5)
-        if(condition) drawPoint(Vec2i(x, y))
-        changeColor(Color.BLACK)
-        changePointSize(3)
-        repaint()
-    }
-
-    override fun mouseClicked(e: MouseEvent) { }
 }
