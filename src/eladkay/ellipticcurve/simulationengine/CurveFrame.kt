@@ -5,7 +5,9 @@ import java.awt.Color
 
 interface CurveFrame {
     fun drawPoint(vec2i: Vec2i)
+    fun drawPoint(vec2i: Vec2i, size: Int)
     fun drawLine(a: Vec2i, b: Vec2i)
+    fun drawLine(a: Vec2i, b: Vec2i, size: Float)
     fun frameSize(): Vec2i
     fun drawText(vec2i: Vec2i, string: String)
     fun changeColor(color: Color)

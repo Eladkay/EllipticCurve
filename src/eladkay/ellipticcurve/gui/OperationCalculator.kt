@@ -12,7 +12,7 @@ import javax.swing.event.ChangeEvent
 import kotlin.math.sign
 
 
-object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener, ItemListener {
+object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener {
 
     var p1: Vec2i? = null
     var p2: Vec2i? = null
@@ -31,7 +31,7 @@ object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener
         val xModified = modifyX(x)
         val yModified = modifyY(y)
         var condition = panel.curve.isPointOnCurve(Vec2d(xModified, yModified))
-        val errorTerm = panel.errorFunction(xModified, yModified)*Math.sin(Math.PI/4) // this can but should not be replaced with 1/sqrt2.
+        val errorTerm = panel.errorFunction(xModified, yModified)*Math.sin(Math.PI/4) // this can but should not be replaced with 1/sqrt2. todo: i forgot why
         if (!condition && panel.curve.difference(xModified + errorTerm, yModified + errorTerm).sign
                 != panel.curve.difference(xModified - errorTerm, yModified - errorTerm).sign)
             condition = true;
@@ -44,13 +44,18 @@ object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener
                 panel.drawPoint(Vec2i(x, y))
             } else if(p2 == null) {
                 p2 = Vec2i(x, y)
-                panel.drawPoint(Vec2i(x, y))
-                panel.drawLine(p1!!, p2!!)
-                val slope = MathHelper.slope(Vec2d(xModified, yModified), Vec2d(modifyX(p1!!.x), modifyY(p1!!.y)))
-                println(slope)
+                //panel.drawPoint(Vec2i(x, y))
+                panel.drawLine(p1 as Vec2i, p2 as Vec2i, 3f)
+                panel.changeColor(Color.RED)
+                panel.drawPoint(p1 as Vec2i, 10)
+                panel.drawPoint(p2 as Vec2i, 10)
+                panel.changeColor(Color.BLUE)
+                //val slope = MathHelper.slope(Vec2d(xModified, yModified), Vec2d(modifyX(p1!!.x), modifyY(p1!!.y)))
+                //println(slope)
                 val sum = panel.curve { Vec2d(xModified, yModified) + Vec2d(modifyX(p1!!.x), modifyY(p1!!.y)) }
-                println(Vec2i(EllipticSimulator.demodifyX(sum.x, panel), EllipticSimulator.demodifyX(sum.y, panel)))
-                panel.drawPoint(Vec2i(EllipticSimulator.demodifyX(sum.x, panel), EllipticSimulator.demodifyX(sum.y, panel)))
+                println(Vec2i(EllipticSimulator.demodifyX(sum.x, panel), EllipticSimulator.demodifyY(sum.y, panel)))
+                println(sum)
+                panel.drawPoint(Vec2i(EllipticSimulator.demodifyX(sum.x, panel), EllipticSimulator.demodifyY(sum.y, panel)), 15)
             } else {
                 p1 = null
                 p2 = null
@@ -67,7 +72,6 @@ object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener
     val sliderA = JSlider(JSlider.HORIZONTAL, -5, 5, -1)
     val sliderB = JSlider(JSlider.HORIZONTAL, -5, 5, 1)
     val sliderScale = JSlider(JSlider.HORIZONTAL, 1, 10, 1)
-    val gridsAndTicksCheckbox = JCheckBox()
     init {
         contentPane.add(panel)
         panel.addMouseListener(this)
@@ -99,31 +103,40 @@ object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener
         sliderScale.addChangeListener(this)
         add(sliderScale)
 
-        gridsAndTicksCheckbox.setBounds(size.x * 35 / 81, size.y * 7 / 8, 40, 40)
-        gridsAndTicksCheckbox.addItemListener(this)
-        add(gridsAndTicksCheckbox)
+        val encryptionHelper = JButton(+"gui.toggleGridsAndTicks")
+        encryptionHelper.mnemonic = KeyEvent.VK_E
+        encryptionHelper.actionCommand = "toggleGridsAndTicks"
+        encryptionHelper.setBounds(MainScreen.size.x * 9 / 24, MainScreen.size.y * 7 / 8, 200, 40)
+        encryptionHelper.addActionListener(OperationCalculator)
+        add(encryptionHelper)
 
+    }
+
+    override fun actionPerformed(e: ActionEvent?) {
+        super.actionPerformed(e!!)
+        when (e.actionCommand) {
+            "toggleGridsAndTicks" -> {
+                // todo, somewhy this only works in one direction?
+                panel.gridsAndTicks = !panel.gridsAndTicks
+                panel.redraw()
+            }
+        }
     }
 
     override fun stateChanged(e: ChangeEvent?) {
         super.stateChanged(e!!)
         val slider = e.source as? JSlider
         panel.clear()
-        if(slider?.valueIsAdjusting?.not() ?: false) {
+        if(slider?.valueIsAdjusting?.not() == true) {
             try {
                 panel.curve = EllipticCurve(sliderA.value.toDouble(), sliderB.value.toDouble(), Field.REALS)
                 EllipticSimulator.scale = sliderScale.value
             } catch(e: IllegalArgumentException) {
                 JOptionPane.showMessageDialog(null, "Invalid elliptic curve!");
             }
-            panel.repaint()
+            panel.redraw()
         }
 
-    }
-
-    override fun itemStateChanged(e: ItemEvent?) {
-        panel.gridsAndTicks = gridsAndTicksCheckbox.isSelected
-        panel.repaint()
     }
 
 
