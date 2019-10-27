@@ -16,4 +16,6 @@ data class Vec2i(val x: Int, val y: Int) {
     fun map(map: (Int) -> Int): Vec2i {
         return Vec2i(map(x), map(y))
     }
+
+    fun vec2d() = Vec2d(x, y)
 }

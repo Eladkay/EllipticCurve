@@ -56,4 +56,6 @@ class Vec2d(private val xParam: Double, private val yParam: Double, val field: F
 
         return true
     }
+
+    fun vec2i() = Vec2i(x.toInt(), y.toInt())
 }

@@ -9,13 +9,13 @@ import eladkay.ellipticcurve.simulationengine.EllipticSimulator
 import java.awt.Color
 import java.awt.Font
 import java.awt.Font.BOLD
-import java.awt.event.ActionEvent
-import java.awt.event.KeyEvent
-import java.awt.event.MouseEvent
-import java.awt.event.MouseListener
+import java.awt.event.*
 import javax.swing.*
 import javax.swing.event.ChangeEvent
 import kotlin.math.sign
+import javax.swing.JFrame
+
+
 
 
 object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener {
@@ -28,6 +28,12 @@ object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener
     override fun mouseEntered(e: MouseEvent?) {}
 
     override fun mouseExited(e: MouseEvent?) {}
+
+    override fun createAndShow() {
+        super.createAndShow()
+        extendedState = extendedState or JFrame.MAXIMIZED_BOTH
+
+    }
 
     private fun modifyX(x: Number): Double = (x.toDouble() - panel.frameSize().x / 2 - EllipticSimulator.X_OFFSET) / EllipticSimulator.defaultXScale.toDouble()
     private fun modifyY(y: Number): Double = (-y.toDouble() + panel.frameSize().y / 2) / EllipticSimulator.defaultYScale.toDouble()
@@ -82,7 +88,7 @@ object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener
     override fun mouseClicked(e: MouseEvent) {}
 
     var panel = CurvePanel(Vec2i(size.x, size.y/* / 3*/), EllipticCurve(-1.0, 1.0, Field.REALS))
-
+    val checkboxGridsAndTicks = JCheckBox(+"gui.operationcalculator.gridsandticks")
     init {
         contentPane.add(panel)
         panel.addMouseListener(this)
@@ -100,8 +106,6 @@ object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener
         menuCurve.add(changeCurve)
 
         val changeField = JMenu(+"gui.operationcalculator.curve.changefield")
-        changeField.addActionListener(this)
-        changeField.actionCommand = "changefield"
         val realsField = JMenuItem(+"fields.reals")
         changeField.addActionListener(this)
         changeField.actionCommand = "changefield_reals"
@@ -113,13 +117,23 @@ object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener
         menuCurve.add(changeField)
 
         val menuFile = JMenu(+"gui.operationcalculator.file")
-        menuCurve.mnemonic = KeyEvent.VK_F
+        menuFile.mnemonic = KeyEvent.VK_F
 
         val menuVisualization = JMenu(+"gui.operationcalculator.visualization")
-        menuCurve.mnemonic = KeyEvent.VK_V
+        menuVisualization.mnemonic = KeyEvent.VK_V
+
+        val changeScale = JMenuItem(+"gui.operationcalculator.changescale")
+        changeScale.addActionListener(this)
+        changeScale.actionCommand = "changescale"
+        menuVisualization.add(changeScale)
+
+        checkboxGridsAndTicks.addItemListener(this)
+        checkboxGridsAndTicks.mnemonic = KeyEvent.VK_G
+        checkboxGridsAndTicks.isSelected = false
+        menuVisualization.add(checkboxGridsAndTicks)
 
         val menuOperation = JMenu(+"gui.operationcalculator.operation")
-        menuCurve.mnemonic = KeyEvent.VK_O
+        menuOperation.mnemonic = KeyEvent.VK_O
 
         menuBar.add(menuFile)
         menuBar.add(menuCurve)
@@ -132,6 +146,109 @@ object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener
     override fun actionPerformed(e: ActionEvent?) {
         super.actionPerformed(e!!)
         when (e.actionCommand) {
+            "changecurve" -> CurveChanger.createAndShow()
+            "changescale" -> ScaleChanger.createAndShow()
+        }
+    }
+
+    override fun itemStateChanged(e: ItemEvent?) {
+        val source = e!!.itemSelectable
+        if(source == checkboxGridsAndTicks) {
+            panel.gridsAndTicks = !panel.gridsAndTicks
+            panel.redraw()
+            if(e.stateChange == ItemEvent.DESELECTED) panel.clear()
+        }
+        super.itemStateChanged(e)
+    }
+
+    private object ScaleChanger : EllipticCurveWindow((EllipticCurveWindow.getScreenSize()/4.5).vec2i()) {
+
+        val sliderScale = JSlider(JSlider.HORIZONTAL, 1, 10, 1)
+        val labelA = JLabel(+"gui.scalechanger.scale")
+        init {
+            val font = Font("Serif", BOLD, 18)
+            sliderScale.setBounds(size.x * 1 / 2 - 200, size.y * 5 / 16, 400, 40)
+            sliderScale.majorTickSpacing = 1
+            sliderScale.paintLabels = true
+            sliderScale.paintTicks = true
+            sliderScale.font = font
+            sliderScale.addChangeListener(this)
+            labelA.setBounds(size.x * 1 / 2 - 18, 0, 80, 30)
+            labelA.verticalTextPosition = JLabel.TOP
+            labelA.font = font
+            labelA.isVisible = true
+            labelA.isOpaque = true
+            add(labelA)
+            add(sliderScale)
+        }
+
+        override fun stateChanged(e: ChangeEvent?) {
+            super.stateChanged(e!!)
+            val slider = e.source as? JSlider
+            panel.clear()
+            if (slider?.valueIsAdjusting?.not() == true) {
+                try {
+                    EllipticSimulator.scale = sliderScale.value
+                } catch (e: IllegalArgumentException) {
+                    JOptionPane.showMessageDialog(null, "Invalid elliptic curve!");
+                }
+                panel.redraw()
+            }
+
+        }
+    }
+
+    private object CurveChanger : EllipticCurveWindow((EllipticCurveWindow.getScreenSize()/4.5).vec2i()) {
+        val sliderA = JSlider(JSlider.HORIZONTAL, -5, 5, -1)
+        val sliderB = JSlider(JSlider.HORIZONTAL, -5, 5, 1)
+        val labelA = JLabel("a")
+        val labelB = JLabel("b", JLabel.CENTER)
+        init {
+            val font = Font("Serif", BOLD, 18)
+
+            sliderA.setBounds(size.x * 1 / 2 - 200, size.y * 1 / 8, 400, 40)
+            sliderA.majorTickSpacing = 1
+            sliderA.paintLabels = true
+            sliderA.paintTicks = true
+            sliderA.font = font
+            sliderA.toolTipText = "a value for curve"
+            sliderA.addChangeListener(this)
+            sliderA.isOpaque = false
+            labelA.setBounds(size.x * 1 / 2, 0, 20, 30)
+            labelA.verticalTextPosition = JLabel.TOP
+            labelA.font = font
+            labelA.isVisible = true
+            labelA.isOpaque = true
+            add(labelA)
+            add(sliderA)
+
+            sliderB.setBounds(size.x * 1 / 2 - 200, size.y * 4 / 8, 400, 40)
+            sliderB.majorTickSpacing = 1
+            sliderB.paintLabels = true
+            sliderB.paintTicks = true
+            sliderB.font = font
+            sliderB.toolTipText = "b value for curve"
+            sliderB.addChangeListener(this)
+            sliderB.isOpaque = false
+            labelB.setBounds(size.x * 1 / 2, size.y * 3 / 8, 20, 30)
+            labelB.font = font
+            labelB.isVisible = true
+            labelB.isOpaque = true
+            add(labelB)
+            add(sliderB)
+        }
+        override fun stateChanged(e: ChangeEvent?) {
+            super.stateChanged(e!!)
+            val slider = e.source as? JSlider
+            panel.clear()
+            if (slider?.valueIsAdjusting?.not() == true) {
+                try {
+                    panel.curve = EllipticCurve(sliderA.value.toDouble(), sliderB.value.toDouble(), Field.REALS)
+                } catch (e: IllegalArgumentException) {
+                    JOptionPane.showMessageDialog(null, "Invalid elliptic curve!");
+                }
+                panel.redraw()
+            }
 
         }
     }
