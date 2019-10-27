@@ -33,7 +33,7 @@ class Vec2d(private val xParam: Double, private val yParam: Double, val field: F
     operator fun component1() = x
     operator fun component2() = y
 
-    fun map(map: (Double)->Double): Vec2d {
+    fun map(map: (Double) -> Double): Vec2d {
         return Vec2d(map(x), map(y))
     }
 

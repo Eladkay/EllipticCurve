@@ -3,6 +3,7 @@ package eladkay.ellipticcurve.mathengine.equationsolving
 import eladkay.ellipticcurve.mathengine.Field
 import eladkay.ellipticcurve.mathengine.Field.Companion.REALS
 import java.security.InvalidParameterException
+
 typealias LinearSystemOfEquations = Triple<Matrix, VectorOfVariables, Vector>
 
 // Adapted from Eladkay/EqSolver, my own creation and made to use the field system
@@ -79,8 +80,9 @@ object EquationSolver {
         val v = VectorOfVariables()
         var A: Matrix? = null
         for ((i, equation) in equations.map { it.split("=")[0].trim() }.withIndex()) {
-            var terms = equation.split("+").map { // find all positive coeff terms
-                if(it.count { it.isLetter() } > 1 && "E" in it) // let's not let small or big numbers throw us off
+            var terms = equation.split("+").map {
+                // find all positive coeff terms
+                if (it.count { it.isLetter() } > 1 && "E" in it) // let's not let small or big numbers throw us off
                     it.trim().split("E")[0] + it.trim()[it.length - 1] // put back the variable
                 else it.trim()
             }

@@ -1,4 +1,5 @@
 package eladkay.ellipticcurve.mathengine.equationsolving
+
 import eladkay.ellipticcurve.mathengine.Field
 
 open class Matrix(val size: Int, val field: Field, val rows: MutableList<MutableList<Double>> = MutableList(size) { MutableList(size) { 0.0 } }) {

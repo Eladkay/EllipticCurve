@@ -42,18 +42,18 @@ class EllipticCurve(val aValue: Double, val bValue: Double, val field: Field) {
     // i have no idea what this value means. it seems to be garbage and the real value is getPeak2
     @Deprecated("this returns garbage and I will remove it as soon as I realize what this is")
     fun getPeak1(): Vec2d {
-        val k = aValue/3
-        val rec = Math.cbrt((-bValue + Math.sqrt(bValue*bValue + 4*k*k))/2)
-        return Vec2d(rec - k/rec, 0)
+        val k = aValue / 3
+        val rec = Math.cbrt((-bValue + Math.sqrt(bValue * bValue + 4 * k * k)) / 2)
+        return Vec2d(rec - k / rec, 0)
     }
 
     // not fieldified, todo
     // https://i.imgur.com/uSvI4bF.jpg
     // this seems to have a slight negative bias from the true value. that's okay
     fun getPeak2(): Vec2d {
-        val k = aValue/3
-        val rec = Math.cbrt((-bValue - Math.sqrt(bValue*bValue + 4*k*k))/2)
-        return Vec2d(rec - k/rec, 0)
+        val k = aValue / 3
+        val rec = Math.cbrt((-bValue - Math.sqrt(bValue * bValue + 4 * k * k)) / 2)
+        return Vec2d(rec - k / rec, 0)
     }
 
     // in absolute value
@@ -61,8 +61,8 @@ class EllipticCurve(val aValue: Double, val bValue: Double, val field: Field) {
     // take derivative: y' = (3x^2+b)/(2sqrt(x^3+bx+c))
     // equal to 0 iff x = sqrt(-b/3) which is defined (over the reals!) if b<0
     fun getMinMaxXValue(): Double {
-        if(bValue > 0) throw IllegalArgumentException("This function is not defined for b>0")
-        else return Math.sqrt(-bValue/3.0)
+        if (bValue > 0) throw IllegalArgumentException("This function is not defined for b>0")
+        else return Math.sqrt(-bValue / 3.0)
     }
 
     operator fun <T> invoke(action: EllipticCurve.() -> T) = this.action()

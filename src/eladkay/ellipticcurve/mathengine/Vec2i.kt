@@ -13,7 +13,7 @@ data class Vec2i(val x: Int, val y: Int) {
         return "($x, $y)"
     }
 
-    fun map(map: (Int)->Int): Vec2i {
+    fun map(map: (Int) -> Int): Vec2i {
         return Vec2i(map(x), map(y))
     }
 }
