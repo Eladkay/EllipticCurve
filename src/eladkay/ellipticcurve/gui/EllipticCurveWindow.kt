@@ -4,12 +4,18 @@ import eladkay.ellipticcurve.mathengine.Vec2i
 import java.awt.Toolkit
 import java.awt.event.ActionEvent
 import java.awt.event.ActionListener
+import java.awt.event.ItemEvent
+import java.awt.event.ItemListener
 import javax.swing.JFrame
 import javax.swing.event.ChangeEvent
 import javax.swing.event.ChangeListener
 
 @Suppress("LeakingThis") // it's fine, trust me
-open class EllipticCurveWindow(xSize: Int, ySize: Int) : JFrame(), ActionListener, ChangeListener {
+open class EllipticCurveWindow(xSize: Int, ySize: Int) : JFrame(), ActionListener, ChangeListener, ItemListener {
+    override fun itemStateChanged(e: ItemEvent?) {
+
+    }
+
     override fun stateChanged(e: ChangeEvent?) {
 
     }

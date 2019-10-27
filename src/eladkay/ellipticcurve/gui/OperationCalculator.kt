@@ -120,12 +120,12 @@ object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener
         sliderScale.addChangeListener(this)
         add(sliderScale)
 
-        val encryptionHelper = JButton(+"gui.toggleGridsAndTicks")
-        encryptionHelper.mnemonic = KeyEvent.VK_E
-        encryptionHelper.actionCommand = "toggleGridsAndTicks"
-        encryptionHelper.setBounds(MainScreen.size.x * 9 / 24, MainScreen.size.y * 7 / 8, 200, 40)
-        encryptionHelper.addActionListener(OperationCalculator)
-        add(encryptionHelper)
+        val toggleGridsAndTicks = JButton(+"gui.toggleGridsAndTicks")
+        toggleGridsAndTicks.mnemonic = KeyEvent.VK_E
+        toggleGridsAndTicks.actionCommand = "toggleGridsAndTicks"
+        toggleGridsAndTicks.setBounds(MainScreen.size.x * 9 / 24, MainScreen.size.y * 7 / 8, 200, 40)
+        toggleGridsAndTicks.addActionListener(OperationCalculator)
+        add(toggleGridsAndTicks)
 
     }
 
