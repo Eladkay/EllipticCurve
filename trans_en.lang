@@ -5,3 +5,12 @@ gui.studyHelper=Study Helper
 gui.welcomeL1=Welcome to the Elliptic Curve
 gui.welcomeL2=Cryptography Study Tool
 gui.toggleGridsAndTicks=Toggle Grids & Ticks
+gui.operationcalculator.curve=Curve
+gui.operationcalculator.curve.changecurve=Change Curve
+gui.operationcalculator.curve.changefield=Change Field
+gui.operationcalculator.visualization=Visualization
+gui.operationcalculator.operation=Operations
+gui.operationcalculator.file=File
+gui.operationcalculator.curve.changetozp=Zp...
+
+fields.reals=Reals

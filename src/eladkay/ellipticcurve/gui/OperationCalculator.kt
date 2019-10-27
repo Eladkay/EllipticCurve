@@ -13,10 +13,7 @@ import java.awt.event.ActionEvent
 import java.awt.event.KeyEvent
 import java.awt.event.MouseEvent
 import java.awt.event.MouseListener
-import javax.swing.JButton
-import javax.swing.JOptionPane
-import javax.swing.JSlider
-import javax.swing.WindowConstants
+import javax.swing.*
 import javax.swing.event.ChangeEvent
 import kotlin.math.sign
 
@@ -85,9 +82,6 @@ object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener
     override fun mouseClicked(e: MouseEvent) {}
 
     var panel = CurvePanel(Vec2i(size.x, size.y/* / 3*/), EllipticCurve(-1.0, 1.0, Field.REALS))
-    val sliderA = JSlider(JSlider.HORIZONTAL, -5, 5, -1)
-    val sliderB = JSlider(JSlider.HORIZONTAL, -5, 5, 1)
-    val sliderScale = JSlider(JSlider.HORIZONTAL, 1, 10, 1)
 
     init {
         contentPane.add(panel)
@@ -95,66 +89,53 @@ object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener
         defaultCloseOperation = WindowConstants.DISPOSE_ON_CLOSE
         isResizable = true
 
-        sliderA.setBounds(size.x * 40 / 81, size.y * 5 / 8, 400, 40)
-        sliderA.majorTickSpacing = 1
-        sliderA.paintLabels = true
-        sliderA.paintTicks = true
-        val font = Font("Serif", BOLD, 15)
-        sliderA.font = font
-        sliderA.addChangeListener(this)
-        //add(sliderA)
+        val menuBar = JMenuBar()
 
-        sliderB.setBounds(size.x * 40 / 81, size.y * 6 / 8, 400, 40)
-        sliderB.majorTickSpacing = 1
-        sliderB.paintLabels = true
-        sliderB.paintTicks = true
-        sliderB.font = font
-        sliderB.addChangeListener(this)
-        //add(sliderB)
+        val menuCurve = JMenu(+"gui.operationcalculator.curve")
+        menuCurve.mnemonic = KeyEvent.VK_C
 
-        sliderScale.setBounds(size.x * 40 / 81, size.y * 7 / 8, 400, 40)
-        sliderScale.majorTickSpacing = 1
-        sliderScale.paintLabels = true
-        sliderScale.paintTicks = true
-        sliderScale.font = font
-        sliderScale.addChangeListener(this)
-        //add(sliderScale)
+        val changeCurve = JMenuItem(+"gui.operationcalculator.curve.changecurve", KeyEvent.VK_C)
+        changeCurve.addActionListener(this)
+        changeCurve.actionCommand = "changecurve"
+        menuCurve.add(changeCurve)
 
-        val toggleGridsAndTicks = JButton(+"gui.toggleGridsAndTicks")
-        toggleGridsAndTicks.mnemonic = KeyEvent.VK_E
-        toggleGridsAndTicks.actionCommand = "toggleGridsAndTicks"
-        toggleGridsAndTicks.setBounds(MainScreen.size.x * 9 / 24, MainScreen.size.y * 7 / 8, 200, 40)
-        toggleGridsAndTicks.addActionListener(OperationCalculator)
-        //add(toggleGridsAndTicks)
+        val changeField = JMenu(+"gui.operationcalculator.curve.changefield")
+        changeField.addActionListener(this)
+        changeField.actionCommand = "changefield"
+        val realsField = JMenuItem(+"fields.reals")
+        changeField.addActionListener(this)
+        changeField.actionCommand = "changefield_reals"
+        changeField.add(realsField)
+        val finiteField = JMenuItem(+"gui.operationcalculator.curve.changetozp")
+        changeField.addActionListener(this)
+        changeField.actionCommand = "changefield_zp"
+        changeField.add(finiteField)
+        menuCurve.add(changeField)
+
+        val menuFile = JMenu(+"gui.operationcalculator.file")
+        menuCurve.mnemonic = KeyEvent.VK_F
+
+        val menuVisualization = JMenu(+"gui.operationcalculator.visualization")
+        menuCurve.mnemonic = KeyEvent.VK_V
+
+        val menuOperation = JMenu(+"gui.operationcalculator.operation")
+        menuCurve.mnemonic = KeyEvent.VK_O
+
+        menuBar.add(menuFile)
+        menuBar.add(menuCurve)
+        menuBar.add(menuVisualization)
+        menuBar.add(menuOperation)
+        jMenuBar = menuBar
 
     }
 
     override fun actionPerformed(e: ActionEvent?) {
         super.actionPerformed(e!!)
         when (e.actionCommand) {
-            "toggleGridsAndTicks" -> {
-                // todo, somewhy this only works in one direction?
-                panel.gridsAndTicks = !panel.gridsAndTicks
-                panel.redraw()
-            }
+
         }
     }
 
-    override fun stateChanged(e: ChangeEvent?) {
-        super.stateChanged(e!!)
-        val slider = e.source as? JSlider
-        panel.clear()
-        if (slider?.valueIsAdjusting?.not() == true) {
-            try {
-                panel.curve = EllipticCurve(sliderA.value.toDouble(), sliderB.value.toDouble(), Field.REALS)
-                EllipticSimulator.scale = sliderScale.value
-            } catch (e: IllegalArgumentException) {
-                JOptionPane.showMessageDialog(null, "Invalid elliptic curve!");
-            }
-            panel.redraw()
-        }
-
-    }
 
 
 }
