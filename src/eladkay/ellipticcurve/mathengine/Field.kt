@@ -88,7 +88,7 @@ abstract class Field {
                 else 1 / a
     }
 
-    private class ZpField(private val modulo: Int) : Field() {
+    class ZpField internal constructor(val modulo: Int) : Field() {
 
         override fun belongsTo(number: Double): Boolean = number.toInt().toDouble() == number && number > 0 && number < modulo
 

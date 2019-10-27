@@ -1,21 +1,19 @@
 package eladkay.ellipticcurve.gui
 
-import eladkay.ellipticcurve.mathengine.EllipticCurve
-import eladkay.ellipticcurve.mathengine.Field
-import eladkay.ellipticcurve.mathengine.Vec2d
-import eladkay.ellipticcurve.mathengine.Vec2i
+import eladkay.ellipticcurve.mathengine.*
 import eladkay.ellipticcurve.simulationengine.CurvePanel
 import eladkay.ellipticcurve.simulationengine.EllipticSimulator
 import java.awt.Color
 import java.awt.Font
 import java.awt.Font.BOLD
 import java.awt.event.*
+import java.io.File
 import javax.swing.*
 import javax.swing.event.ChangeEvent
 import kotlin.math.sign
 import javax.swing.JFrame
-
-
+import javax.swing.filechooser.FileFilter
+import javax.swing.filechooser.FileNameExtensionFilter
 
 
 object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener {
@@ -89,11 +87,14 @@ object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener
 
     var panel = CurvePanel(Vec2i(size.x, size.y/* / 3*/), EllipticCurve(-1.0, 1.0, Field.REALS))
     val checkboxGridsAndTicks = JCheckBox(+"gui.operationcalculator.gridsandticks")
+    val fc = JFileChooser()
     init {
         contentPane.add(panel)
         panel.addMouseListener(this)
         defaultCloseOperation = WindowConstants.DISPOSE_ON_CLOSE
         isResizable = true
+
+        fc.fileFilter = FileNameExtensionFilter("Elliptic curve files", "curve")
 
         val menuBar = JMenuBar()
 
@@ -119,13 +120,35 @@ object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener
         val menuFile = JMenu(+"gui.operationcalculator.file")
         menuFile.mnemonic = KeyEvent.VK_F
 
+        val saveCurve = JMenuItem(+"gui.operationcalculator.file.savecurve")
+        saveCurve.addActionListener(this)
+        saveCurve.actionCommand = "savecurve"
+        menuFile.add(saveCurve)
+
+        val openCurve = JMenuItem(+"gui.operationcalculator.file.opencurve")
+        openCurve.addActionListener(this)
+        openCurve.actionCommand = "opencurve"
+        menuFile.add(openCurve)
+
+        val exit = JMenuItem(+"gui.operationcalculator.file.exit")
+        exit.addActionListener(this)
+        exit.actionCommand = "exit"
+        menuFile.add(exit)
+
         val menuVisualization = JMenu(+"gui.operationcalculator.visualization")
         menuVisualization.mnemonic = KeyEvent.VK_V
 
         val changeScale = JMenuItem(+"gui.operationcalculator.changescale")
         changeScale.addActionListener(this)
         changeScale.actionCommand = "changescale"
+        changeScale.mnemonic = KeyEvent.VK_S
         menuVisualization.add(changeScale)
+
+        val clear = JMenuItem(+"gui.operationcalculator.clear")
+        clear.addActionListener(this)
+        clear.actionCommand = "clear"
+        clear.mnemonic = KeyEvent.VK_R
+        menuVisualization.add(clear)
 
         checkboxGridsAndTicks.addItemListener(this)
         checkboxGridsAndTicks.mnemonic = KeyEvent.VK_G
@@ -142,12 +165,36 @@ object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener
         jMenuBar = menuBar
 
     }
-
     override fun actionPerformed(e: ActionEvent?) {
         super.actionPerformed(e!!)
         when (e.actionCommand) {
             "changecurve" -> CurveChanger.createAndShow()
             "changescale" -> ScaleChanger.createAndShow()
+            "clear" -> {
+                panel.clear()
+                panel.redraw()
+            }
+            "savecurve" -> {
+                val ret = fc.showSaveDialog(this)
+                if(ret == JFileChooser.APPROVE_OPTION) {
+                    val fileSelected = fc.selectedFile
+                    val file = File(fileSelected.absolutePath + ".curve")
+                    file.createNewFile()
+                    file.writeText(serializeCurveFrame(panel))
+                }
+            }
+            "opencurve" -> {
+                val ret = fc.showOpenDialog(this)
+                if(ret == JFileChooser.APPROVE_OPTION) {
+                    val file = fc.selectedFile
+                    panel.curve = deserializeCurveFrame(file.readText())
+                    panel.redraw()
+                    ScaleChanger.sliderScale.value = EllipticSimulator.scale
+                    CurveChanger.sliderA.value = panel.curve.aValue.toInt()
+                    CurveChanger.sliderB.value = panel.curve.bValue.toInt()
+                }
+            }
+            "exit" -> this.isVisible = false
         }
     }
 

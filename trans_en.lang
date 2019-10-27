@@ -17,5 +17,9 @@ gui.operationcalculator.operation=Operations
 gui.operationcalculator.file=File
 gui.operationcalculator.curve.changetozp=Zp...
 gui.operationcalculator.gridsandticks=Display grid lines and ticks
+gui.operationcalculator.clear=Reset
+gui.operationcalculator.file.savecurve=Save Curve...
+gui.operationcalculator.file.opencurve=Open Curve...
+gui.operationcalculator.file.exit=Exit
 
 fields.reals=Reals

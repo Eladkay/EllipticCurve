@@ -1,5 +1,6 @@
 package eladkay.ellipticcurve.simulationengine
 
+import eladkay.ellipticcurve.mathengine.EllipticCurve
 import eladkay.ellipticcurve.mathengine.Vec2i
 import java.awt.Color
 
@@ -14,5 +15,6 @@ interface CurveFrame {
     fun changePointSize(int: Int)
     fun redraw()
     fun clear()
+    var curve: EllipticCurve
     operator fun <T> invoke(action: CurveFrame.() -> T) = action()
 }
