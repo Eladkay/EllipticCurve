@@ -6,6 +6,7 @@ import eladkay.ellipticcurve.simulationengine.EllipticSimulator
 import java.awt.Color
 import java.awt.Font
 import java.awt.Font.BOLD
+import java.awt.MenuBar
 import java.awt.event.*
 import java.io.File
 import javax.swing.*
@@ -72,10 +73,9 @@ object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener
                 else panel.drawPoint(Vec2i(EllipticSimulator.demodifyX(sum.x, panel), EllipticSimulator.demodifyY(sum.y, panel)), 15)
                 println(Vec2i(EllipticSimulator.demodifyX(sum.x, panel), EllipticSimulator.demodifyY(sum.y, panel)))
                 println(sum)
-
-            } else {
                 p1 = null
                 p2 = null
+
             }
         }
         panel.changeColor(Color.BLACK)
@@ -94,29 +94,18 @@ object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener
         defaultCloseOperation = WindowConstants.DISPOSE_ON_CLOSE
         isResizable = true
 
-        fc.fileFilter = FileNameExtensionFilter("Elliptic curve files", "curve")
 
         val menuBar = JMenuBar()
 
-        val menuCurve = JMenu(+"gui.operationcalculator.curve")
-        menuCurve.mnemonic = KeyEvent.VK_C
+        menuBar.add(getFileMenu())
+        menuBar.add(getCurveMenu())
+        menuBar.add(getVisualizationMenu())
+        menuBar.add(getOperationMenu())
+        jMenuBar = menuBar
 
-        val changeCurve = JMenuItem(+"gui.operationcalculator.curve.changecurve", KeyEvent.VK_C)
-        changeCurve.addActionListener(this)
-        changeCurve.actionCommand = "changecurve"
-        menuCurve.add(changeCurve)
+    }
 
-        val changeField = JMenu(+"gui.operationcalculator.curve.changefield")
-        val realsField = JMenuItem(+"fields.reals")
-        changeField.addActionListener(this)
-        changeField.actionCommand = "changefield_reals"
-        changeField.add(realsField)
-        val finiteField = JMenuItem(+"gui.operationcalculator.curve.changetozp")
-        changeField.addActionListener(this)
-        changeField.actionCommand = "changefield_zp"
-        changeField.add(finiteField)
-        menuCurve.add(changeField)
-
+    private fun getFileMenu(): JMenu {
         val menuFile = JMenu(+"gui.operationcalculator.file")
         menuFile.mnemonic = KeyEvent.VK_F
 
@@ -135,6 +124,33 @@ object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener
         exit.actionCommand = "exit"
         menuFile.add(exit)
 
+        fc.fileFilter = FileNameExtensionFilter("Elliptic curve files", "curve")
+        return menuFile
+    }
+
+    private fun getCurveMenu(): JMenu {
+        val menuCurve = JMenu(+"gui.operationcalculator.curve")
+        menuCurve.mnemonic = KeyEvent.VK_C
+
+        val changeCurve = JMenuItem(+"gui.operationcalculator.curve.changecurve", KeyEvent.VK_C)
+        changeCurve.addActionListener(this)
+        changeCurve.actionCommand = "changecurve"
+        menuCurve.add(changeCurve)
+
+        val changeField = JMenu(+"gui.operationcalculator.curve.changefield")
+        val realsField = JMenuItem(+"fields.reals")
+        changeField.addActionListener(this)
+        changeField.actionCommand = "changefield_reals"
+        changeField.add(realsField)
+        val finiteField = JMenuItem(+"gui.operationcalculator.curve.changetozp")
+        changeField.addActionListener(this)
+        changeField.actionCommand = "changefield_zp"
+        changeField.add(finiteField)
+        menuCurve.add(changeField)
+        return menuCurve
+    }
+
+    private fun getVisualizationMenu(): JMenu {
         val menuVisualization = JMenu(+"gui.operationcalculator.visualization")
         menuVisualization.mnemonic = KeyEvent.VK_V
 
@@ -154,23 +170,43 @@ object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener
         checkboxGridsAndTicks.mnemonic = KeyEvent.VK_G
         checkboxGridsAndTicks.isSelected = false
         menuVisualization.add(checkboxGridsAndTicks)
+        return menuVisualization
+    }
 
+    private fun getOperationMenu(): JMenu {
         val menuOperation = JMenu(+"gui.operationcalculator.operation")
         menuOperation.mnemonic = KeyEvent.VK_O
 
-        menuBar.add(menuFile)
-        menuBar.add(menuCurve)
-        menuBar.add(menuVisualization)
-        menuBar.add(menuOperation)
-        jMenuBar = menuBar
+        val mult = JMenuItem(+"gui.operationcalculator.mult")
+        mult.addActionListener(this)
+        mult.actionCommand = "mult"
+        mult.mnemonic = KeyEvent.VK_M
+        menuOperation.add(mult)
 
+        val flip = JMenuItem(+"gui.operationcalculator.flip")
+        flip.addActionListener(this)
+        flip.actionCommand = "flip"
+        flip.mnemonic = KeyEvent.VK_F
+        menuOperation.add(flip)
+
+        val select = JMenuItem(+"gui.operationcalculator.selectpt")
+        select.addActionListener(this)
+        select.actionCommand = "select"
+        select.mnemonic = KeyEvent.VK_S
+        menuOperation.add(select)
+
+        return menuOperation
     }
+
+
     override fun actionPerformed(e: ActionEvent?) {
         super.actionPerformed(e!!)
         when (e.actionCommand) {
             "changecurve" -> CurveChanger.createAndShow()
             "changescale" -> ScaleChanger.createAndShow()
             "clear" -> {
+                p1 = null
+                p2 = null
                 panel.clear()
                 panel.redraw()
             }
@@ -195,6 +231,25 @@ object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener
                 }
             }
             "exit" -> this.isVisible = false
+            "mult" -> {
+                if(p1 == null) JOptionPane.showMessageDialog(null, +"gui.operationcalculator.choosept")
+                else PointMultiplier.createAndShow()
+            }
+            "flip" -> {
+                if(p1 == null) JOptionPane.showMessageDialog(null, +"gui.operationcalculator.choosept")
+                else {
+                    val (x, y) = p1!!
+                    val multiplied = panel.curve { Vec2d(modifyX(x), modifyY(y)).invertY() }
+                    panel.changeColor(Color.BLUE)
+                    panel.drawPoint(Vec2i(EllipticSimulator.demodifyX(multiplied.x, panel), EllipticSimulator.demodifyY(multiplied.y, panel)), 15)
+                    panel.changeColor(Color.GREEN)
+                    panel.drawPoint(p1!!, 15)
+                    panel.changeColor(Color.BLACK)
+                    panel.repaint()
+                    p1 = Vec2i(EllipticSimulator.demodifyX(multiplied.x, panel), EllipticSimulator.demodifyY(multiplied.y, panel))
+                }
+            }
+            "select" -> PointSelector.createAndShow()
         }
     }
 
@@ -206,6 +261,118 @@ object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener
             if(e.stateChange == ItemEvent.DESELECTED) panel.clear()
         }
         super.itemStateChanged(e)
+    }
+
+    private object PointSelector : EllipticCurveWindow((EllipticCurveWindow.getScreenSize()/4.5).vec2i()) {
+        val okButton = JButton(+"gui.ok")
+        val xBox = JTextField(2)
+        val yBox = JTextField(2)
+        val labelA = JLabel(+"gui.pointselector.selectpt")
+        init {
+            val font = Font("Serif", BOLD, 18)
+            labelA.setBounds(size.x * 1 / 2 - 75, size.y * 1/8, 200, 30)
+            labelA.verticalTextPosition = JLabel.TOP
+            labelA.font = font
+            labelA.isVisible = true
+            labelA.isOpaque = true
+
+            okButton.mnemonic = KeyEvent.VK_S
+            okButton.actionCommand = "ok"
+            okButton.setBounds(size.x * 1 / 2 - 200, size.y * 9 / 16, 400, 40)
+            okButton.addActionListener(this)
+            add(okButton)
+
+            xBox.setBounds(size.x * 1 / 2 - 30, size.y * 6 / 16, 25, 20)
+            yBox.setBounds(size.x * 1 / 2 + 15, size.y * 6 / 16, 25, 20)
+            add(xBox)
+            add(yBox)
+            add(labelA)
+        }
+
+        override fun actionPerformed(e: ActionEvent?) {
+            super.actionPerformed(e)
+            when(e!!.actionCommand) {
+                "ok" -> {
+                    this.isVisible = false
+                    val x = xBox.text.toDoubleOrNull()
+                    if(x == null) {
+                        JOptionPane.showMessageDialog(null, +"gui.nan")
+                        return
+                    }
+                    val y = yBox.text.toDoubleOrNull()
+                    if(y == null) {
+                        JOptionPane.showMessageDialog(null, +"gui.nan")
+                        return
+                    }
+                    panel.changeColor(Color.GREEN)
+                    panel.changePointSize(5)
+                    if(p1 == null) {
+                        p1 = Vec2i(EllipticSimulator.demodifyX(x, panel), EllipticSimulator.demodifyY(y, panel))
+                        panel.drawPoint(p1!!)
+                    } else {
+                        p2 = Vec2i(EllipticSimulator.demodifyX(x, panel), EllipticSimulator.demodifyY(y, panel))
+                        panel.drawLine(p1 as Vec2i, p2 as Vec2i, 3f)
+                        panel.changeColor(Color.RED)
+                        panel.drawPoint(p1 as Vec2i, 10)
+                        panel.drawPoint(p2 as Vec2i, 10)
+                        panel.changeColor(Color.BLUE)
+                        val sum = panel.curve { Vec2d(x, y) + Vec2d(modifyX(p1!!.x), modifyY(p1!!.y)) }
+                        val max = EllipticSimulator.getMaxBoundsOfFrame(panel)
+                        val min = EllipticSimulator.getMinBoundsOfFrame(panel)
+                        if (sum.x > max.x && sum.x > min.x || sum.y > max.y && sum.y > min.y || sum.x < min.x && sum.x < max.x || sum.y < min.y && sum.y < max.y)
+                            JOptionPane.showMessageDialog(null, "The result is out of bounds: ${sum.map { Math.round(it * 100) / 100.0 }}");
+                        else panel.drawPoint(Vec2i(EllipticSimulator.demodifyX(sum.x, panel), EllipticSimulator.demodifyY(sum.y, panel)), 15)
+                        p1 = null
+                        p2 = null
+                    }
+                    panel.changeColor(Color.BLACK)
+                    panel.repaint()
+                }
+            }
+        }
+    }
+
+    private object PointMultiplier : EllipticCurveWindow((EllipticCurveWindow.getScreenSize()/4.5).vec2i()) {
+        val spinner = JSpinner(SpinnerNumberModel(1, 1, 100, 1))
+        val labelA = JLabel(+"gui.pointmultiplier")
+        val okButton = JButton(+"gui.ok")
+        init {
+            val font = Font("Serif", BOLD, 18)
+            spinner.setBounds(size.x * 1 / 2 - 200, size.y * 5 / 16, 400, 40)
+            spinner.addChangeListener(this)
+            labelA.setBounds(size.x * 1 / 2 - 18, 0, 80, 30)
+            labelA.verticalTextPosition = JLabel.TOP
+            labelA.font = font
+            labelA.isVisible = true
+            labelA.isOpaque = true
+            okButton.mnemonic = KeyEvent.VK_S
+            okButton.actionCommand = "ok"
+            okButton.setBounds(size.x * 1 / 2 - 200, size.y * 12 / 16, 400, 40)
+            okButton.addActionListener(this)
+            add(okButton)
+            add(labelA)
+            add(spinner)
+        }
+
+        override fun actionPerformed(e: ActionEvent?) {
+            super.actionPerformed(e)
+            when(e!!.actionCommand) {
+                "ok" -> {
+                    this.isVisible = false
+                    val (x, y) = p1!!
+                    val multiplied = panel.curve { Vec2d(modifyX(x), modifyY(y)).times(spinner.value as Int) }
+                    spinner.value = 1
+                    panel.changeColor(Color.BLUE)
+                    panel.drawPoint(Vec2i(EllipticSimulator.demodifyX(multiplied.x, panel), EllipticSimulator.demodifyY(multiplied.y, panel)), 15)
+                    panel.changeColor(Color.GREEN)
+                    panel.drawPoint(p1!!, 15)
+                    panel.changeColor(Color.BLACK)
+                    panel.repaint()
+                    p1 = Vec2i(EllipticSimulator.demodifyX(multiplied.x, panel), EllipticSimulator.demodifyY(multiplied.y, panel)) // todo, do i want this?
+                }
+            }
+        }
+
     }
 
     private object ScaleChanger : EllipticCurveWindow((EllipticCurveWindow.getScreenSize()/4.5).vec2i()) {

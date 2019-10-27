@@ -21,5 +21,14 @@ gui.operationcalculator.clear=Reset
 gui.operationcalculator.file.savecurve=Save Curve...
 gui.operationcalculator.file.opencurve=Open Curve...
 gui.operationcalculator.file.exit=Exit
+gui.operationcalculator.mult=Multiply point with scalar...
+gui.operationcalculator.choosept=You need to choose a point first!
+gui.pointmultiplier=Choose Scalar
+gui.operationcalculator.flip=Flip point selected
+gui.operationcalculator.selectpt=Select point...
+gui.nan=Invalid number entered!
+gui.pointselector.selectpt=Select point to use
+gui.pointselector=Select Point
+gui.ok=OK
 
 fields.reals=Reals
