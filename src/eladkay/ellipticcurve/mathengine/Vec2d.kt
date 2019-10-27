@@ -26,12 +26,16 @@ class Vec2d(private val xParam: Double, private val yParam: Double, val field: F
     fun isNaN() = x.isNaN() || y.isNaN()
 
     override fun toString(): String {
-        return "($x,$y)"
+        return "($x, $y)"
     }
 
 
     operator fun component1() = x
     operator fun component2() = y
+
+    fun map(map: (Double)->Double): Vec2d {
+        return Vec2d(map(x), map(y))
+    }
 
     override fun hashCode(): Int {
         var result = x.hashCode()

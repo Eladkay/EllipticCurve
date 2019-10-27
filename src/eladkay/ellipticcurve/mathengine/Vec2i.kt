@@ -8,4 +8,12 @@ data class Vec2i(val x: Int, val y: Int) {
     operator fun times(int: Double) = Vec2d(x * int, y * int)
     operator fun Double.times(size: Vec2i) = size * this
     operator fun div(int: Double) = Vec2d(x / int, y / int)
+
+    override fun toString(): String {
+        return "($x, $y)"
+    }
+
+    fun map(map: (Int)->Int): Vec2i {
+        return Vec2i(map(x), map(y))
+    }
 }

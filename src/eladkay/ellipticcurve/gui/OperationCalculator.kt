@@ -53,9 +53,16 @@ object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener
                 //val slope = MathHelper.slope(Vec2d(xModified, yModified), Vec2d(modifyX(p1!!.x), modifyY(p1!!.y)))
                 //println(slope)
                 val sum = panel.curve { Vec2d(xModified, yModified) + Vec2d(modifyX(p1!!.x), modifyY(p1!!.y)) }
+                val max = EllipticSimulator.getMaxBoundsOfFrame(panel)
+                val min = EllipticSimulator.getMinBoundsOfFrame(panel)
+                println(max)
+                println(min)
+                if(sum.x > max.x && sum.x > min.x || sum.y > max.y && sum.y > min.y || sum.x < min.x && sum.x < max.x || sum.y < min.y && sum.y < max.y)
+                    JOptionPane.showMessageDialog(null, "The result is out of bounds: ${sum.map { Math.round(it*100)/100.0 }}");
+                else panel.drawPoint(Vec2i(EllipticSimulator.demodifyX(sum.x, panel), EllipticSimulator.demodifyY(sum.y, panel)), 15)
                 println(Vec2i(EllipticSimulator.demodifyX(sum.x, panel), EllipticSimulator.demodifyY(sum.y, panel)))
                 println(sum)
-                panel.drawPoint(Vec2i(EllipticSimulator.demodifyX(sum.x, panel), EllipticSimulator.demodifyY(sum.y, panel)), 15)
+
             } else {
                 p1 = null
                 p2 = null

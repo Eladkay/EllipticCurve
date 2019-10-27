@@ -33,6 +33,20 @@ object EllipticSimulator {
         drawCurveApprox(ellipticCurve, frame, { _, _ -> error }, drawText, xScale, yScale)
     }
 
+    fun getMaxBoundsOfFrame(frame: CurveFrame, xScale: Int = defaultXScale, yScale: Int = defaultYScale): Vec2d {
+        val (x, y) = frame.frameSize()
+        val xModified = (x - frame.frameSize().x / 2 - X_OFFSET) / xScale.toDouble()
+        val yModified = (-y + frame.frameSize().y / 2) / yScale.toDouble()
+        return Vec2d(xModified, yModified)
+    }
+
+    fun getMinBoundsOfFrame(frame: CurveFrame, xScale: Int = defaultXScale, yScale: Int = defaultYScale): Vec2d {
+        val (x, y) = 0 to 0
+        val xModified = (x - frame.frameSize().x / 2 - X_OFFSET) / xScale.toDouble()
+        val yModified = (-y + frame.frameSize().y / 2) / yScale.toDouble()
+        return Vec2d(xModified, yModified)
+    }
+
     // i need to fix this. i can't just keep making the error larger and larger, it results in a thick curve
     // which is not really what i want. complex error functions like OperationCalculator.CurvePanel#errorFunction
     // are a temporary solution that only work for one specific curve and make other curves look disproportionate

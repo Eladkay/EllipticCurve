@@ -12,5 +12,7 @@ interface CurveFrame {
     fun drawText(vec2i: Vec2i, string: String)
     fun changeColor(color: Color)
     fun changePointSize(int: Int)
+    fun redraw()
+    fun clear()
     operator fun <T> invoke(action: CurveFrame.() -> T) = action()
 }
