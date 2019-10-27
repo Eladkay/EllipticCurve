@@ -84,7 +84,7 @@ object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener
 
     override fun mouseClicked(e: MouseEvent) {}
 
-    var panel = CurvePanel(Vec2i(size.x, size.y / 3), EllipticCurve(-1.0, 1.0, Field.REALS))
+    var panel = CurvePanel(Vec2i(size.x, size.y/* / 3*/), EllipticCurve(-1.0, 1.0, Field.REALS))
     val sliderA = JSlider(JSlider.HORIZONTAL, -5, 5, -1)
     val sliderB = JSlider(JSlider.HORIZONTAL, -5, 5, 1)
     val sliderScale = JSlider(JSlider.HORIZONTAL, 1, 10, 1)
@@ -102,7 +102,7 @@ object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener
         val font = Font("Serif", BOLD, 15)
         sliderA.font = font
         sliderA.addChangeListener(this)
-        add(sliderA)
+        //add(sliderA)
 
         sliderB.setBounds(size.x * 40 / 81, size.y * 6 / 8, 400, 40)
         sliderB.majorTickSpacing = 1
@@ -110,7 +110,7 @@ object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener
         sliderB.paintTicks = true
         sliderB.font = font
         sliderB.addChangeListener(this)
-        add(sliderB)
+        //add(sliderB)
 
         sliderScale.setBounds(size.x * 40 / 81, size.y * 7 / 8, 400, 40)
         sliderScale.majorTickSpacing = 1
@@ -118,14 +118,14 @@ object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener
         sliderScale.paintTicks = true
         sliderScale.font = font
         sliderScale.addChangeListener(this)
-        add(sliderScale)
+        //add(sliderScale)
 
         val toggleGridsAndTicks = JButton(+"gui.toggleGridsAndTicks")
         toggleGridsAndTicks.mnemonic = KeyEvent.VK_E
         toggleGridsAndTicks.actionCommand = "toggleGridsAndTicks"
         toggleGridsAndTicks.setBounds(MainScreen.size.x * 9 / 24, MainScreen.size.y * 7 / 8, 200, 40)
         toggleGridsAndTicks.addActionListener(OperationCalculator)
-        add(toggleGridsAndTicks)
+        //add(toggleGridsAndTicks)
 
     }
 
