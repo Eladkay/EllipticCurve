@@ -18,10 +18,22 @@ import javax.swing.filechooser.FileFilter
 import javax.swing.filechooser.FileNameExtensionFilter
 
 
-object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener {
+object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener, MouseMotionListener {
 
-    var p1: Vec2i? = null
-    var p2: Vec2i? = null
+    override fun mouseDragged(e: MouseEvent?) {}
+
+    override fun mouseMoved(e: MouseEvent?) {
+        e!!
+        val x = e.x
+        val y = e.y
+        if(drawPtLocs) {
+            panel.clearPointLines()
+            panel.changeColor(Color.ORANGE)
+            panel.addPointLines(Vec2i(x, y))
+            panel.drawPointLineText(Vec2i(x + 5, y), "(${Math.round(100.0*modifyX(x))/100.0}, ${Math.round(100.0*modifyY(y))/100.0})")
+            panel.repaint()
+        }
+    }
 
     override fun mouseReleased(e: MouseEvent?) {}
 
@@ -88,10 +100,16 @@ object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener
 
     var panel = CurvePanel(Vec2i(size.x, size.y/* / 3*/), EllipticCurve(-1.0, 1.0, Field.REALS))
     val checkboxGridsAndTicks = JCheckBox(+"gui.operationcalculator.gridsandticks")
+    val checkboxPtLoc = JCheckBox(+"gui.operationcalculator.checkboxPtLoc")
     val fc = JFileChooser()
+    var drawPtLocs: Boolean = false
+    var p1: Vec2i? = null
+    var p2: Vec2i? = null
+
     init {
         contentPane.add(panel)
         panel.addMouseListener(this)
+        panel.addMouseMotionListener(this)
         defaultCloseOperation = WindowConstants.DISPOSE_ON_CLOSE
         isResizable = true
 
@@ -171,6 +189,12 @@ object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener
         checkboxGridsAndTicks.mnemonic = KeyEvent.VK_G
         checkboxGridsAndTicks.isSelected = false
         menuVisualization.add(checkboxGridsAndTicks)
+
+        checkboxPtLoc.addItemListener(this)
+        checkboxPtLoc.mnemonic = KeyEvent.VK_L
+        checkboxPtLoc.isSelected = false
+        menuVisualization.add(checkboxPtLoc)
+
         return menuVisualization
     }
 
@@ -260,6 +284,13 @@ object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener
             panel.gridsAndTicks = !panel.gridsAndTicks
             panel.redraw()
             if(e.stateChange == ItemEvent.DESELECTED) panel.clear()
+        } else if(source == checkboxPtLoc) {
+            drawPtLocs = !drawPtLocs
+            panel.redraw()
+            if(e.stateChange == ItemEvent.DESELECTED) {
+                panel.clearPointLines()
+                panel.repaint()
+            }
         }
         super.itemStateChanged(e)
     }

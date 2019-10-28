@@ -60,7 +60,8 @@ class CurvePanel(val size: Vec2i, curve: EllipticCurve) : CurveFrame, JPanel() {
 
     private var redraw: Boolean = false
     var gridsAndTicks: Boolean = false
-
+    val pointLines = mutableListOf<Vec2i>()
+    val pointText = mutableListOf<Pair<Vec2i, String>>()
     override fun paint(g: Graphics?) {
         super.paint(g)
 
@@ -110,6 +111,17 @@ class CurvePanel(val size: Vec2i, curve: EllipticCurve) : CurveFrame, JPanel() {
             }
         }
 
+        for(line in pointLines) {
+            g2.draw(Line2D.Double(line.x.toDouble(), 0.0, line.x.toDouble(), this.size.y.toDouble()))
+            g2.draw(Line2D.Double(0.0, line.y.toDouble(), this.size.x.toDouble(), line.y.toDouble()))
+        }
+
+        for(text in pointText) {
+            g2.drawString(text.second, text.first.x + 5, text.first.y)
+        }
+
+        changeColor(Color.BLACK)
+
         // end drawing auxiliary shapes
     }
 
@@ -154,6 +166,19 @@ class CurvePanel(val size: Vec2i, curve: EllipticCurve) : CurveFrame, JPanel() {
 
     override fun frameSize(): Vec2i {
         return size
+    }
+
+    override fun clearPointLines() {
+        pointLines.clear()
+        pointText.clear()
+    }
+
+    override fun addPointLines(vec2i: Vec2i) {
+        pointLines.add(vec2i)
+    }
+
+    override fun drawPointLineText(vec2i: Vec2i, string: String) {
+        pointText.add(vec2i to string)
     }
 
     // end methods for CurveFrame impl
