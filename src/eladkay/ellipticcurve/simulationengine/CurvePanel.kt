@@ -12,7 +12,7 @@ import javax.swing.JPanel
 class CurvePanel(val size: Vec2i, curve: EllipticCurve) : CurveFrame, JPanel() {
 
 
-    var curve: EllipticCurve = curve
+    override var curve: EllipticCurve = curve
         set(newCurve) {
             clear()
             field = newCurve

@@ -5,11 +5,14 @@ import java.awt.Point
 import java.awt.event.ActionEvent
 import java.awt.event.KeyEvent
 import javax.swing.JButton
+import javax.swing.JFrame
 import javax.swing.JLabel
 import javax.swing.JPanel
 
 object MainScreen : EllipticCurveWindow((getScreenSize() * 2) / 3) {
     init {
+        defaultCloseOperation = JFrame.EXIT_ON_CLOSE
+
         val operationCalc = JButton(+"gui.operationcalculator")
         operationCalc.mnemonic = KeyEvent.VK_C
         operationCalc.actionCommand = "operationcalculator"
