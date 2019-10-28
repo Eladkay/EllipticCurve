@@ -1,7 +1,5 @@
 package eladkay.ellipticcurve.mathengine
 
-import eladkay.ellipticcurve.simulationengine.CurveFrame
-import eladkay.ellipticcurve.simulationengine.EllipticSimulator
 
 class EllipticCurveHelper(private val curve: EllipticCurve) {
     private val field: Field = curve.field
@@ -37,7 +35,6 @@ class EllipticCurveHelper(private val curve: EllipticCurve) {
         else
             add(a, multiply(a, num - 1))
     }
-
 
 
 }
