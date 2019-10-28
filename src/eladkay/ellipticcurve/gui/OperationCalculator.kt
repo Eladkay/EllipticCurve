@@ -1,6 +1,7 @@
 package eladkay.ellipticcurve.gui
 
 import eladkay.ellipticcurve.mathengine.*
+import eladkay.ellipticcurve.simulationengine.CurveFrame
 import eladkay.ellipticcurve.simulationengine.CurvePanel
 import eladkay.ellipticcurve.simulationengine.EllipticSimulator
 import java.awt.Color
@@ -216,14 +217,14 @@ object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener
                     val fileSelected = fc.selectedFile
                     val file = File(fileSelected.absolutePath + ".curve")
                     file.createNewFile()
-                    file.writeText(serializeCurveFrame(panel))
+                    file.writeText(panel.serializeCurveFrame())
                 }
             }
             "opencurve" -> {
                 val ret = fc.showOpenDialog(this)
                 if(ret == JFileChooser.APPROVE_OPTION) {
                     val file = fc.selectedFile
-                    panel.curve = deserializeCurveFrame(file.readText())
+                    panel.curve = CurveFrame.deserializeCurveFrame(file.readText())
                     panel.redraw()
                     ScaleChanger.sliderScale.value = EllipticSimulator.scale
                     CurveChanger.sliderA.value = panel.curve.aValue.toInt()
@@ -296,12 +297,12 @@ object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener
                     this.isVisible = false
                     val x = xBox.text.toDoubleOrNull()
                     if(x == null) {
-                        JOptionPane.showMessageDialog(null, +"gui.nan")
+                        JOptionPane.showMessageDialog(null, +"gui.invalidnumber")
                         return
                     }
                     val y = yBox.text.toDoubleOrNull()
                     if(y == null) {
-                        JOptionPane.showMessageDialog(null, +"gui.nan")
+                        JOptionPane.showMessageDialog(null, +"gui.invalidnumber")
                         return
                     }
                     panel.changeColor(Color.GREEN)
@@ -401,11 +402,7 @@ object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener
             val slider = e.source as? JSlider
             panel.clear()
             if (slider?.valueIsAdjusting?.not() == true) {
-                try {
-                    EllipticSimulator.scale = sliderScale.value
-                } catch (e: IllegalArgumentException) {
-                    JOptionPane.showMessageDialog(null, "Invalid elliptic curve!");
-                }
+                EllipticSimulator.scale = sliderScale.value
                 panel.redraw()
             }
 
@@ -459,7 +456,7 @@ object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener
                 try {
                     panel.curve = EllipticCurve(sliderA.value.toDouble(), sliderB.value.toDouble(), Field.REALS)
                 } catch (e: IllegalArgumentException) {
-                    JOptionPane.showMessageDialog(null, "Invalid elliptic curve!");
+                    JOptionPane.showMessageDialog(null, +"gui.invalidcurve!");
                 }
                 panel.redraw()
             }

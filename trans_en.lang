@@ -25,10 +25,11 @@ gui.operationcalculator.mult=Multiply point with scalar...
 gui.operationcalculator.choosept=You need to choose a point first!
 gui.pointmultiplier=Choose Scalar
 gui.operationcalculator.flip=Flip point selected
-gui.operationcalculator.selectpt=Select point...
-gui.nan=Invalid number entered!
+gui.operationcalculator.selectpt=Select Point...
+gui.invalidnumber=Invalid number entered!
 gui.pointselector.selectpt=Select point to use
 gui.pointselector=Select Point
 gui.ok=OK
+gui.invalidcurve=Invalid elliptic curve!
 
 fields.reals=Reals

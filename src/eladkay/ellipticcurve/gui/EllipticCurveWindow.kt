@@ -31,9 +31,7 @@ open class EllipticCurveWindow(xSize: Int, ySize: Int) : JFrame(), ActionListene
 
     init {
         title = +"gui.${javaClass.simpleName.toLowerCase()}"
-        if(this is MainScreen)
-            defaultCloseOperation = JFrame.EXIT_ON_CLOSE
-        else defaultCloseOperation = JFrame.DISPOSE_ON_CLOSE
+        defaultCloseOperation = JFrame.DISPOSE_ON_CLOSE
         setSize(xSize, ySize)
         setLocationRelativeTo(null)
         isResizable = false
