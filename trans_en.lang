@@ -32,5 +32,6 @@ gui.pointselector=Select Point
 gui.ok=OK
 gui.invalidcurve=Invalid elliptic curve!
 gui.operationcalculator.checkboxPtLoc=Show point locations when hovering
+gui.operationcalculator.checkboxAutoadd=Automatically add two selected points
 
 fields.reals=Reals

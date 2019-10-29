@@ -63,7 +63,7 @@ object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener
         panel.changeColor(Color.GREEN)
         panel.changePointSize(5)
         if (condition) {
-            if (p1 == null) {
+            if (p1 == null || !autoAdd) {
                 p1 = Vec2i(x, y)
                 panel.drawPoint(Vec2i(x, y))
             } else if (p2 == null) {
@@ -101,8 +101,11 @@ object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener
     var panel = CurvePanel(Vec2i(size.x, size.y/* / 3*/), EllipticCurve(-1.0, 1.0, Field.REALS))
     val checkboxGridsAndTicks = JCheckBox(+"gui.operationcalculator.gridsandticks")
     val checkboxPtLoc = JCheckBox(+"gui.operationcalculator.checkboxPtLoc")
+    val checkboxAutoadd = JCheckBox(+"gui.operationcalculator.checkboxAutoadd")
+
     val fc = JFileChooser()
     var drawPtLocs: Boolean = false
+    var autoAdd: Boolean = false
     var p1: Vec2i? = null
     var p2: Vec2i? = null
 
@@ -220,6 +223,11 @@ object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener
         select.mnemonic = KeyEvent.VK_S
         menuOperation.add(select)
 
+        checkboxAutoadd.addItemListener(this)
+        checkboxAutoadd.mnemonic = KeyEvent.VK_A
+        checkboxAutoadd.isSelected = false
+        menuOperation.add(checkboxAutoadd)
+
         return menuOperation
     }
 
@@ -291,6 +299,8 @@ object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener
                 panel.clearPointLines()
                 panel.repaint()
             }
+        } else if(source == checkboxAutoadd) {
+            autoAdd = e.stateChange != ItemEvent.DESELECTED
         }
         super.itemStateChanged(e)
     }
