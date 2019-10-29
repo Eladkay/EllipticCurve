@@ -82,7 +82,7 @@ object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener
                 println(max)
                 println(min)
                 if (sum.x > max.x && sum.x > min.x || sum.y > max.y && sum.y > min.y || sum.x < min.x && sum.x < max.x || sum.y < min.y && sum.y < max.y)
-                    JOptionPane.showMessageDialog(null, "The result is out of bounds: ${sum.map { Math.round(it * 100) / 100.0 }}");
+                    JOptionPane.showMessageDialog(null, +"gui.outofbounds"+sum.map { Math.round(it * 100) / 100.0 }.toString());
                 else panel.drawPoint(Vec2i(EllipticSimulator.demodifyX(sum.x, panel), EllipticSimulator.demodifyY(sum.y, panel)), 15)
                 println(Vec2i(EllipticSimulator.demodifyX(sum.x, panel), EllipticSimulator.demodifyY(sum.y, panel)))
                 println(sum)
@@ -97,6 +97,34 @@ object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener
     }
 
     override fun mouseClicked(e: MouseEvent) {}
+
+    override fun updateTextForI18n() {
+        super.updateTextForI18n()
+        checkboxGridsAndTicks.text = +"gui.operationcalculator.gridsandticks"
+        checkboxPtLoc.text = +"gui.operationcalculator.checkboxPtLoc"
+        checkboxAutoadd.text = +"gui.operationcalculator.checkboxAutoadd"
+
+        menuFile.text = +"gui.operationcalculator.file"
+        saveCurve.text = +"gui.operationcalculator.file.savecurve"
+        openCurve.text = +"gui.operationcalculator.file.opencurve"
+        exit.text = +"gui.operationcalculator.file.exit"
+
+        menuCurve.text = +"gui.operationcalculator.curve"
+        changeCurve.text = +"gui.operationcalculator.curve.changecurve"
+        changeField.text = +"gui.operationcalculator.curve.changefield"
+        realsField.text = +"fields.reals"
+        finiteField.text = +"gui.operationcalculator.curve.changetozp"
+
+        menuVisualization.text = +"gui.operationcalculator.visualization"
+        changeScale.text = +"gui.operationcalculator.changescale"
+        clear.text = +"gui.operationcalculator.clear"
+
+        menuOperation.text = +"gui.operationcalculator.operation"
+        mult.text = +"gui.operationcalculator.mult"
+        flip.text = +"gui.operationcalculator.flip"
+        select.text = +"gui.operationcalculator.selectpt"
+
+    }
 
     var panel = CurvePanel(Vec2i(size.x, size.y/* / 3*/), EllipticCurve(-1.0, 1.0, Field.REALS))
     val checkboxGridsAndTicks = JCheckBox(+"gui.operationcalculator.gridsandticks")
@@ -126,22 +154,26 @@ object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener
         jMenuBar = menuBar
 
     }
-
+    lateinit var menuFile: JMenu
+    lateinit var saveCurve: JMenuItem
+    lateinit var openCurve: JMenuItem
+    lateinit var exit: JMenuItem
     private fun getFileMenu(): JMenu {
-        val menuFile = JMenu(+"gui.operationcalculator.file")
+        menuFile = JMenu(+"gui.operationcalculator.file")
+        saveCurve = JMenuItem(+"gui.operationcalculator.file.savecurve")
+        openCurve = JMenuItem(+"gui.operationcalculator.file.opencurve")
+        exit = JMenuItem(+"gui.operationcalculator.file.exit")
+
         menuFile.mnemonic = KeyEvent.VK_F
 
-        val saveCurve = JMenuItem(+"gui.operationcalculator.file.savecurve")
         saveCurve.addActionListener(this)
         saveCurve.actionCommand = "savecurve"
         menuFile.add(saveCurve)
 
-        val openCurve = JMenuItem(+"gui.operationcalculator.file.opencurve")
         openCurve.addActionListener(this)
         openCurve.actionCommand = "opencurve"
         menuFile.add(openCurve)
 
-        val exit = JMenuItem(+"gui.operationcalculator.file.exit")
         exit.addActionListener(this)
         exit.actionCommand = "exit"
         menuFile.add(exit)
@@ -150,21 +182,27 @@ object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener
         return menuFile
     }
 
+    lateinit var menuCurve: JMenu
+    lateinit var changeCurve: JMenuItem
+    lateinit var changeField: JMenuItem
+    lateinit var realsField: JMenuItem
+    lateinit var finiteField: JMenuItem
     private fun getCurveMenu(): JMenu {
-        val menuCurve = JMenu(+"gui.operationcalculator.curve")
+        menuCurve = JMenu(+"gui.operationcalculator.curve")
+        changeCurve = JMenuItem(+"gui.operationcalculator.curve.changecurve")
+        changeField = JMenu(+"gui.operationcalculator.curve.changefield")
+        realsField = JMenuItem(+"fields.reals")
+        finiteField = JMenuItem(+"gui.operationcalculator.curve.changetozp")
+
         menuCurve.mnemonic = KeyEvent.VK_C
 
-        val changeCurve = JMenuItem(+"gui.operationcalculator.curve.changecurve", KeyEvent.VK_C)
         changeCurve.addActionListener(this)
         changeCurve.actionCommand = "changecurve"
         menuCurve.add(changeCurve)
 
-        val changeField = JMenu(+"gui.operationcalculator.curve.changefield")
-        val realsField = JMenuItem(+"fields.reals")
         changeField.addActionListener(this)
         changeField.actionCommand = "changefield_reals"
         changeField.add(realsField)
-        val finiteField = JMenuItem(+"gui.operationcalculator.curve.changetozp")
         changeField.addActionListener(this)
         changeField.actionCommand = "changefield_zp"
         changeField.add(finiteField)
@@ -172,17 +210,23 @@ object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener
         return menuCurve
     }
 
+    lateinit var menuVisualization: JMenu
+    lateinit var changeScale: JMenuItem
+    lateinit var clear: JMenuItem
+    lateinit var showPointInfo: JMenuItem
     private fun getVisualizationMenu(): JMenu {
-        val menuVisualization = JMenu(+"gui.operationcalculator.visualization")
+        menuVisualization = JMenu(+"gui.operationcalculator.visualization")
+        changeScale = JMenuItem(+"gui.operationcalculator.changescale")
+        clear = JMenuItem(+"gui.operationcalculator.clear")
+        showPointInfo = JMenuItem(+"gui.operationcalculator.pointinfo")
+
         menuVisualization.mnemonic = KeyEvent.VK_V
 
-        val changeScale = JMenuItem(+"gui.operationcalculator.changescale")
         changeScale.addActionListener(this)
         changeScale.actionCommand = "changescale"
         changeScale.mnemonic = KeyEvent.VK_S
         menuVisualization.add(changeScale)
 
-        val clear = JMenuItem(+"gui.operationcalculator.clear")
         clear.addActionListener(this)
         clear.actionCommand = "clear"
         clear.mnemonic = KeyEvent.VK_R
@@ -198,26 +242,36 @@ object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener
         checkboxPtLoc.isSelected = false
         menuVisualization.add(checkboxPtLoc)
 
+        showPointInfo.addActionListener(this)
+        showPointInfo.actionCommand = "ptinfo"
+        showPointInfo.mnemonic = KeyEvent.VK_P
+        menuVisualization.add(showPointInfo)
+
         return menuVisualization
     }
 
+    lateinit var menuOperation: JMenu
+    lateinit var mult: JMenuItem
+    lateinit var flip: JMenuItem
+    lateinit var select: JMenuItem
     private fun getOperationMenu(): JMenu {
-        val menuOperation = JMenu(+"gui.operationcalculator.operation")
+        menuOperation = JMenu(+"gui.operationcalculator.operation")
+        mult = JMenuItem(+"gui.operationcalculator.mult")
+        flip = JMenuItem(+"gui.operationcalculator.flip")
+        select = JMenuItem(+"gui.operationcalculator.selectpt")
+
         menuOperation.mnemonic = KeyEvent.VK_O
 
-        val mult = JMenuItem(+"gui.operationcalculator.mult")
         mult.addActionListener(this)
         mult.actionCommand = "mult"
         mult.mnemonic = KeyEvent.VK_M
         menuOperation.add(mult)
 
-        val flip = JMenuItem(+"gui.operationcalculator.flip")
         flip.addActionListener(this)
         flip.actionCommand = "flip"
         flip.mnemonic = KeyEvent.VK_F
         menuOperation.add(flip)
 
-        val select = JMenuItem(+"gui.operationcalculator.selectpt")
         select.addActionListener(this)
         select.actionCommand = "select"
         select.mnemonic = KeyEvent.VK_S
@@ -283,8 +337,10 @@ object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener
                 }
             }
             "select" -> PointSelector.createAndShow()
+            "ptinfo" -> if(p1 == null) JOptionPane.showMessageDialog(null, +"gui.operationcalculator.choosept") else PointInfo.createAndShow()
         }
     }
+
 
     override fun itemStateChanged(e: ItemEvent?) {
         val source = e!!.itemSelectable
@@ -305,11 +361,35 @@ object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener
         super.itemStateChanged(e)
     }
 
+    private object PointInfo : EllipticCurveWindow((EllipticCurveWindow.getScreenSize()/9.0).vec2i()) {
+        val pointInfoBox = JTextField()
+        override fun createAndShow() {
+            super.createAndShow()
+            pointInfoBox.text = "(${Math.round(100.0*modifyX(p1!!.x))/100.0}, ${Math.round(100.0*modifyY(p1!!.y))/100.0})"
+        }
+
+        init {
+            pointInfoBox.isEnabled = false
+            pointInfoBox.setBounds(size.x * 1/6, size.y * 1/6, size.x * 4/6, 40)
+            pointInfoBox.disabledTextColor = Color.BLACK
+            pointInfoBox.text = "(${Math.round(100.0*modifyX(p1!!.x))/100}, ${Math.round(100.0*modifyY(p1!!.y))/100})"
+            pointInfoBox.horizontalAlignment = JTextField.CENTER
+            add(pointInfoBox)
+        }
+
+
+    }
+
     private object PointSelector : EllipticCurveWindow((EllipticCurveWindow.getScreenSize()/4.5).vec2i()) {
         val okButton = JButton(+"gui.ok")
         val xBox = JTextField(2)
         val yBox = JTextField(2)
         val labelA = JLabel(+"gui.pointselector.selectpt")
+        override fun updateTextForI18n() {
+            super.updateTextForI18n()
+            okButton.text = +"gui.ok"
+            labelA.text = +"gui.pointselector.selectpt"
+        }
         init {
             val font = Font("Serif", BOLD, 18)
             labelA.setBounds(size.x * 1 / 2 - 75, size.y * 1/8, 200, 30)
@@ -348,7 +428,7 @@ object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener
                     }
                     panel.changeColor(Color.GREEN)
                     panel.changePointSize(5)
-                    if(p1 == null) {
+                    if(p1 == null || !autoAdd) {
                         p1 = Vec2i(EllipticSimulator.demodifyX(x, panel), EllipticSimulator.demodifyY(y, panel))
                         panel.drawPoint(p1!!)
                     } else {
@@ -362,7 +442,7 @@ object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener
                         val max = EllipticSimulator.getMaxBoundsOfFrame(panel)
                         val min = EllipticSimulator.getMinBoundsOfFrame(panel)
                         if (sum.x > max.x && sum.x > min.x || sum.y > max.y && sum.y > min.y || sum.x < min.x && sum.x < max.x || sum.y < min.y && sum.y < max.y)
-                            JOptionPane.showMessageDialog(null, "The result is out of bounds: ${sum.map { Math.round(it * 100) / 100.0 }}");
+                            JOptionPane.showMessageDialog(null, +"gui.outofbounds"+sum.map { Math.round(it * 100) / 100.0 }.toString());
                         else panel.drawPoint(Vec2i(EllipticSimulator.demodifyX(sum.x, panel), EllipticSimulator.demodifyY(sum.y, panel)), 15)
                         p1 = null
                         p2 = null
@@ -378,6 +458,11 @@ object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener
         val spinner = JSpinner(SpinnerNumberModel(1, 1, 100, 1))
         val labelA = JLabel(+"gui.pointmultiplier")
         val okButton = JButton(+"gui.ok")
+        override fun updateTextForI18n() {
+            super.updateTextForI18n()
+            labelA.text = +"gui.pointmultiplier"
+            okButton.text = +"gui.ok"
+        }
         init {
             val font = Font("Serif", BOLD, 18)
             spinner.setBounds(size.x * 1 / 2 - 200, size.y * 5 / 16, 400, 40)
@@ -421,6 +506,10 @@ object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener
 
         val sliderScale = JSlider(JSlider.HORIZONTAL, 1, 10, 1)
         val labelA = JLabel(+"gui.scalechanger.scale")
+        override fun updateTextForI18n() {
+            super.updateTextForI18n()
+            labelA.text = +"gui.scalechanger.scale"
+        }
         init {
             val font = Font("Serif", BOLD, 18)
             sliderScale.setBounds(size.x * 1 / 2 - 200, size.y * 5 / 16, 400, 40)
