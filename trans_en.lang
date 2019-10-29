@@ -1,3 +1,5 @@
+this=English
+
 gui.mainscreen=Elliptic Curve Visualizer
 gui.operationcalculator=Operation Calculator
 gui.encryptionHelper=Encryption/Decryption Helper

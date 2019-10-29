@@ -29,6 +29,10 @@ open class EllipticCurveWindow(xSize: Int, ySize: Int) : JFrame(), ActionListene
     constructor(size: Vec2i) : this(size.x, size.y)
     constructor() : this((getScreenSize() * 2) / 3)
 
+    open fun updateTextForI18n() {
+        title = +"gui.${javaClass.simpleName.toLowerCase()}"
+    }
+
     init {
         title = +"gui.${javaClass.simpleName.toLowerCase()}"
         defaultCloseOperation = JFrame.DISPOSE_ON_CLOSE
@@ -36,6 +40,7 @@ open class EllipticCurveWindow(xSize: Int, ySize: Int) : JFrame(), ActionListene
         setLocationRelativeTo(null)
         isResizable = false
         layout = null
+        classes.add(this)
     }
 
     open fun createAndShow() {
@@ -43,6 +48,10 @@ open class EllipticCurveWindow(xSize: Int, ySize: Int) : JFrame(), ActionListene
     }
 
     companion object {
+        private val classes = mutableListOf<EllipticCurveWindow>()
+        internal fun updateI18n() {
+            classes.forEach { it.updateTextForI18n() }
+        }
         fun getScreenSize(): Vec2i {
             val size = Toolkit.getDefaultToolkit().screenSize
             return Vec2i(size.width, size.height)
