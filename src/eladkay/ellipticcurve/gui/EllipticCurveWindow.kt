@@ -27,7 +27,6 @@ open class EllipticCurveWindow(xSize: Int, ySize: Int) : JFrame(), ActionListene
     internal val size = Vec2i(xSize, ySize)
 
     constructor(size: Vec2i) : this(size.x, size.y)
-    constructor() : this((getScreenSize() * 2) / 3)
 
     open fun updateTextForI18n() {
         title = +"gui.${javaClass.simpleName.toLowerCase()}"

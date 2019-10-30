@@ -28,11 +28,11 @@ private fun getFileContents(name: String): List<String> {
     if (name in languageFiles) return languageFiles[name]!!
     if (!isRunningJarred()) {
         val read = File("${System.getProperty("user.dir")}/src/$name").readLines()
-        languageFiles.put(name, read)
+        languageFiles[name] = read
         return read
     }
     val read = BufferedReader(InputStreamReader(MainScreen::class.java.getResourceAsStream("/$name"))).readLines()
-    languageFiles.put(name, read)
+    languageFiles[name] = read
     return read
 }
 
