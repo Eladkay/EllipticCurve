@@ -1,4 +1,0 @@
-language: java
-sudo: false
-after_success:
-  - bash <(curl -s https://codecov.io/bash) -t bfbc0e10-fe6e-4507-8f54-00961ad383c7
