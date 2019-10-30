@@ -7,11 +7,9 @@ import java.net.URLDecoder
 import java.util.zip.ZipFile
 
 
-
-
 val VALID_LOCS = listOf("en", "he")
 val languages get() = VALID_LOCS.map { getTranslatedString("this", it) }
-
+private val languageFiles = mutableMapOf<String, List<String>>()
 var currentLoc = "en"
 
 fun getTranslatedString(key: String) =
@@ -27,8 +25,15 @@ fun getTranslatedString(key: String, language: String) =
                 .firstOrNull { it[0] == key }?.get(1) ?: key
 
 private fun getFileContents(name: String): List<String> {
-    if(!isRunningJarred()) return File("${System.getProperty("user.dir")}/src/$name").readLines()
-    return BufferedReader(InputStreamReader(MainScreen::class.java.getResourceAsStream("/$name"))).readLines()
+    if(name in languageFiles) return languageFiles[name]!!
+    if(!isRunningJarred()) {
+        val read = File("${System.getProperty("user.dir")}/src/$name").readLines()
+        languageFiles.put(name, read)
+        return read
+    }
+    val read = BufferedReader(InputStreamReader(MainScreen::class.java.getResourceAsStream("/$name"))).readLines()
+    languageFiles.put(name, read)
+    return read
 }
 
 // thanks to https://stackoverflow.com/questions/482560/can-you-tell-on-runtime-if-youre-running-java-from-within-a-jar
