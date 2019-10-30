@@ -42,8 +42,8 @@ abstract class Field {
     // maybe this will save the day?
     operator fun Double.not() = NumberWrapper(this, this@Field)
 
-    class NumberWrapper(val numberInternal: Number, val field: Field) {
-        val number get() = numberInternal.toDouble()
+    class NumberWrapper(private val numberInternal: Number, val field: Field) {
+        private val number get() = numberInternal.toDouble()
         operator fun component1() = numberInternal
         override fun toString(): String {
             return numberInternal.toString()

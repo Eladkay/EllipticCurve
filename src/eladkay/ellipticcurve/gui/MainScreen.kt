@@ -1,18 +1,19 @@
 package eladkay.ellipticcurve.gui
 
-import java.awt.Dimension
-import java.awt.Point
 import java.awt.event.ActionEvent
 import java.awt.event.KeyEvent
-import javax.swing.*
+import javax.swing.JButton
+import javax.swing.JComboBox
+import javax.swing.JFrame
+import javax.swing.JLabel
 
 object MainScreen : EllipticCurveWindow((getScreenSize() * 2) / 3) {
-    val operationCalc = JButton(+"gui.operationcalculator")
-    val encryptionHelper = JButton(+"gui.encryptionHelper")
-    val studyHelper = JButton(+"gui.studyHelper")
-    val titleL1 = JLabel(+"gui.welcomeL1")
-    val titleL2 = JLabel(+"gui.welcomeL2")
-    val jComboBox = JComboBox(languages.toTypedArray())
+    private val operationCalc = JButton(+"gui.operationcalculator")
+    private val encryptionHelper = JButton(+"gui.encryptionHelper")
+    private val studyHelper = JButton(+"gui.studyHelper")
+    private val titleL1 = JLabel(+"gui.welcomeL1")
+    private val titleL2 = JLabel(+"gui.welcomeL2")
+    private val jComboBox = JComboBox(languages.toTypedArray())
 
     init {
         defaultCloseOperation = JFrame.EXIT_ON_CLOSE
@@ -72,22 +73,4 @@ object MainScreen : EllipticCurveWindow((getScreenSize() * 2) / 3) {
         }
     }
 
-    private object ButtonsPanel : JPanel() {
-        init {
-            val operationCalc = JButton(+"gui.operationcalculator")
-            //layout = null
-            operationCalc.mnemonic = KeyEvent.VK_C
-            operationCalc.actionCommand = "operationcalculator"
-            operationCalc.size = Dimension(200, 50)
-
-            size = Dimension(((getScreenSize() * 2) / 3).x, ((getScreenSize() * 4) / 8).y)
-            location = Point(0, ((getScreenSize() * 1) / 4).y)
-            operationCalc.setBounds(getScreenSize().x / 3, getScreenSize().y * 7 / 8, 200, 50)
-            add(operationCalc)
-            operationCalc.location = Point(getScreenSize().x / 3, getScreenSize().y * 7 / 8)
-            isOpaque = true
-            operationCalc.addActionListener(MainScreen)
-            //background = Color.BLACK
-        }
-    }
 }

@@ -67,7 +67,7 @@ object EllipticSimulator {
                     val errorTerm = error(xModified, yModified) * Math.sin(Math.PI / 4) // this can but should not be replaced with 1/sqrt2.
                     if (!condition && ellipticCurve.difference(xModified + errorTerm, yModified + errorTerm).sign
                             != ellipticCurve.difference(xModified - errorTerm, yModified - errorTerm).sign)
-                        condition = true;
+                        condition = true
                     if (condition) {
                         frame.drawPoint(Vec2i(x, y))
                         frame.drawPoint(Vec2i(x, demodifyY(-yModified, frame, yScale)))

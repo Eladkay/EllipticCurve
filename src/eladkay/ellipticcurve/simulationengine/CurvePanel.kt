@@ -9,7 +9,7 @@ import java.awt.Graphics2D
 import java.awt.geom.Line2D
 import javax.swing.JPanel
 
-class CurvePanel(val size: Vec2i, curve: EllipticCurve) : CurveFrame, JPanel() {
+class CurvePanel(private val size: Vec2i, curve: EllipticCurve) : CurveFrame, JPanel() {
 
 
     override var curve: EllipticCurve = curve
@@ -20,8 +20,8 @@ class CurvePanel(val size: Vec2i, curve: EllipticCurve) : CurveFrame, JPanel() {
         }
 
     init {
-        setBounds(0, 0, size.x, size.y);
-        background = Color.gray;
+        setBounds(0, 0, size.x, size.y)
+        background = Color.gray
     }
 
 
@@ -41,7 +41,7 @@ class CurvePanel(val size: Vec2i, curve: EllipticCurve) : CurveFrame, JPanel() {
      *                                                          given by the float.
      * ----------------------------------
      */
-    val operations: MutableList<Pair<Any, Any>> = mutableListOf() // forgive me as i have sinned
+    private val operations: MutableList<Pair<Any, Any>> = mutableListOf() // forgive me as i have sinned
 
     /**
      * Let (x,y) be a point on the grid, and e=error(x, y) be a real number.
@@ -60,8 +60,8 @@ class CurvePanel(val size: Vec2i, curve: EllipticCurve) : CurveFrame, JPanel() {
 
     private var redraw: Boolean = false
     var gridsAndTicks: Boolean = false
-    val pointLines = mutableListOf<Vec2i>()
-    val pointText = mutableListOf<Pair<Vec2i, String>>()
+    private val pointLines = mutableListOf<Vec2i>()
+    private val pointText = mutableListOf<Pair<Vec2i, String>>()
     override fun paint(g: Graphics?) {
         super.paint(g)
 

@@ -1,21 +1,21 @@
 package eladkay.ellipticcurve.gui
 
-import eladkay.ellipticcurve.mathengine.*
+import eladkay.ellipticcurve.mathengine.EllipticCurve
+import eladkay.ellipticcurve.mathengine.Field
+import eladkay.ellipticcurve.mathengine.Vec2d
+import eladkay.ellipticcurve.mathengine.Vec2i
 import eladkay.ellipticcurve.simulationengine.CurveFrame
 import eladkay.ellipticcurve.simulationengine.CurvePanel
 import eladkay.ellipticcurve.simulationengine.EllipticSimulator
 import java.awt.Color
 import java.awt.Font
 import java.awt.Font.BOLD
-import java.awt.MenuBar
 import java.awt.event.*
 import java.io.File
 import javax.swing.*
 import javax.swing.event.ChangeEvent
-import kotlin.math.sign
-import javax.swing.JFrame
-import javax.swing.filechooser.FileFilter
 import javax.swing.filechooser.FileNameExtensionFilter
+import kotlin.math.sign
 
 
 object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener, MouseMotionListener {
@@ -58,7 +58,7 @@ object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener
         val errorTerm = panel.errorFunction(xModified, yModified) * Math.sin(Math.PI / 4) // this can but should not be replaced with 1/sqrt2. todo: i forgot why
         if (!condition && panel.curve.difference(xModified + errorTerm, yModified + errorTerm).sign
                 != panel.curve.difference(xModified - errorTerm, yModified - errorTerm).sign)
-            condition = true;
+            condition = true
 
         panel.changeColor(Color.GREEN)
         panel.changePointSize(5)
@@ -68,24 +68,21 @@ object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener
                 panel.drawPoint(Vec2i(x, y))
             } else if (p2 == null) {
                 p2 = Vec2i(x, y)
-                //panel.drawPoint(Vec2i(x, y))
+
                 panel.drawLine(p1 as Vec2i, p2 as Vec2i, 3f)
                 panel.changeColor(Color.RED)
                 panel.drawPoint(p1 as Vec2i, 10)
                 panel.drawPoint(p2 as Vec2i, 10)
                 panel.changeColor(Color.BLUE)
-                //val slope = MathHelper.slope(Vec2d(xModified, yModified), Vec2d(modifyX(p1!!.x), modifyY(p1!!.y)))
-                //println(slope)
+
                 val sum = panel.curve { Vec2d(xModified, yModified) + Vec2d(modifyX(p1!!.x), modifyY(p1!!.y)) }
                 val max = EllipticSimulator.getMaxBoundsOfFrame(panel)
                 val min = EllipticSimulator.getMinBoundsOfFrame(panel)
-                println(max)
-                println(min)
+
                 if (sum.x > max.x && sum.x > min.x || sum.y > max.y && sum.y > min.y || sum.x < min.x && sum.x < max.x || sum.y < min.y && sum.y < max.y)
-                    JOptionPane.showMessageDialog(null, +"gui.outofbounds"+sum.map { Math.round(it * 100) / 100.0 }.toString());
+                    JOptionPane.showMessageDialog(null, +"gui.outofbounds"+sum.map { Math.round(it * 100) / 100.0 }.toString())
                 else panel.drawPoint(Vec2i(EllipticSimulator.demodifyX(sum.x, panel), EllipticSimulator.demodifyY(sum.y, panel)), 15)
-                println(Vec2i(EllipticSimulator.demodifyX(sum.x, panel), EllipticSimulator.demodifyY(sum.y, panel)))
-                println(sum)
+
                 p1 = null
                 p2 = null
 
@@ -127,12 +124,12 @@ object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener
     }
 
     var panel = CurvePanel(Vec2i(size.x, size.y/* / 3*/), EllipticCurve(-1.0, 1.0, Field.REALS))
-    val checkboxGridsAndTicks = JCheckBox(+"gui.operationcalculator.gridsandticks")
-    val checkboxPtLoc = JCheckBox(+"gui.operationcalculator.checkboxPtLoc")
-    val checkboxAutoadd = JCheckBox(+"gui.operationcalculator.checkboxAutoadd")
+    private val checkboxGridsAndTicks = JCheckBox(+"gui.operationcalculator.gridsandticks")
+    private val checkboxPtLoc = JCheckBox(+"gui.operationcalculator.checkboxPtLoc")
+    private val checkboxAutoadd = JCheckBox(+"gui.operationcalculator.checkboxAutoadd")
 
-    val fc = JFileChooser()
-    var drawPtLocs: Boolean = false
+    private val fc = JFileChooser()
+    private var drawPtLocs: Boolean = false
     var autoAdd: Boolean = false
     var p1: Vec2i? = null
     var p2: Vec2i? = null
@@ -154,10 +151,10 @@ object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener
         jMenuBar = menuBar
 
     }
-    lateinit var menuFile: JMenu
-    lateinit var saveCurve: JMenuItem
-    lateinit var openCurve: JMenuItem
-    lateinit var exit: JMenuItem
+    private lateinit var menuFile: JMenu
+    private lateinit var saveCurve: JMenuItem
+    private lateinit var openCurve: JMenuItem
+    private lateinit var exit: JMenuItem
     private fun getFileMenu(): JMenu {
         menuFile = JMenu(+"gui.operationcalculator.file")
         saveCurve = JMenuItem(+"gui.operationcalculator.file.savecurve")
@@ -182,11 +179,11 @@ object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener
         return menuFile
     }
 
-    lateinit var menuCurve: JMenu
-    lateinit var changeCurve: JMenuItem
-    lateinit var changeField: JMenuItem
-    lateinit var realsField: JMenuItem
-    lateinit var finiteField: JMenuItem
+    private lateinit var menuCurve: JMenu
+    private lateinit var changeCurve: JMenuItem
+    private lateinit var changeField: JMenuItem
+    private lateinit var realsField: JMenuItem
+    private lateinit var finiteField: JMenuItem
     private fun getCurveMenu(): JMenu {
         menuCurve = JMenu(+"gui.operationcalculator.curve")
         changeCurve = JMenuItem(+"gui.operationcalculator.curve.changecurve")
@@ -210,10 +207,10 @@ object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener
         return menuCurve
     }
 
-    lateinit var menuVisualization: JMenu
-    lateinit var changeScale: JMenuItem
-    lateinit var clear: JMenuItem
-    lateinit var showPointInfo: JMenuItem
+    private lateinit var menuVisualization: JMenu
+    private lateinit var changeScale: JMenuItem
+    private lateinit var clear: JMenuItem
+    private lateinit var showPointInfo: JMenuItem
     private fun getVisualizationMenu(): JMenu {
         menuVisualization = JMenu(+"gui.operationcalculator.visualization")
         changeScale = JMenuItem(+"gui.operationcalculator.changescale")
@@ -250,10 +247,10 @@ object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener
         return menuVisualization
     }
 
-    lateinit var menuOperation: JMenu
-    lateinit var mult: JMenuItem
-    lateinit var flip: JMenuItem
-    lateinit var select: JMenuItem
+    private lateinit var menuOperation: JMenu
+    private lateinit var mult: JMenuItem
+    private lateinit var flip: JMenuItem
+    private lateinit var select: JMenuItem
     private fun getOperationMenu(): JMenu {
         menuOperation = JMenu(+"gui.operationcalculator.operation")
         mult = JMenuItem(+"gui.operationcalculator.mult")
@@ -442,7 +439,7 @@ object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener
                         val max = EllipticSimulator.getMaxBoundsOfFrame(panel)
                         val min = EllipticSimulator.getMinBoundsOfFrame(panel)
                         if (sum.x > max.x && sum.x > min.x || sum.y > max.y && sum.y > min.y || sum.x < min.x && sum.x < max.x || sum.y < min.y && sum.y < max.y)
-                            JOptionPane.showMessageDialog(null, +"gui.outofbounds"+sum.map { Math.round(it * 100) / 100.0 }.toString());
+                            JOptionPane.showMessageDialog(null, +"gui.outofbounds"+sum.map { Math.round(it * 100) / 100.0 }.toString())
                         else panel.drawPoint(Vec2i(EllipticSimulator.demodifyX(sum.x, panel), EllipticSimulator.demodifyY(sum.y, panel)), 15)
                         p1 = null
                         p2 = null
@@ -495,7 +492,7 @@ object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener
                     panel.drawPoint(p1!!, 15)
                     panel.changeColor(Color.BLACK)
                     panel.repaint()
-                    p1 = Vec2i(EllipticSimulator.demodifyX(multiplied.x, panel), EllipticSimulator.demodifyY(multiplied.y, panel)) // todo, do i want this?
+                    p1 = Vec2i(EllipticSimulator.demodifyX(multiplied.x, panel), EllipticSimulator.demodifyY(multiplied.y, panel))
                 }
             }
         }
@@ -586,7 +583,7 @@ object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener
                 try {
                     panel.curve = EllipticCurve(sliderA.value.toDouble(), sliderB.value.toDouble(), Field.REALS)
                 } catch (e: IllegalArgumentException) {
-                    JOptionPane.showMessageDialog(null, +"gui.invalidcurve!");
+                    JOptionPane.showMessageDialog(null, +"gui.invalidcurve!")
                 }
                 panel.redraw()
             }
