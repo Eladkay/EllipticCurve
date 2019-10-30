@@ -25,8 +25,8 @@ fun getTranslatedString(key: String, language: String) =
                 .firstOrNull { it[0] == key }?.get(1) ?: key
 
 private fun getFileContents(name: String): List<String> {
-    if(name in languageFiles) return languageFiles[name]!!
-    if(!isRunningJarred()) {
+    if (name in languageFiles) return languageFiles[name]!!
+    if (!isRunningJarred()) {
         val read = File("${System.getProperty("user.dir")}/src/$name").readLines()
         languageFiles.put(name, read)
         return read
@@ -51,4 +51,5 @@ private fun isRunningJarred(): Boolean {
     }
 
 }
+
 operator fun String.unaryPlus() = getTranslatedString(this)

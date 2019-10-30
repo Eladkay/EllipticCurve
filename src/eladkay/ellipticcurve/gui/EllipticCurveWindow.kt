@@ -52,6 +52,7 @@ open class EllipticCurveWindow(xSize: Int, ySize: Int) : JFrame(), ActionListene
         internal fun updateI18n() {
             classes.forEach { it.updateTextForI18n() }
         }
+
         fun getScreenSize(): Vec2i {
             val size = Toolkit.getDefaultToolkit().screenSize
             return Vec2i(size.width, size.height)

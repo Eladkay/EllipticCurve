@@ -111,12 +111,12 @@ class CurvePanel(private val size: Vec2i, curve: EllipticCurve) : CurveFrame, JP
             }
         }
 
-        for(line in pointLines) {
+        for (line in pointLines) {
             g2.draw(Line2D.Double(line.x.toDouble(), 0.0, line.x.toDouble(), this.size.y.toDouble()))
             g2.draw(Line2D.Double(0.0, line.y.toDouble(), this.size.x.toDouble(), line.y.toDouble()))
         }
 
-        for(text in pointText) {
+        for (text in pointText) {
             g2.drawString(text.second, text.first.x + 5, text.first.y)
         }
 

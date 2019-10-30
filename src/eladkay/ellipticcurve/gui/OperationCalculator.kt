@@ -26,11 +26,11 @@ object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener
         e!!
         val x = e.x
         val y = e.y
-        if(drawPtLocs) {
+        if (drawPtLocs) {
             panel.clearPointLines()
             panel.changeColor(Color.ORANGE)
             panel.addPointLines(Vec2i(x, y))
-            panel.drawPointLineText(Vec2i(x + 5, y), "(${Math.round(100.0*modifyX(x))/100.0}, ${Math.round(100.0*modifyY(y))/100.0})")
+            panel.drawPointLineText(Vec2i(x + 5, y), "(${Math.round(100.0 * modifyX(x)) / 100.0}, ${Math.round(100.0 * modifyY(y)) / 100.0})")
             panel.repaint()
         }
     }
@@ -80,7 +80,7 @@ object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener
                 val min = EllipticSimulator.getMinBoundsOfFrame(panel)
 
                 if (sum.x > max.x && sum.x > min.x || sum.y > max.y && sum.y > min.y || sum.x < min.x && sum.x < max.x || sum.y < min.y && sum.y < max.y)
-                    JOptionPane.showMessageDialog(null, +"gui.outofbounds"+sum.map { Math.round(it * 100) / 100.0 }.toString())
+                    JOptionPane.showMessageDialog(null, +"gui.outofbounds" + sum.map { Math.round(it * 100) / 100.0 }.toString())
                 else panel.drawPoint(Vec2i(EllipticSimulator.demodifyX(sum.x, panel), EllipticSimulator.demodifyY(sum.y, panel)), 15)
 
                 p1 = null
@@ -151,6 +151,7 @@ object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener
         jMenuBar = menuBar
 
     }
+
     private lateinit var menuFile: JMenu
     private lateinit var saveCurve: JMenuItem
     private lateinit var openCurve: JMenuItem
@@ -296,7 +297,7 @@ object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener
             }
             "savecurve" -> {
                 val ret = fc.showSaveDialog(this)
-                if(ret == JFileChooser.APPROVE_OPTION) {
+                if (ret == JFileChooser.APPROVE_OPTION) {
                     val fileSelected = fc.selectedFile
                     val file = File(fileSelected.absolutePath + ".curve")
                     file.createNewFile()
@@ -305,7 +306,7 @@ object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener
             }
             "opencurve" -> {
                 val ret = fc.showOpenDialog(this)
-                if(ret == JFileChooser.APPROVE_OPTION) {
+                if (ret == JFileChooser.APPROVE_OPTION) {
                     val file = fc.selectedFile
                     panel.curve = CurveFrame.deserializeCurveFrame(file.readText())
                     panel.redraw()
@@ -316,11 +317,11 @@ object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener
             }
             "exit" -> this.isVisible = false
             "mult" -> {
-                if(p1 == null) JOptionPane.showMessageDialog(null, +"gui.operationcalculator.choosept")
+                if (p1 == null) JOptionPane.showMessageDialog(null, +"gui.operationcalculator.choosept")
                 else PointMultiplier.createAndShow()
             }
             "flip" -> {
-                if(p1 == null) JOptionPane.showMessageDialog(null, +"gui.operationcalculator.choosept")
+                if (p1 == null) JOptionPane.showMessageDialog(null, +"gui.operationcalculator.choosept")
                 else {
                     val (x, y) = p1!!
                     val multiplied = panel.curve { Vec2d(modifyX(x), modifyY(y)).invertY() }
@@ -334,42 +335,42 @@ object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener
                 }
             }
             "select" -> PointSelector.createAndShow()
-            "ptinfo" -> if(p1 == null) JOptionPane.showMessageDialog(null, +"gui.operationcalculator.choosept") else PointInfo.createAndShow()
+            "ptinfo" -> if (p1 == null) JOptionPane.showMessageDialog(null, +"gui.operationcalculator.choosept") else PointInfo.createAndShow()
         }
     }
 
 
     override fun itemStateChanged(e: ItemEvent?) {
         val source = e!!.itemSelectable
-        if(source == checkboxGridsAndTicks) {
+        if (source == checkboxGridsAndTicks) {
             panel.gridsAndTicks = !panel.gridsAndTicks
             panel.redraw()
-            if(e.stateChange == ItemEvent.DESELECTED) panel.clear()
-        } else if(source == checkboxPtLoc) {
+            if (e.stateChange == ItemEvent.DESELECTED) panel.clear()
+        } else if (source == checkboxPtLoc) {
             drawPtLocs = !drawPtLocs
             panel.redraw()
-            if(e.stateChange == ItemEvent.DESELECTED) {
+            if (e.stateChange == ItemEvent.DESELECTED) {
                 panel.clearPointLines()
                 panel.repaint()
             }
-        } else if(source == checkboxAutoadd) {
+        } else if (source == checkboxAutoadd) {
             autoAdd = e.stateChange != ItemEvent.DESELECTED
         }
         super.itemStateChanged(e)
     }
 
-    private object PointInfo : EllipticCurveWindow((EllipticCurveWindow.getScreenSize()/9.0).vec2i()) {
+    private object PointInfo : EllipticCurveWindow((EllipticCurveWindow.getScreenSize() / 9.0).vec2i()) {
         val pointInfoBox = JTextField()
         override fun createAndShow() {
             super.createAndShow()
-            pointInfoBox.text = "(${Math.round(100.0*modifyX(p1!!.x))/100.0}, ${Math.round(100.0*modifyY(p1!!.y))/100.0})"
+            pointInfoBox.text = "(${Math.round(100.0 * modifyX(p1!!.x)) / 100.0}, ${Math.round(100.0 * modifyY(p1!!.y)) / 100.0})"
         }
 
         init {
             pointInfoBox.isEnabled = false
-            pointInfoBox.setBounds(size.x * 1/6, size.y * 1/6, size.x * 4/6, 40)
+            pointInfoBox.setBounds(size.x * 1 / 6, size.y * 1 / 6, size.x * 4 / 6, 40)
             pointInfoBox.disabledTextColor = Color.BLACK
-            pointInfoBox.text = "(${Math.round(100.0*modifyX(p1!!.x))/100}, ${Math.round(100.0*modifyY(p1!!.y))/100})"
+            pointInfoBox.text = "(${Math.round(100.0 * modifyX(p1!!.x)) / 100}, ${Math.round(100.0 * modifyY(p1!!.y)) / 100})"
             pointInfoBox.horizontalAlignment = JTextField.CENTER
             add(pointInfoBox)
         }
@@ -377,7 +378,7 @@ object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener
 
     }
 
-    private object PointSelector : EllipticCurveWindow((EllipticCurveWindow.getScreenSize()/4.5).vec2i()) {
+    private object PointSelector : EllipticCurveWindow((EllipticCurveWindow.getScreenSize() / 4.5).vec2i()) {
         val okButton = JButton(+"gui.ok")
         val xBox = JTextField(2)
         val yBox = JTextField(2)
@@ -387,9 +388,10 @@ object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener
             okButton.text = +"gui.ok"
             labelA.text = +"gui.pointselector.selectpt"
         }
+
         init {
             val font = Font("Serif", BOLD, 18)
-            labelA.setBounds(size.x * 1 / 2 - 75, size.y * 1/8, 200, 30)
+            labelA.setBounds(size.x * 1 / 2 - 75, size.y * 1 / 8, 200, 30)
             labelA.verticalTextPosition = JLabel.TOP
             labelA.font = font
             labelA.isVisible = true
@@ -410,22 +412,22 @@ object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener
 
         override fun actionPerformed(e: ActionEvent?) {
             super.actionPerformed(e)
-            when(e!!.actionCommand) {
+            when (e!!.actionCommand) {
                 "ok" -> {
                     this.isVisible = false
                     val x = xBox.text.toDoubleOrNull()
-                    if(x == null) {
+                    if (x == null) {
                         JOptionPane.showMessageDialog(null, +"gui.invalidnumber")
                         return
                     }
                     val y = yBox.text.toDoubleOrNull()
-                    if(y == null) {
+                    if (y == null) {
                         JOptionPane.showMessageDialog(null, +"gui.invalidnumber")
                         return
                     }
                     panel.changeColor(Color.GREEN)
                     panel.changePointSize(5)
-                    if(p1 == null || !autoAdd) {
+                    if (p1 == null || !autoAdd) {
                         p1 = Vec2i(EllipticSimulator.demodifyX(x, panel), EllipticSimulator.demodifyY(y, panel))
                         panel.drawPoint(p1!!)
                     } else {
@@ -439,7 +441,7 @@ object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener
                         val max = EllipticSimulator.getMaxBoundsOfFrame(panel)
                         val min = EllipticSimulator.getMinBoundsOfFrame(panel)
                         if (sum.x > max.x && sum.x > min.x || sum.y > max.y && sum.y > min.y || sum.x < min.x && sum.x < max.x || sum.y < min.y && sum.y < max.y)
-                            JOptionPane.showMessageDialog(null, +"gui.outofbounds"+sum.map { Math.round(it * 100) / 100.0 }.toString())
+                            JOptionPane.showMessageDialog(null, +"gui.outofbounds" + sum.map { Math.round(it * 100) / 100.0 }.toString())
                         else panel.drawPoint(Vec2i(EllipticSimulator.demodifyX(sum.x, panel), EllipticSimulator.demodifyY(sum.y, panel)), 15)
                         p1 = null
                         p2 = null
@@ -451,7 +453,7 @@ object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener
         }
     }
 
-    private object PointMultiplier : EllipticCurveWindow((EllipticCurveWindow.getScreenSize()/4.5).vec2i()) {
+    private object PointMultiplier : EllipticCurveWindow((EllipticCurveWindow.getScreenSize() / 4.5).vec2i()) {
         val spinner = JSpinner(SpinnerNumberModel(1, 1, 100, 1))
         val labelA = JLabel(+"gui.pointmultiplier")
         val okButton = JButton(+"gui.ok")
@@ -460,6 +462,7 @@ object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener
             labelA.text = +"gui.pointmultiplier"
             okButton.text = +"gui.ok"
         }
+
         init {
             val font = Font("Serif", BOLD, 18)
             spinner.setBounds(size.x * 1 / 2 - 200, size.y * 5 / 16, 400, 40)
@@ -480,7 +483,7 @@ object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener
 
         override fun actionPerformed(e: ActionEvent?) {
             super.actionPerformed(e)
-            when(e!!.actionCommand) {
+            when (e!!.actionCommand) {
                 "ok" -> {
                     this.isVisible = false
                     val (x, y) = p1!!
@@ -499,7 +502,7 @@ object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener
 
     }
 
-    private object ScaleChanger : EllipticCurveWindow((EllipticCurveWindow.getScreenSize()/4.5).vec2i()) {
+    private object ScaleChanger : EllipticCurveWindow((EllipticCurveWindow.getScreenSize() / 4.5).vec2i()) {
 
         val sliderScale = JSlider(JSlider.HORIZONTAL, 1, 10, 1)
         val labelA = JLabel(+"gui.scalechanger.scale")
@@ -507,6 +510,7 @@ object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener
             super.updateTextForI18n()
             labelA.text = +"gui.scalechanger.scale"
         }
+
         init {
             val font = Font("Serif", BOLD, 18)
             sliderScale.setBounds(size.x * 1 / 2 - 200, size.y * 5 / 16, 400, 40)
@@ -536,11 +540,12 @@ object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener
         }
     }
 
-    private object CurveChanger : EllipticCurveWindow((EllipticCurveWindow.getScreenSize()/4.5).vec2i()) {
+    private object CurveChanger : EllipticCurveWindow((EllipticCurveWindow.getScreenSize() / 4.5).vec2i()) {
         val sliderA = JSlider(JSlider.HORIZONTAL, -5, 5, -1)
         val sliderB = JSlider(JSlider.HORIZONTAL, -5, 5, 1)
         val labelA = JLabel("a")
         val labelB = JLabel("b", JLabel.CENTER)
+
         init {
             val font = Font("Serif", BOLD, 18)
 
@@ -575,6 +580,7 @@ object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener
             add(labelB)
             add(sliderB)
         }
+
         override fun stateChanged(e: ChangeEvent?) {
             super.stateChanged(e!!)
             val slider = e.source as? JSlider
@@ -590,7 +596,6 @@ object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener
 
         }
     }
-
 
 
 }
