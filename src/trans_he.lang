@@ -1,4 +1,5 @@
 this=עברית
+# TODO: This does NOT work as expected in the jar version
 
 gui.mainscreen=כלי המחשה עקום אליפטי
 gui.operationcalculator=מחשבון פעולות

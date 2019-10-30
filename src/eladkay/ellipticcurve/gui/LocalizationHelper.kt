@@ -17,11 +17,13 @@ var currentLoc = "en"
 fun getTranslatedString(key: String) =
         getFileContents("trans_$currentLoc.lang")
                 .map { it.split("=") }
+                .filterNot { it[0].startsWith("#") }
                 .firstOrNull { it[0] == key }?.get(1) ?: key
 
 fun getTranslatedString(key: String, language: String) =
         getFileContents("trans_$language.lang")
                 .map { it.split("=") }
+                .filterNot { it[0].startsWith("#") }
                 .firstOrNull { it[0] == key }?.get(1) ?: key
 
 private fun getFileContents(name: String): List<String> {
