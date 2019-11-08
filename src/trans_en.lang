@@ -33,7 +33,7 @@ gui.operationcalculator.file.savecurve=Save Curve...
 gui.operationcalculator.file.opencurve=Open Curve...
 gui.operationcalculator.file.exit=Exit
 
-gui.encryptionHelper=Encryption/Decryption Helper
+gui.encryptdecrypthelper=Encryption/Decryption Helper
 
 
 gui.studyHelper=Study Helper

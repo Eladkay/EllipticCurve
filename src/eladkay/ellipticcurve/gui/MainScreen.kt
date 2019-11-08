@@ -9,7 +9,7 @@ import javax.swing.JLabel
 
 object MainScreen : EllipticCurveWindow((getScreenSize() * 2) / 3) {
     private val operationCalc = JButton(+"gui.operationcalculator")
-    private val encryptionHelper = JButton(+"gui.encryptionHelper")
+    private val encryptionHelper = JButton(+"gui.encryptdecrypthelper")
     private val studyHelper = JButton(+"gui.studyHelper")
     private val titleL1 = JLabel(+"gui.welcomeL1")
     private val titleL2 = JLabel(+"gui.welcomeL2")
@@ -26,14 +26,14 @@ object MainScreen : EllipticCurveWindow((getScreenSize() * 2) / 3) {
 
 
         encryptionHelper.mnemonic = KeyEvent.VK_E
-        encryptionHelper.actionCommand = "encryptionHelper"
+        encryptionHelper.actionCommand = "encryptionhelper"
         encryptionHelper.setBounds(size.x * 9 / 24, size.y * 7 / 8, 200, 40)
         encryptionHelper.addActionListener(MainScreen)
         add(encryptionHelper)
 
 
         studyHelper.mnemonic = KeyEvent.VK_S
-        studyHelper.actionCommand = "studyHelper"
+        studyHelper.actionCommand = "studyhelper"
         studyHelper.setBounds(size.x * 2 / 3, size.y * 7 / 8, 200, 40)
         studyHelper.addActionListener(MainScreen)
         add(studyHelper)
@@ -56,7 +56,7 @@ object MainScreen : EllipticCurveWindow((getScreenSize() * 2) / 3) {
     override fun updateTextForI18n() {
         super.updateTextForI18n()
         operationCalc.text = +"gui.operationcalculator"
-        encryptionHelper.text = +"gui.encryptionHelper"
+        encryptionHelper.text = +"gui.encryptdecrypthelper"
         studyHelper.text = +"gui.studyHelper"
         titleL1.text = +"gui.welcomeL1"
         titleL2.text = +"gui.welcomeL2"
@@ -70,6 +70,7 @@ object MainScreen : EllipticCurveWindow((getScreenSize() * 2) / 3) {
                 currentLoc = VALID_LOCS.first { getTranslatedString("this", it) == (e.source as? JComboBox<String>)?.selectedItem }
                 EllipticCurveWindow.updateI18n()
             }
+            "encryptionhelper" -> EncryptDecryptHelper.createAndShow()
         }
     }
 
