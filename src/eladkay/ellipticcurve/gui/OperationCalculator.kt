@@ -1,9 +1,6 @@
 package eladkay.ellipticcurve.gui
 
-import eladkay.ellipticcurve.mathengine.EllipticCurve
-import eladkay.ellipticcurve.mathengine.MathHelper
-import eladkay.ellipticcurve.mathengine.Vec2d
-import eladkay.ellipticcurve.mathengine.Vec2i
+import eladkay.ellipticcurve.mathengine.*
 import eladkay.ellipticcurve.simulationengine.CurveFrame
 import eladkay.ellipticcurve.simulationengine.CurvePanel
 import eladkay.ellipticcurve.simulationengine.EllipticSimulator
@@ -198,11 +195,11 @@ object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener
         changeCurve.actionCommand = "changecurve"
         menuCurve.add(changeCurve)
 
-        changeField.addActionListener(this)
-        changeField.actionCommand = "changefield_reals"
+        realsField.addActionListener(this)
+        realsField.actionCommand = "changefield_reals"
         changeField.add(realsField)
-        changeField.addActionListener(this)
-        changeField.actionCommand = "changefield_zp"
+        finiteField.addActionListener(this)
+        finiteField.actionCommand = "changefield_zp"
         changeField.add(finiteField)
         menuCurve.add(changeField)
         return menuCurve
@@ -336,6 +333,7 @@ object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener
             }
             "select" -> PointSelector.createAndShow()
             "ptinfo" -> if (p1 == null) JOptionPane.showMessageDialog(null, +"gui.operationcalculator.choosept") else PointInfo.createAndShow()
+            "changefield_zp" -> panel.curve = FiniteEllipticCurve(2.0, 3.0, 5)
         }
     }
 

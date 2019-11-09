@@ -7,12 +7,12 @@ class FiniteEllipticCurve(aValue: Double, bValue: Double, val modulus: Int) : El
     }
 
     override fun difference(x: Double, y: Double): Double {
-        return if(isPointOnCurve(Vec2d(x, y))) 0.0 else Double.MAX_VALUE
+        return (y - (x * x * x) - (aValue * x) - bValue) % modulus
     }
 
     override fun isPointOnCurve(p: Vec2d): Boolean {
         val pNew = p.map { it % modulus }
-        return pNew.y % modulus == (pNew.x * pNew.x * pNew.x) % modulus + (aValue * pNew.x) % modulus + bValue % modulus
+        return (pNew.y - (pNew.x * pNew.x * pNew.x) - (aValue * pNew.x) - bValue) % modulus == 0.0
     }
 
     override fun equals(other: Any?): Boolean {
@@ -54,7 +54,7 @@ class FiniteEllipticCurve(aValue: Double, bValue: Double, val modulus: Int) : El
             return !((!this * !b) % modulus)
         }
         operator fun div(b: NumberWrapper): NumberWrapper = this * !inv(!b)
-        operator fun unaryMinus(): NumberWrapper = if (!this == 0.0) !0.0 else !modulus.toDouble() - this
+        operator fun unaryMinus(): NumberWrapper = if (!this == 0.0) !0.0 else !(modulus.toDouble() - !this)
         infix fun exp(b: Int): NumberWrapper = if (b==1) this else this*exp(b-1)
 
         fun inv(a: Double): Double {
