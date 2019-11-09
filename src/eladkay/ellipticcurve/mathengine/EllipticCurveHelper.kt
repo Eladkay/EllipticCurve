@@ -3,9 +3,10 @@ package eladkay.ellipticcurve.mathengine
 class EllipticCurveHelper(private val curve: EllipticCurve) {
     private val field: Field = curve.field
 
+    // an elliptic curve over a finite field using this operation is a finite abelian group
     fun add(a: Vec2d, b: Vec2d): Vec2d {
-/*        if (!curve.isPointOnCurve(a)) throw IllegalArgumentException("point $a not on curve!")
-        if (!curve.isPointOnCurve(b)) throw IllegalArgumentException("point $b not on curve!")*/
+     /* if (!curve.isPointOnCurve(a)) throw IllegalArgumentException("point $a not on curve!")
+        if (!curve.isPointOnCurve(b)) throw IllegalArgumentException("point $b not on curve!") */ // since we're working with very crude approximations, this can't be
 
         val (x1, y1) = a
         val (x2, y2) = b
@@ -35,4 +36,21 @@ class EllipticCurveHelper(private val curve: EllipticCurve) {
             add(a, multiply(a, num - 1))
     }
 
+    // Encoding methodology due to
+    // Reyad, Omar. (2018). Text Message Encoding Based on Elliptic Curve Cryptography and a Mapping Methodology. 10.12785/isl/070102.
+
+    fun getPointOnCurveFromString(string: String): Vec2d {
+        TODO()
+    }
+
+    fun getStringFromPointOnCurve(vec2d: Vec2d): String {
+        TODO()
+    }
+
+    // Below is the sequence of steps for encryption and decryption of a message from Alice to Bob:
+    // Let Alice's private key be denoted by x and Bob's, by y.
+    // Let M be the message as encoded by [getPointOnCurveFromString], let p be the modulus of the field and k a random
+    // integer selected by Alice. G is a point agreed on by both sides. Alice's public key is A = xG and Bob's, B = yG.
+    // The encrypted message is ((kG), (M+kB)).
+    // If the encrypted message is (P, Q), then Bob can decrypt it as Q-yP.
 }
