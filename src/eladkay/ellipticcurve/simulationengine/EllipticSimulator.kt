@@ -15,18 +15,17 @@ object EllipticSimulator {
         get() = 200 / scale
 
     fun drawCurve(ellipticCurve: EllipticCurve, frame: CurveFrame, drawText: Boolean, xScale: Int = defaultXScale, yScale: Int = defaultYScale) {
-        ellipticCurve.field {
             for (x in 0..frame.frameSize().x)
                 for (y in 0..frame.frameSize().y) {
                     val xModified = (x - frame.frameSize().x / 2 - X_OFFSET) / xScale.toDouble()
                     val yModified = (-y + frame.frameSize().y / 2) / yScale.toDouble()
-                    // hmm, not so sure about this. todo
-                    if (ellipticCurve.isPointOnCurve(Vec2d(xModified, yModified)) || ellipticCurve.isPointOnCurve(Vec2d(realsToField(xModified), realsToField(yModified)))) {
+
+                    if (ellipticCurve.isPointOnCurve(Vec2d(xModified, yModified))) {
                         frame.drawPoint(Vec2i(x, y))
                         if (drawText) frame.drawText(Vec2i(x, y), "($xModified, $yModified)")
                     }
                 }
-        }
+
     }
 
     fun drawCurveApprox(ellipticCurve: EllipticCurve, frame: CurveFrame, error: Double, drawText: Boolean, xScale: Int = defaultXScale, yScale: Int = defaultYScale) {
@@ -53,7 +52,6 @@ object EllipticSimulator {
     // i have, for posterity, attached a sketch of the function of the error part of drawCurveApprox:
     // https://i.imgur.com/8u49qkS.jpg
     fun drawCurveApprox(ellipticCurve: EllipticCurve, frame: CurveFrame, error: (Double, Double) -> Double, drawText: Boolean, xScale: Int = defaultXScale, yScale: Int = defaultYScale) {
-        ellipticCurve.field {
             for (x in 0..frame.frameSize().x)
                 for (y in 0..frame.frameSize().y) {
                     val xModified = (x - frame.frameSize().x / 2 - X_OFFSET) / xScale.toDouble()
@@ -61,9 +59,7 @@ object EllipticSimulator {
                     if (yModified < 0) continue // elliptic curves are always symmetric
                     if (xModified < ellipticCurve.getPeak2().x) continue
 
-                    // hmm, not so sure about this. todo
                     var condition = ellipticCurve.isPointOnCurve(Vec2d(xModified, yModified))
-                            || ellipticCurve.isPointOnCurve(Vec2d(realsToField(xModified), realsToField(yModified)))
                     val errorTerm = error(xModified, yModified) * Math.sin(Math.PI / 4) // this can but should not be replaced with 1/sqrt2.
                     if (!condition && ellipticCurve.difference(xModified + errorTerm, yModified + errorTerm).sign
                             != ellipticCurve.difference(xModified - errorTerm, yModified - errorTerm).sign)
@@ -75,7 +71,7 @@ object EllipticSimulator {
                         if (drawText) frame.drawText(Vec2i(x, demodifyY(-yModified, frame, yScale)), "($xModified, ${-yModified})")
                     }
                 }
-        }
+
     }
 
     fun demodifyY(y: Double, frame: CurveFrame, yScale: Int = defaultYScale) = (-yScale * y + frame.frameSize().y / 2).toInt()

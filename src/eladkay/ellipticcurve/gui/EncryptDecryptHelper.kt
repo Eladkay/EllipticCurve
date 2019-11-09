@@ -1,7 +1,7 @@
 package eladkay.ellipticcurve.gui
 
 import eladkay.ellipticcurve.mathengine.EllipticCurve
-import eladkay.ellipticcurve.mathengine.Field
+import eladkay.ellipticcurve.mathengine.MathHelper
 import eladkay.ellipticcurve.mathengine.Vec2i
 import eladkay.ellipticcurve.simulationengine.CurveFrame
 import eladkay.ellipticcurve.simulationengine.CurvePanel
@@ -31,7 +31,7 @@ object EncryptDecryptHelper : EllipticCurveWindow(getScreenSize()), MouseListene
     private fun modifyX(x: Number): Double = (x.toDouble() - panel.frameSize().x / 2 - EllipticSimulator.X_OFFSET) / EllipticSimulator.defaultXScale.toDouble()
     private fun modifyY(y: Number): Double = (-y.toDouble() + panel.frameSize().y / 2) / EllipticSimulator.defaultYScale.toDouble()
     
-    var panel = CurvePanel(Vec2i(size.x, size.y), EllipticCurve(-1.0, 1.0, Field.REALS))
+    var panel = CurvePanel(Vec2i(size.x, size.y), EllipticCurve(-1.0, 1.0, MathHelper.REALS))
     private val fc = JFileChooser()
     
     init {
@@ -271,7 +271,7 @@ object EncryptDecryptHelper : EllipticCurveWindow(getScreenSize()), MouseListene
             panel.clear()
             if (slider?.valueIsAdjusting?.not() == true) {
                 try {
-                    panel.curve = EllipticCurve(sliderA.value.toDouble(), sliderB.value.toDouble(), Field.REALS)
+                    panel.curve = EllipticCurve(sliderA.value.toDouble(), sliderB.value.toDouble(), MathHelper.REALS)
                 } catch (e: IllegalArgumentException) {
                     JOptionPane.showMessageDialog(null, +"gui.invalidcurve!")
                 }

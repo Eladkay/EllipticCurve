@@ -1,7 +1,8 @@
 package eladkay.ellipticcurve.mathengine
 
 class EllipticCurveHelper(private val curve: EllipticCurve) {
-    private val field: Field = curve.field
+
+
 
     // an elliptic curve over a finite field using this operation is a finite abelian group
     fun add(a: Vec2d, b: Vec2d): Vec2d {
@@ -10,22 +11,40 @@ class EllipticCurveHelper(private val curve: EllipticCurve) {
 
         val (x1, y1) = a
         val (x2, y2) = b
-        return field {
-            if (a == b) {
-                if (y1 == 0.0) return@field Vec2d.PT_AT_INF
+        // well then screw this, this does NOT seem like good code does it? but it is
+        if(curve is FiniteEllipticCurve)
+            return curve {
+                operator fun Double.not() = FiniteEllipticCurve.NumberWrapper(this, curve.modulus)
+                if (a == b) {
+                    if (y1 == 0.0) return@curve Vec2d.PT_AT_INF
 
-                val m = (!3.0 * (!x1 exp 2) + !curve.aValue) / (!2.0 * !y1)
-                val x3 = (m exp 2) + !-2.0 * !x1
-                val y3 = m * (!x1 - x3) - !y1
-                Vec2d(!x3, !y3).takeUnless { it.isNaN() } ?: Vec2d.PT_AT_INF
-            } else {
-                if (x1 == x2) return@field Vec2d.PT_AT_INF
+                    val m = (!3.0 * (!x1 exp 2) + !curve.aValue) / (!2.0 * !y1)
+                    val x3 = (m exp 2) + !-2.0 * !x1
+                    val y3 = m * (!x1 - x3) - !y1
+                    Vec2d(!x3, !y3).takeUnless { it.isNaN() } ?: Vec2d.PT_AT_INF
+                } else {
+                    if (x1 == x2) return@curve Vec2d.PT_AT_INF
 
-                val m = !(y2 - y1) / !(x2 - x1)
-                val x3 = (m exp 2) - !x1 - !x2
-                val y3 = m * (!x1 - x3) - !y1
-                Vec2d(!x3, !y3).takeUnless { it.isNaN() } ?: Vec2d.PT_AT_INF
+                    val m = !(y2 - y1) / !(x2 - x1)
+                    val x3 = (m exp 2) - !x1 - !x2
+                    val y3 = m * (!x1 - x3) - !y1
+                    Vec2d(!x3, !y3).takeUnless { it.isNaN() } ?: Vec2d.PT_AT_INF
+                }
             }
+        else return if (a == b) {
+            if (y1 == 0.0) return Vec2d.PT_AT_INF
+
+            val m = (3.0 * (x1 * x1) + curve.aValue) / (2.0 * y1)
+            val x3 = (m * m) + -2.0 * x1
+            val y3 = m * (x1 - x3) - y1
+            Vec2d(x3, y3).takeUnless { it.isNaN() } ?: Vec2d.PT_AT_INF
+        } else {
+            if (x1 == x2) return Vec2d.PT_AT_INF
+
+            val m = (y2 - y1) / (x2 - x1)
+            val x3 = (m * m) - x1 - x2
+            val y3 = m * (x1 - x3) - y1
+            Vec2d(x3, y3).takeUnless { it.isNaN() } ?: Vec2d.PT_AT_INF
         }
     }
 
