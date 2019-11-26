@@ -1,6 +1,16 @@
 package eladkay.ellipticcurve.mathengine
 
+// this is partially inspired by https://andrea.corbellini.name/2015/05/17/elliptic-curve-cryptography-a-gentle-introduction/
 class FiniteEllipticCurve(aValue: Double, bValue: Double, val modulus: Int) : EllipticCurve(aValue, bValue, MathHelper.zp(modulus)) {
+
+    private val curvePoints = mutableListOf<Vec2d>()
+
+    private fun order() = curvePoints.size
+
+    init {
+        for(x in 0..modulus) for (y in 0..modulus)
+            if((y*y - x * x *x - aValue*x - bValue) % modulus == 0.0) curvePoints.add(Vec2d(x, y))
+    }
 
     override fun determinant(): Double {
         return super.determinant() % modulus
@@ -11,8 +21,9 @@ class FiniteEllipticCurve(aValue: Double, bValue: Double, val modulus: Int) : El
     }
 
     override fun isPointOnCurve(p: Vec2d): Boolean {
-        val pNew = p.map { it % modulus }
-        return (pNew.y - (pNew.x * pNew.x * pNew.x) - (aValue * pNew.x) - bValue) % modulus == 0.0
+        if(p in curvePoints) return true
+        for(i in -10..10) if (Vec2d(i*modulus + p.x, i*modulus + p.y) in curvePoints) return true
+        return false
     }
 
     override fun equals(other: Any?): Boolean {
