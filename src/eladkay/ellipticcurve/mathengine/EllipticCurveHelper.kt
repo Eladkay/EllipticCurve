@@ -10,11 +10,16 @@ class EllipticCurveHelper(private val curve: EllipticCurve) {
         if(a == Vec2d.PT_AT_INF) return b
         if(b == Vec2d.PT_AT_INF) return a
 
-        val (x1, y1) = a
-        val (x2, y2) = b
+        var (x1, y1) = a
+        var (x2, y2) = b
         // well then screw this, this does NOT seem like good code does it? but it is
         if(curve is FiniteEllipticCurve) if(curve.field == "z2" || curve.field == "z3") throw IllegalArgumentException("elliptic curves over Z2 or Z3 don't quite work the same")
-            else return curve {
+        else {
+            x1 %= curve.modulus
+            y1 %= curve.modulus
+            x2 %= curve.modulus
+            y2 %= curve.modulus
+            val specificDefinition = curve {
                 operator fun Double.not() = FiniteEllipticCurve.NumberWrapper(this, curve.modulus)
                 if (a == b) {
                     if (y1 == 0.0) return@curve Vec2d.PT_AT_INF
@@ -32,7 +37,8 @@ class EllipticCurveHelper(private val curve: EllipticCurve) {
                     Vec2d(!x3, !y3).takeUnless { it.isNaN() } ?: Vec2d.PT_AT_INF
                 }
             }
-        else return if (a == b) {
+            return specificDefinition
+        } else return if (a == b) {
             if (y1 == 0.0) return Vec2d.PT_AT_INF
 
             val m = (3.0 * (x1 * x1) + curve.aValue) / (2.0 * y1)
