@@ -27,8 +27,8 @@ class FiniteEllipticCurve(aValue: Double, bValue: Double, val modulus: Int) : El
         // let q be in Z^2, then there exists k natural and p in Fp^2 and on the curve such that q = k(modulus, modulus) + p (vector addition/multiplication, not group law)
         // if and only if q is on the generalized definition of the curve. specifically, if q is in Fp^2 we let p=q, k=0.
         // another equivalent: let (x, y) be in Z^2, then let (x mod modulus, y mod modulus) be in Fp^2, the latter is on the curve
-        // iff the former is on the curve. that actually is better than what i am doing (2nd def), i should change it, todo.
-        for(i in -10..10) if (Vec2d(i*modulus + p.x, i*modulus + p.y) in curvePoints) return true
+        // iff the former is on the curve.
+        if (Vec2d(p.x % modulus, p.y % modulus) in curvePoints) return true
         return false
     }
 
