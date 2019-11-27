@@ -1,6 +1,7 @@
 package eladkay.ellipticcurve.simulationengine
 
 import eladkay.ellipticcurve.mathengine.EllipticCurve
+import eladkay.ellipticcurve.mathengine.FiniteEllipticCurve
 import eladkay.ellipticcurve.mathengine.Vec2d
 import eladkay.ellipticcurve.mathengine.Vec2i
 import java.awt.Color
@@ -119,6 +120,26 @@ object EllipticSimulator {
         while (currentX < frame.frameSize().x) {
             frame.drawLine(Vec2i(currentX, 0), Vec2i(currentX, frame.frameSize().y))
             currentX += xUnit
+        }
+        frame.changeColor(Color.BLACK)
+    }
+
+    fun drawLineOfSymmetry(frame: CurveFrame, xScale: Int = defaultXScale, yScale: Int = defaultYScale) {
+        frame.changeColor(Color.RED)
+        if(frame.curve is FiniteEllipticCurve) {
+            val modulus = (frame.curve as FiniteEllipticCurve).modulus
+            val xModified = {x: Int -> (x - frame.frameSize().x / 2 - X_OFFSET) / xScale.toDouble() }
+            var currentXModified = xModified(0)
+            var currentX = 0
+            while(currentX <= frame.frameSize().x) {
+                if(currentXModified % modulus < -1 + modulus / 2 && currentXModified % modulus > modulus / 2)
+                    frame.drawLine(Vec2i(currentX, 0), Vec2i(currentX, frame.frameSize().y))
+                currentXModified += modulus
+                currentX = demodifyX(currentXModified, frame)
+            }
+        } else {
+            val yValue = demodifyY(0.0, frame)
+            frame.drawLine(Vec2i(0, yValue), Vec2i(frame.frameSize().x, yValue))
         }
         frame.changeColor(Color.BLACK)
     }

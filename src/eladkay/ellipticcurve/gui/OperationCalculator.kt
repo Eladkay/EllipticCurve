@@ -97,6 +97,7 @@ object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener
         checkboxGridsAndTicks.text = +"gui.operationcalculator.gridsandticks"
         checkboxPtLoc.text = +"gui.operationcalculator.checkboxPtLoc"
         checkboxAutoadd.text = +"gui.operationcalculator.checkboxAutoadd"
+        checkboxLineOfSymmetry.text = +"gui.operationcalculator.checkboxLineOfSymmetry"
 
         menuFile.text = +"gui.operationcalculator.file"
         saveCurve.text = +"gui.operationcalculator.file.savecurve"
@@ -124,10 +125,12 @@ object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener
     private val checkboxGridsAndTicks = JCheckBox(+"gui.operationcalculator.gridsandticks")
     private val checkboxPtLoc = JCheckBox(+"gui.operationcalculator.checkboxPtLoc")
     private val checkboxAutoadd = JCheckBox(+"gui.operationcalculator.checkboxAutoadd")
+    private val checkboxLineOfSymmetry = JCheckBox(+"gui.operationcalculator.checkboxLineOfSymmetry")
 
     private val fc = JFileChooser()
     private var drawPtLocs: Boolean = false
     var autoAdd: Boolean = false
+    var showLineOfSymmetry: Boolean = false
     var p1: Vec2i? = null
     var p2: Vec2i? = null
 
@@ -236,6 +239,11 @@ object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener
         checkboxPtLoc.mnemonic = KeyEvent.VK_L
         checkboxPtLoc.isSelected = false
         menuVisualization.add(checkboxPtLoc)
+
+        checkboxLineOfSymmetry.addItemListener(this)
+        checkboxLineOfSymmetry.mnemonic = KeyEvent.VK_M
+        checkboxLineOfSymmetry.isSelected = false
+        menuVisualization.add(checkboxLineOfSymmetry)
 
         showPointInfo.addActionListener(this)
         showPointInfo.actionCommand = "ptinfo"
@@ -353,6 +361,9 @@ object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener
             }
         } else if (source == checkboxAutoadd) {
             autoAdd = e.stateChange != ItemEvent.DESELECTED
+        } else if (source == checkboxLineOfSymmetry) {
+            panel.shouldShowLineOfSymmetry(e.stateChange != ItemEvent.DESELECTED)
+            panel.redraw()
         }
         super.itemStateChanged(e)
     }

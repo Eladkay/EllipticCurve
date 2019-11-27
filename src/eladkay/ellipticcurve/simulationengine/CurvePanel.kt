@@ -75,12 +75,14 @@ class CurvePanel(private val size: Vec2i, curve: EllipticCurve) : CurveFrame, JP
                 EllipticSimulator.drawCurve(curve, this, false)
             }
             else EllipticSimulator.drawCurveApprox(curve, this, ::errorFunction, false)
-            //EllipticSimulator.drawCurveApprox(EllipticCurve(-1.0, 1.0, Field.REALS), this, ::errorFunction, false)
-            //drawCurve(EllipticCurve(4.0, 1.0, Field.createModuloField(5)), this, false)
+
             EllipticSimulator.drawAxis(this)
             if (gridsAndTicks) {
                 EllipticSimulator.drawTicks(this)
                 EllipticSimulator.drawGridlines(this)
+            }
+            if(showLineOfSymmetry) {
+                EllipticSimulator.drawLineOfSymmetry(this)
             }
             redraw = false
         }
@@ -185,6 +187,11 @@ class CurvePanel(private val size: Vec2i, curve: EllipticCurve) : CurveFrame, JP
 
     override fun drawPointLineText(vec2i: Vec2i, string: String) {
         pointText.add(vec2i to string)
+    }
+
+    var showLineOfSymmetry: Boolean = false
+    override fun shouldShowLineOfSymmetry(boolean: Boolean) {
+        showLineOfSymmetry = boolean
     }
 
     // end methods for CurveFrame impl
