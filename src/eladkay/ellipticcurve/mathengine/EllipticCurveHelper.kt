@@ -1,7 +1,8 @@
 package eladkay.ellipticcurve.mathengine
 
+import java.math.BigInteger
 import java.util.*
-import kotlin.math.roundToInt
+import kotlin.math.roundToLong
 
 class EllipticCurveHelper(private val curve: EllipticCurve) {
 
@@ -28,7 +29,7 @@ class EllipticCurveHelper(private val curve: EllipticCurve) {
                     if (a == b) {
                         if (y1 == 0.0) return@curve Vec2d.PT_AT_INF
 
-                        val m = (!3.0 * (!x1 exp 2) + !curve.aValue) / (!2.0 * !y1)
+                        val m = (!3.0 * (!x1 exp 2) + !curve.aValue.toDouble()) / (!2.0 * !y1)
                         val x3 = (m exp 2) + !-2.0 * !x1
                         val y3 = m * (!x1 - x3) - !y1
                         Vec2d(!x3, !y3).takeUnless { it.isNaN() } ?: Vec2d.PT_AT_INF
@@ -41,7 +42,10 @@ class EllipticCurveHelper(private val curve: EllipticCurve) {
                         Vec2d(!x3, !y3).takeUnless { it.isNaN() } ?: Vec2d.PT_AT_INF
                     }
                 }
-                return specificDefinition.map { Math.floorMod(it.roundToInt(), curve.modulus).toDouble() }
+                fun BigInteger.floorMod(int: Long): Double {
+                    return this.minus(BigInteger.valueOf(int).multiply(this.divide( BigInteger.valueOf(int)))).toDouble()
+                }
+                return specificDefinition.map { BigInteger.valueOf(curve.modulus).floorMod(it.roundToLong()) }
             }
         } else return if (a == b) {
             if (y1 == 0.0) return Vec2d.PT_AT_INF
@@ -110,7 +114,7 @@ class EllipticCurveHelper(private val curve: EllipticCurve) {
 
     val rand = Random()
     fun encrypt(message: Vec2d, bobPublicKey: Vec2d, agreedUponPt: Vec2d): Pair<Vec2d, Vec2d> {
-        val k = if(curve is FiniteEllipticCurve) rand.nextInt(curve.modulus) else rand.nextInt(1000000)
+        val k = if(curve is FiniteEllipticCurve) rand.nextInt(curve.modulus.toInt()) else rand.nextInt(1000000)
         return Pair(multiply(agreedUponPt, k), add(message, multiply(bobPublicKey, k)))
     }
     fun decrypt(encryptedMessage: Pair<Vec2d, Vec2d>, bobPrivateKey: Int)

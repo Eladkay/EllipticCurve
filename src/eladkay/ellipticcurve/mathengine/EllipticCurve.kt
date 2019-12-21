@@ -1,23 +1,23 @@
 package eladkay.ellipticcurve.mathengine
 
 
-open class EllipticCurve(val aValue: Double, val bValue: Double, val field: String) {
+open class EllipticCurve(val aValue: Long, val bValue: Long, val field: String) {
     init {
         if (determinant() == 0.0) throw IllegalArgumentException("Invalid curve!")
     }
 
     protected open fun determinant(): Double {
-        return -16 * (4 * Math.pow(aValue, 3.0) + 27 * Math.pow(bValue, 2.0))
+        return -16 * (4 * Math.pow(aValue.toDouble(), 3.0) + 27 * Math.pow(bValue.toDouble(), 2.0))
     }
 
     override fun toString(): String {
-        return if (aValue != 0.0) {
-            if (bValue != 0.0)
+        return if (aValue != 0L) {
+            if (bValue != 0L)
                 "y²=x³ + " + this.aValue + "x + " + bValue
             else
                 "y²=x³ + " + this.aValue + "x"
         } else {
-            if (bValue != 0.0)
+            if (bValue != 0L)
                 "y²=x³ + " + this.bValue
             else
                 throw IllegalStateException()
@@ -42,8 +42,8 @@ open class EllipticCurve(val aValue: Double, val bValue: Double, val field: Stri
     // i have no idea what this value means. it seems to be garbage and the real value is getPeak2
     @Deprecated("this returns garbage and I will remove it as soon as I realize what this is")
     fun getPeak1(): Vec2d {
-        val k = aValue / 3
-        val rec = Math.cbrt((-bValue + Math.sqrt(bValue * bValue + 4 * k * k)) / 2)
+        val k = aValue / 3.0
+        val rec = Math.cbrt((-bValue + Math.sqrt(bValue * bValue + 4.0 * k * k)) / 2)
         return Vec2d(rec - k / rec, 0)
     }
 
@@ -51,8 +51,8 @@ open class EllipticCurve(val aValue: Double, val bValue: Double, val field: Stri
     // https://i.imgur.com/uSvI4bF.jpg
     // this seems to have a slight negative bias from the true value. that's okay
     fun getPeak2(): Vec2d {
-        val k = aValue / 3
-        val rec = Math.cbrt((-bValue - Math.sqrt(bValue * bValue + 4 * k * k)) / 2)
+        val k = aValue / 3.0
+        val rec = Math.cbrt((-bValue - Math.sqrt(bValue * bValue + 4.0 * k * k)) / 2)
         return Vec2d(rec - k / rec, 0)
     }
 

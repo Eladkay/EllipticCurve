@@ -75,7 +75,7 @@ object EllipticSimulator {
                     if (xModified < ellipticCurve.getPeak2().x) continue
 
                     var condition = ellipticCurve.isPointOnCurve(Vec2d(xModified, yModified))
-                    val errorTerm = error(xModified, yModified) * Math.sin(Math.PI / 4) // this can but should not be replaced with 1/sqrt2.
+                    val errorTerm = error(xModified, yModified)
                     if (!condition && ellipticCurve.difference(xModified + errorTerm, yModified + errorTerm).sign
                             != ellipticCurve.difference(xModified - errorTerm, yModified - errorTerm).sign)
                         condition = true
@@ -175,7 +175,7 @@ object EllipticSimulator {
             val modulus = (frame.curve as FiniteEllipticCurve).modulus
             frame.drawLineOfSymmetry(Vec2i(10, 0), Vec2i(10, frame.frameSize().y))
             val xNeeded = (modulus/2 * frame.frameSize().x - 10)/modulus + 10
-            frame.drawLineOfSymmetry(Vec2i(xNeeded, 0), Vec2i(xNeeded, frame.frameSize().y))
+            frame.drawLineOfSymmetry(Vec2i(xNeeded.toInt(), 0), Vec2i(xNeeded.toInt(), frame.frameSize().y))
         } else {
             val yValue = demodifyY(0.0, frame)
             frame.drawLineOfSymmetry(Vec2i(0, yValue), Vec2i(frame.frameSize().x, yValue))

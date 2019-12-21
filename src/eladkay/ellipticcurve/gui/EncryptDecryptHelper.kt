@@ -32,7 +32,7 @@ object EncryptDecryptHelper : EllipticCurveWindow(getScreenSize()), MouseListene
     private fun modifyX(x: Number): Double = (x.toDouble() - panel.frameSize().x / 2 - EllipticSimulator.X_OFFSET) / EllipticSimulator.defaultXScale.toDouble()
     private fun modifyY(y: Number): Double = (-y.toDouble() + panel.frameSize().y / 2) / EllipticSimulator.defaultYScale.toDouble()
     
-    var panel = CurvePanel(Vec2i(size.x, size.y), EllipticCurve(-1.0, 1.0, MathHelper.REALS))
+    var panel = CurvePanel(Vec2i(size.x, size.y), EllipticCurve(-1L, 1L, MathHelper.REALS))
     private val fc = JFileChooser()
     
     init {
@@ -281,8 +281,8 @@ object EncryptDecryptHelper : EllipticCurveWindow(getScreenSize()), MouseListene
             if (slider?.valueIsAdjusting?.not() == true) {
                 try {
                     if(panel.curve !is FiniteEllipticCurve)
-                        panel.curve = EllipticCurve(sliderA.value.toDouble(), sliderB.value.toDouble(), MathHelper.REALS)
-                    else panel.curve = FiniteEllipticCurve(sliderA.value.toDouble(), sliderB.value.toDouble(), (panel.curve as FiniteEllipticCurve).modulus)
+                        panel.curve = EllipticCurve(sliderA.value.toLong(), sliderB.value.toLong(), MathHelper.REALS)
+                    else panel.curve = FiniteEllipticCurve(sliderA.value.toLong(), sliderB.value.toLong(), (panel.curve as FiniteEllipticCurve).modulus)
                 } catch (e: IllegalArgumentException) {
                     JOptionPane.showMessageDialog(null, +"gui.invalidcurve!")
                 }
@@ -333,7 +333,7 @@ object EncryptDecryptHelper : EllipticCurveWindow(getScreenSize()), MouseListene
                         return
                     }
 
-                    panel.curve = FiniteEllipticCurve(panel.curve.aValue, panel.curve.bValue, spinner.value as Int)
+                    panel.curve = FiniteEllipticCurve(panel.curve.aValue, panel.curve.bValue, spinner.value as Long)
                 }
             }
         }

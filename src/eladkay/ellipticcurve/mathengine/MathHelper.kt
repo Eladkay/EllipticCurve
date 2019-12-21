@@ -7,7 +7,7 @@ import java.math.BigInteger
 object MathHelper {
 
     val REALS = "reals"
-    fun zp(p: Int) = "z$p"
+    fun zp(p: Long) = "z$p"
 
     fun rotate(point: Vec2d, theta: Double): Vec2d {
         return Vec2d(point.x * cos(theta) - point.y * sin(theta), point.x * sin(theta) + point.y * cos(theta))

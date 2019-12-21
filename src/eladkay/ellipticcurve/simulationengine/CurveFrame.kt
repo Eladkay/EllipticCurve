@@ -36,8 +36,8 @@ interface CurveFrame {
 
         fun deserializeCurveFrame(string: String): EllipticCurve {
             val split = string.split(";")
-            val field = if (split[2] == "R") MathHelper.REALS else MathHelper.zp(split[2].toInt())
-            val curve = EllipticCurve(split[0].toDouble(), split[1].toDouble(), field)
+            val field = if (split[2] == "R") MathHelper.REALS else MathHelper.zp(split[2].toLong())
+            val curve = EllipticCurve(split[0].toLong(), split[1].toLong(), field)
             EllipticSimulator.scale = split[3].toInt()
             return curve
         }

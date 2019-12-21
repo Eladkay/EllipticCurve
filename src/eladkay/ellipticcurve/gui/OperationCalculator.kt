@@ -135,7 +135,7 @@ object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener
 
     }
 
-    var panel = CurvePanel(Vec2i(size.x, size.y), EllipticCurve(-1.0, 1.0, MathHelper.REALS))
+    var panel = CurvePanel(Vec2i(size.x, size.y), EllipticCurve(-1L, 1L, MathHelper.REALS))
     private val checkboxGridsAndTicks = JCheckBox(+"gui.operationcalculator.gridsandticks")
     private val checkboxPtLoc = JCheckBox(+"gui.operationcalculator.checkboxPtLoc")
     private val checkboxAutoadd = JCheckBox(+"gui.operationcalculator.checkboxAutoadd")
@@ -616,8 +616,8 @@ object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener
             if (slider?.valueIsAdjusting?.not() == true) {
                 try {
                     if(panel.curve !is FiniteEllipticCurve)
-                        panel.curve = EllipticCurve(sliderA.value.toDouble(), sliderB.value.toDouble(), MathHelper.REALS)
-                    else panel.curve = FiniteEllipticCurve(sliderA.value.toDouble(), sliderB.value.toDouble(), (panel.curve as FiniteEllipticCurve).modulus)
+                        panel.curve = EllipticCurve(sliderA.value.toLong(), sliderB.value.toLong(), MathHelper.REALS)
+                    else panel.curve = FiniteEllipticCurve(sliderA.value.toLong(), sliderB.value.toLong(), (panel.curve as FiniteEllipticCurve).modulus)
                 } catch (e: IllegalArgumentException) {
                     JOptionPane.showMessageDialog(null, +"gui.invalidcurve")
                 }
@@ -669,7 +669,7 @@ object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener
                         return
                     }
 
-                    panel.curve = FiniteEllipticCurve(panel.curve.aValue, panel.curve.bValue, spinner.value as Int)
+                    panel.curve = FiniteEllipticCurve(panel.curve.aValue, panel.curve.bValue, spinner.value as Long)
                 }
             }
         }

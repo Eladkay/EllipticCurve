@@ -1,7 +1,7 @@
 package eladkay.ellipticcurve.mathengine
 
 // this is partially inspired by https://andrea.corbellini.name/2015/05/17/elliptic-curve-cryptography-a-gentle-introduction/
-class FiniteEllipticCurve(aValue: Double, bValue: Double, val modulus: Int) : EllipticCurve(aValue % modulus, bValue % modulus, MathHelper.zp(modulus)) {
+open class FiniteEllipticCurve(aValue: Long, bValue: Long, val modulus: Long) : EllipticCurve(aValue % modulus, bValue % modulus, MathHelper.zp(modulus)) {
 
     private val curvePoints = mutableListOf<Vec2d>()
 
@@ -9,7 +9,7 @@ class FiniteEllipticCurve(aValue: Double, bValue: Double, val modulus: Int) : El
 
     init {
         for(x in 0..modulus) for (y in 0..modulus)
-            if((y*y - x * x *x - aValue*x - bValue) % modulus == 0.0) curvePoints.add(Vec2d(x, y))
+            if((y*y - x * x *x - aValue*x - bValue) % modulus == 0L) curvePoints.add(Vec2d(x, y))
     }
 
     override fun determinant(): Double {
@@ -39,11 +39,11 @@ class FiniteEllipticCurve(aValue: Double, bValue: Double, val modulus: Int) : El
 
     operator fun <T> invoke(function: () -> T): T = function()
     override fun hashCode(): Int {
-        return modulus + 31 * aValue.toInt() + 31 * bValue.toInt()
+        return modulus.toInt() + 31 * aValue.toInt() + 31 * bValue.toInt()
     }
 
 
-    class NumberWrapper(private val numberInternal: Number, private val modulus: Int) {
+    class NumberWrapper(private val numberInternal: Number, private val modulus: Long) {
         private val number get() = numberInternal.toDouble()
         operator fun component1() = numberInternal
         override fun toString(): String {
@@ -56,7 +56,7 @@ class FiniteEllipticCurve(aValue: Double, bValue: Double, val modulus: Int) : El
 
         // let's um, just not use that, k?
         override fun hashCode(): Int {
-            return numberInternal.toInt() * modulus
+            return numberInternal.toInt() * modulus.toInt()
         }
 
         operator fun not() = number
