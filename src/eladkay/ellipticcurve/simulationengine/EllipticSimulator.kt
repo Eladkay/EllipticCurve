@@ -89,8 +89,16 @@ object EllipticSimulator {
 
     }
 
-    fun demodifyY(y: Double, frame: CurveFrame, yScale: Int = defaultYScale) = (-yScale * y + frame.frameSize().y / 2).toInt()
-    fun demodifyX(x: Double, frame: CurveFrame, xScale: Int = defaultXScale) = (x * xScale + X_OFFSET + frame.frameSize().x / 2).toInt()
+    fun demodifyY(y: Double, frame: CurveFrame, yScale: Int = defaultYScale): Int {
+        if(frame.curve !is FiniteEllipticCurve) return (-yScale * y + frame.frameSize().y / 2).toInt()
+        val modulus = (frame.curve as FiniteEllipticCurve).modulus
+        return (y*(100-frame.frameSize().y)/modulus - 100 + frame.frameSize().y).toInt()
+    }
+    fun demodifyX(x: Double, frame: CurveFrame, xScale: Int = defaultXScale): Int {
+        if(frame.curve !is FiniteEllipticCurve) return (x * xScale + X_OFFSET + frame.frameSize().x / 2).toInt()
+        val modulus = (frame.curve as FiniteEllipticCurve).modulus
+        return (x * (frame.frameSize().x - 10).toDouble()/modulus + 10).toInt()
+    }
 
     fun drawAxis(frame: CurveFrame) {
         if(frame.curve is FiniteEllipticCurve) {
