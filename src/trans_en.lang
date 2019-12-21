@@ -11,7 +11,7 @@ gui.curvechanger=Change Curve
 gui.operationcalculator.changescale=Change Scale...
 gui.scalechanger=Change Scale
 gui.scalechanger.scale=Scale
-gui.operationcalculator.curve.changefield=Change Field (NYI)
+gui.operationcalculator.curve.changefield=Change Field
 gui.operationcalculator.curve.changetozp=Zp...
 gui.operationcalculator.visualization=Visualization
 gui.operationcalculator.clear=Reset
@@ -20,6 +20,7 @@ gui.operationcalculator.checkboxPtLoc=Show point locations when hovering
 gui.operationcalculator.operation=Operations
 gui.operationcalculator.mult=Multiply point with scalar...
 gui.pointmultiplier=Choose Scalar
+gui.fieldzp=Choose Base
 gui.operationcalculator.flip=Flip point selected
 gui.operationcalculator.selectpt=Select Point...
 gui.pointselector=Select Point
@@ -28,6 +29,7 @@ gui.operationcalculator.choosept=You need to choose a point first!
 gui.operationcalculator.pointinfo=Selected Point...
 gui.pointinfo=Selected point
 gui.operationcalculator.checkboxAutoadd=Automatically add two selected points
+gui.operationcalculator.checkboxLineOfSymmetry=Show the line of symmetry
 gui.operationcalculator.file=File
 gui.operationcalculator.file.savecurve=Save Curve...
 gui.operationcalculator.file.opencurve=Open Curve...
@@ -40,8 +42,10 @@ gui.studyHelper=Study Helper
 
 
 gui.invalidnumber=Invalid number entered!
+gui.notaprime=That's not a prime number!
 gui.ok=OK
 gui.invalidcurve=Invalid elliptic curve!
 gui.outofbounds=The result is out of bounds:
+gui.curveover2or3=Elliptic Curves over Z2 and Z3 don't work as well
 
 fields.reals=Reals

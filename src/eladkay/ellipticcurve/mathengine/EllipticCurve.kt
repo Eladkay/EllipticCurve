@@ -1,13 +1,13 @@
 package eladkay.ellipticcurve.mathengine
 
 
-class EllipticCurve(val aValue: Double, val bValue: Double, val field: Field) {
+open class EllipticCurve(val aValue: Double, val bValue: Double, val field: String) {
     init {
-        if (determinant() == 0.0 || !field.belongsTo(aValue) || !field.belongsTo(bValue)) throw IllegalArgumentException("Invalid curve!")
+        if (determinant() == 0.0) throw IllegalArgumentException("Invalid curve!")
     }
 
-    private fun determinant(): Double {
-        return field.realsToField(-16 * (4 * Math.pow(aValue, 3.0) + 27 * Math.pow(bValue, 2.0)))
+    protected open fun determinant(): Double {
+        return -16 * (4 * Math.pow(aValue, 3.0) + 27 * Math.pow(bValue, 2.0))
     }
 
     override fun toString(): String {
@@ -25,8 +25,8 @@ class EllipticCurve(val aValue: Double, val bValue: Double, val field: Field) {
 
     }
 
-    fun isPointOnCurve(p: Vec2d): Boolean {
-        return p.x in field && p.y in field && field { (!p.y exp 2) == (!p.x exp 3) + !(aValue * p.x) + !bValue }
+    open fun isPointOnCurve(p: Vec2d): Boolean {
+        return  (p.y * p.y) == (p.x * p.x * p.x) + (aValue * p.x) + bValue
     }
 
     /**
@@ -35,7 +35,7 @@ class EllipticCurve(val aValue: Double, val bValue: Double, val field: Field) {
      * then there exists an x3 between x1 and x2 such that (x3, y) is on the curve. This is a direct consequence of the
      * mean value theorem.
      */
-    fun difference(x: Double, y: Double) = !field { (!y exp 2) - (!x exp 3) - !(aValue * x) - !bValue }
+    open fun difference(x: Double, y: Double) = y * y  - (x * x * x) - (aValue * x) - bValue
 
     // not fieldified, todo
     // https://i.imgur.com/uSvI4bF.jpg

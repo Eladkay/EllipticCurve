@@ -1,9 +1,6 @@
 package eladkay.ellipticcurve.gui
 
-import eladkay.ellipticcurve.mathengine.EllipticCurve
-import eladkay.ellipticcurve.mathengine.Field
-import eladkay.ellipticcurve.mathengine.Vec2d
-import eladkay.ellipticcurve.mathengine.Vec2i
+import eladkay.ellipticcurve.mathengine.*
 import eladkay.ellipticcurve.simulationengine.CurveFrame
 import eladkay.ellipticcurve.simulationengine.CurvePanel
 import eladkay.ellipticcurve.simulationengine.EllipticSimulator
@@ -47,15 +44,29 @@ object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener
 
     }
 
-    private fun modifyX(x: Number): Double = (x.toDouble() - panel.frameSize().x / 2 - EllipticSimulator.X_OFFSET) / EllipticSimulator.defaultXScale.toDouble()
-    private fun modifyY(y: Number): Double = (-y.toDouble() + panel.frameSize().y / 2) / EllipticSimulator.defaultYScale.toDouble()
+    private fun modifyX(x: Number): Double {
+        if(panel.curve !is FiniteEllipticCurve) return (x.toDouble() - panel.frameSize().x / 2 - EllipticSimulator.X_OFFSET) / EllipticSimulator.defaultXScale.toDouble()
+        @Suppress("NAME_SHADOWING")
+        val x = x.toInt()
+        val ellipticCurve = panel.curve as FiniteEllipticCurve
+        val modulus = ellipticCurve.modulus
+        return (x - 10) * modulus / (panel.frameSize().x - 10).toDouble()
+    }
+    private fun modifyY(y: Number): Double {
+        if(panel.curve !is FiniteEllipticCurve) return (-y.toDouble() + panel.frameSize().y / 2) / EllipticSimulator.defaultYScale.toDouble()
+        @Suppress("NAME_SHADOWING")
+        val y = y.toInt()
+        val ellipticCurve = panel.curve as FiniteEllipticCurve
+        val modulus = ellipticCurve.modulus
+        return (y + 100 - panel.frameSize().y) * modulus / (100 - panel.frameSize().y).toDouble()
+    }
     override fun mousePressed(e: MouseEvent) {
         val x = e.x
         val y = e.y
         val xModified = modifyX(x)
         val yModified = modifyY(y)
         var condition = panel.curve.isPointOnCurve(Vec2d(xModified, yModified))
-        val errorTerm = panel.errorFunction(xModified, yModified) * Math.sin(Math.PI / 4) // this can but should not be replaced with 1/sqrt2. todo: i forgot why
+        val errorTerm = panel.errorFunction(xModified, yModified)
         if (!condition && panel.curve.difference(xModified + errorTerm, yModified + errorTerm).sign
                 != panel.curve.difference(xModified - errorTerm, yModified - errorTerm).sign)
             condition = true
@@ -100,6 +111,7 @@ object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener
         checkboxGridsAndTicks.text = +"gui.operationcalculator.gridsandticks"
         checkboxPtLoc.text = +"gui.operationcalculator.checkboxPtLoc"
         checkboxAutoadd.text = +"gui.operationcalculator.checkboxAutoadd"
+        checkboxLineOfSymmetry.text = +"gui.operationcalculator.checkboxLineOfSymmetry"
 
         menuFile.text = +"gui.operationcalculator.file"
         saveCurve.text = +"gui.operationcalculator.file.savecurve"
@@ -123,10 +135,11 @@ object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener
 
     }
 
-    var panel = CurvePanel(Vec2i(size.x, size.y), EllipticCurve(-1.0, 1.0, Field.REALS))
+    var panel = CurvePanel(Vec2i(size.x, size.y), EllipticCurve(-1.0, 1.0, MathHelper.REALS))
     private val checkboxGridsAndTicks = JCheckBox(+"gui.operationcalculator.gridsandticks")
     private val checkboxPtLoc = JCheckBox(+"gui.operationcalculator.checkboxPtLoc")
     private val checkboxAutoadd = JCheckBox(+"gui.operationcalculator.checkboxAutoadd")
+    private val checkboxLineOfSymmetry = JCheckBox(+"gui.operationcalculator.checkboxLineOfSymmetry")
 
     private val fc = JFileChooser()
     private var drawPtLocs: Boolean = false
@@ -198,11 +211,11 @@ object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener
         changeCurve.actionCommand = "changecurve"
         menuCurve.add(changeCurve)
 
-        changeField.addActionListener(this)
-        changeField.actionCommand = "changefield_reals"
+        realsField.addActionListener(this)
+        realsField.actionCommand = "changefield_reals"
         changeField.add(realsField)
-        changeField.addActionListener(this)
-        changeField.actionCommand = "changefield_zp"
+        finiteField.addActionListener(this)
+        finiteField.actionCommand = "changefield_zp"
         changeField.add(finiteField)
         menuCurve.add(changeField)
         return menuCurve
@@ -239,6 +252,11 @@ object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener
         checkboxPtLoc.mnemonic = KeyEvent.VK_L
         checkboxPtLoc.isSelected = false
         menuVisualization.add(checkboxPtLoc)
+
+        checkboxLineOfSymmetry.addItemListener(this)
+        checkboxLineOfSymmetry.mnemonic = KeyEvent.VK_M
+        checkboxLineOfSymmetry.isSelected = false
+        menuVisualization.add(checkboxLineOfSymmetry)
 
         showPointInfo.addActionListener(this)
         showPointInfo.actionCommand = "ptinfo"
@@ -336,6 +354,8 @@ object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener
             }
             "select" -> PointSelector.createAndShow()
             "ptinfo" -> if (p1 == null) JOptionPane.showMessageDialog(null, +"gui.operationcalculator.choosept") else PointInfo.createAndShow()
+            "changefield_zp" -> FieldZp.createAndShow() //panel.curve = FiniteEllipticCurve(2.0, 3.0, 5)
+            "changefield_reals" -> panel.curve = EllipticCurve(panel.curve.aValue, panel.curve.bValue, MathHelper.REALS)
         }
     }
 
@@ -355,6 +375,9 @@ object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener
             }
         } else if (source == checkboxAutoadd) {
             autoAdd = e.stateChange != ItemEvent.DESELECTED
+        } else if (source == checkboxLineOfSymmetry) {
+            panel.shouldShowLineOfSymmetry(e.stateChange != ItemEvent.DESELECTED)
+            panel.redraw()
         }
         super.itemStateChanged(e)
     }
@@ -587,14 +610,63 @@ object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener
             panel.clear()
             if (slider?.valueIsAdjusting?.not() == true) {
                 try {
-                    panel.curve = EllipticCurve(sliderA.value.toDouble(), sliderB.value.toDouble(), Field.REALS)
+                    panel.curve = EllipticCurve(sliderA.value.toDouble(), sliderB.value.toDouble(), MathHelper.REALS)
                 } catch (e: IllegalArgumentException) {
-                    JOptionPane.showMessageDialog(null, +"gui.invalidcurve!")
+                    JOptionPane.showMessageDialog(null, +"gui.invalidcurve")
                 }
                 panel.redraw()
             }
 
         }
+    }
+
+    private object FieldZp : EllipticCurveWindow((EllipticCurveWindow.getScreenSize() / 4.5).vec2i()) {
+        val spinner = JSpinner(SpinnerNumberModel(1, 1, 1000000, 1))
+        val labelA = JLabel(+"gui.fieldzp")
+        val okButton = JButton(+"gui.ok")
+        override fun updateTextForI18n() {
+            super.updateTextForI18n()
+            labelA.text = +"gui.fieldzp"
+            okButton.text = +"gui.ok"
+        }
+
+        init {
+            val font = Font("Serif", BOLD, 18)
+            spinner.setBounds(size.x * 1 / 2 - 200, size.y * 5 / 16, 400, 40)
+            spinner.addChangeListener(this)
+            labelA.setBounds(size.x * 1 / 2 - 18, 0, 200, 30)
+            labelA.verticalTextPosition = JLabel.TOP
+            labelA.font = font
+            labelA.isVisible = true
+            labelA.isOpaque = true
+            okButton.mnemonic = KeyEvent.VK_S
+            okButton.actionCommand = "ok"
+            okButton.setBounds(size.x * 1 / 2 - 200, size.y * 12 / 16, 400, 40)
+            okButton.addActionListener(this)
+            add(okButton)
+            add(labelA)
+            add(spinner)
+        }
+
+        override fun actionPerformed(e: ActionEvent?) {
+            super.actionPerformed(e)
+            when (e!!.actionCommand) {
+                "ok" -> {
+                    this.isVisible = false
+                    if(spinner.value == 2 || spinner.value == 3) {
+                        JOptionPane.showMessageDialog(null, +"gui.curveover2or3")
+                        return
+                    }
+                    if(!MathHelper.isPrime(spinner.value as Int)) {
+                        JOptionPane.showMessageDialog(null, +"gui.notaprime")
+                        return
+                    }
+
+                    panel.curve = FiniteEllipticCurve(panel.curve.aValue, panel.curve.bValue, spinner.value as Int)
+                }
+            }
+        }
+
     }
 
 

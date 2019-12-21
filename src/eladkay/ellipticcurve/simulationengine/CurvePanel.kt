@@ -1,6 +1,7 @@
 package eladkay.ellipticcurve.simulationengine
 
 import eladkay.ellipticcurve.mathengine.EllipticCurve
+import eladkay.ellipticcurve.mathengine.FiniteEllipticCurve
 import eladkay.ellipticcurve.mathengine.Vec2i
 import java.awt.BasicStroke
 import java.awt.Color
@@ -48,6 +49,7 @@ class CurvePanel(private val size: Vec2i, curve: EllipticCurve) : CurveFrame, JP
      * Then (x,y) is colored in if and only if difference(x+e, y+e) is different in sign to difference(x-e, y-e)
      */
     fun errorFunction(x: Double, y: Double): Double {
+        if(curve is FiniteEllipticCurve) return 0.005
         val withinErrorOfMinMax = if (curve.bValue < 0) Math.abs(x) + 0.3 > curve.getMinMaxXValue() && Math.abs(x) - 0.3 < curve.getMinMaxXValue() else false
         return Math.min(Math.max(1 / Math.log(Math.abs(x * y) + 1) / 50, 0.03) + if (y > 0 && x > 0) 0.15 else if (y > 0 && x < 0) 0.02 else if (withinErrorOfMinMax) 0.15 else 0.0, 0.17)
 
@@ -62,19 +64,26 @@ class CurvePanel(private val size: Vec2i, curve: EllipticCurve) : CurveFrame, JP
     var gridsAndTicks: Boolean = false
     private val pointLines = mutableListOf<Vec2i>()
     private val pointText = mutableListOf<Pair<Vec2i, String>>()
+    private val linesOfSymmetry = mutableListOf<Pair<Vec2i, Vec2i>>()
     override fun paint(g: Graphics?) {
         super.paint(g)
 
         // start handling by EllipticSimulator
 
         if (operations.isEmpty() || redraw) {
-            EllipticSimulator.drawCurveApprox(curve, this, ::errorFunction, false)
-            //EllipticSimulator.drawCurveApprox(EllipticCurve(-1.0, 1.0, Field.REALS), this, ::errorFunction, false)
-            //drawCurve(EllipticCurve(4.0, 1.0, Field.createModuloField(5)), this, false)
+            if(curve is FiniteEllipticCurve) {
+                changePointSize(5)
+                EllipticSimulator.drawFiniteCurve(curve as FiniteEllipticCurve, this, false)
+            }
+            else EllipticSimulator.drawCurveApprox(curve, this, ::errorFunction, false)
+
             EllipticSimulator.drawAxis(this)
             if (gridsAndTicks) {
                 EllipticSimulator.drawTicks(this)
                 EllipticSimulator.drawGridlines(this)
+            }
+            if(showLineOfSymmetry) {
+                EllipticSimulator.drawLineOfSymmetry(this)
             }
             redraw = false
         }
@@ -118,6 +127,12 @@ class CurvePanel(private val size: Vec2i, curve: EllipticCurve) : CurveFrame, JP
 
         for (text in pointText) {
             g2.drawString(text.second, text.first.x + 5, text.first.y)
+        }
+
+        for(p in linesOfSymmetry) {
+            g2.color = Color.RED
+            g2.draw(Line2D.Double(p.first.x.toDouble(), p.first.y.toDouble(), p.second.x.toDouble(), p.second.y.toDouble()))
+            g2.color = Color.BLACK
         }
 
         changeColor(Color.BLACK)
@@ -179,6 +194,16 @@ class CurvePanel(private val size: Vec2i, curve: EllipticCurve) : CurveFrame, JP
 
     override fun drawPointLineText(vec2i: Vec2i, string: String) {
         pointText.add(vec2i to string)
+    }
+
+    override fun drawLineOfSymmetry(a: Vec2i, b: Vec2i) {
+        linesOfSymmetry.add(Pair(a, b))
+    }
+
+    var showLineOfSymmetry: Boolean = false
+    override fun shouldShowLineOfSymmetry(boolean: Boolean) {
+        showLineOfSymmetry = boolean
+        linesOfSymmetry.clear()
     }
 
     // end methods for CurveFrame impl
