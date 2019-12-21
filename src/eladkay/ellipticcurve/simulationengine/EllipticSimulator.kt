@@ -15,11 +15,12 @@ object EllipticSimulator {
     val defaultXScale
         get() = 200 / scale
 
-    fun drawCurve(ellipticCurve: EllipticCurve, frame: CurveFrame, drawText: Boolean, xScale: Int = defaultXScale, yScale: Int = defaultYScale) {
+    fun drawFiniteCurve(ellipticCurve: FiniteEllipticCurve, frame: CurveFrame, drawText: Boolean) {
             for (x in 0..frame.frameSize().x)
                 for (y in 0..frame.frameSize().y) {
-                    val xModified = (x - frame.frameSize().x / 2 - X_OFFSET) / xScale.toDouble()
-                    val yModified = (-y + frame.frameSize().y / 2) / yScale.toDouble()
+                    val modulus = ellipticCurve.modulus
+                    val xModified = (x - 10) * modulus / (frame.frameSize().x - 10).toDouble()
+                    val yModified = (y + 100 - frame.frameSize().y) * modulus / (100 - frame.frameSize().y).toDouble()
 
                     if (ellipticCurve.isPointOnCurve(Vec2d(xModified, yModified))) {
                         frame.drawPoint(Vec2i(x, y))
@@ -35,15 +36,27 @@ object EllipticSimulator {
 
     fun getMaxBoundsOfFrame(frame: CurveFrame, xScale: Int = defaultXScale, yScale: Int = defaultYScale): Vec2d {
         val (x, y) = frame.frameSize()
-        val xModified = (x - frame.frameSize().x / 2 - X_OFFSET) / xScale.toDouble()
-        val yModified = (-y + frame.frameSize().y / 2) / yScale.toDouble()
+        var xModified = (x - frame.frameSize().x / 2 - X_OFFSET) / xScale.toDouble()
+        var yModified = (-y + frame.frameSize().y / 2) / yScale.toDouble()
+        if(frame.curve is FiniteEllipticCurve) {
+            val ellipticCurve = frame.curve as FiniteEllipticCurve
+            val modulus = ellipticCurve.modulus
+            xModified = (x - 10) * modulus / (frame.frameSize().x - 10).toDouble()
+            yModified = (y + 100 - frame.frameSize().y) * modulus / (100 - frame.frameSize().y).toDouble()
+        }
         return Vec2d(xModified, yModified)
     }
 
     fun getMinBoundsOfFrame(frame: CurveFrame, xScale: Int = defaultXScale, yScale: Int = defaultYScale): Vec2d {
         val (x, y) = 0 to 0
-        val xModified = (x - frame.frameSize().x / 2 - X_OFFSET) / xScale.toDouble()
-        val yModified = (-y + frame.frameSize().y / 2) / yScale.toDouble()
+        var xModified = (x - frame.frameSize().x / 2 - X_OFFSET) / xScale.toDouble()
+        var yModified = (-y + frame.frameSize().y / 2) / yScale.toDouble()
+        if(frame.curve is FiniteEllipticCurve) {
+            val ellipticCurve = frame.curve as FiniteEllipticCurve
+            val modulus = ellipticCurve.modulus
+            xModified = (x - 10) * modulus / (frame.frameSize().x - 10).toDouble()
+            yModified = (y + 100 - frame.frameSize().y) * modulus / (100 - frame.frameSize().y).toDouble()
+        }
         return Vec2d(xModified, yModified)
     }
 
@@ -53,6 +66,7 @@ object EllipticSimulator {
     // i have, for posterity, attached a sketch of the function of the error part of drawCurveApprox:
     // https://i.imgur.com/8u49qkS.jpg
     fun drawCurveApprox(ellipticCurve: EllipticCurve, frame: CurveFrame, error: (Double, Double) -> Double, drawText: Boolean, xScale: Int = defaultXScale, yScale: Int = defaultYScale) {
+        if(ellipticCurve is FiniteEllipticCurve) throw IllegalArgumentException("discrete curve")
             for (x in 0..frame.frameSize().x)
                 for (y in 0..frame.frameSize().y) {
                     val xModified = (x - frame.frameSize().x / 2 - X_OFFSET) / xScale.toDouble()
@@ -79,8 +93,13 @@ object EllipticSimulator {
     fun demodifyX(x: Double, frame: CurveFrame, xScale: Int = defaultXScale) = (x * xScale + X_OFFSET + frame.frameSize().x / 2).toInt()
 
     fun drawAxis(frame: CurveFrame) {
-        frame.drawLine(Vec2i(0, frame.frameSize().y / 2), Vec2i(frame.frameSize().x, frame.frameSize().y / 2))
-        frame.drawLine(Vec2i(frame.frameSize().x / 2 + X_OFFSET, 0), Vec2i(frame.frameSize().x / 2 + X_OFFSET, frame.frameSize().y))
+        if(frame.curve is FiniteEllipticCurve) {
+            frame.drawLine(Vec2i(10, 0), Vec2i(10, frame.frameSize().y))
+            frame.drawLine(Vec2i(0, frame.frameSize().y - 100), Vec2i(frame.frameSize().x, frame.frameSize().y - 100))
+        } else {
+            frame.drawLine(Vec2i(0, frame.frameSize().y / 2), Vec2i(frame.frameSize().x, frame.frameSize().y / 2))
+            frame.drawLine(Vec2i(frame.frameSize().x / 2 + X_OFFSET, 0), Vec2i(frame.frameSize().x / 2 + X_OFFSET, frame.frameSize().y))
+        }
     }
 
     // yeah yeah, this is a bit weird with the values, but i actually don't mind that much
@@ -90,17 +109,34 @@ object EllipticSimulator {
         val xUnit = 1 * xScale
         var currentY = yUnit
         while (currentY < frame.frameSize().y) {
-            val yModified = Math.round((-currentY + frame.frameSize().y / 2) / yScale.toDouble() * 100) / 100.0
-            frame.drawLine(Vec2i(frame.frameSize().x / 2 + X_OFFSET - yUnit / 5, currentY), Vec2i(frame.frameSize().x / 2 + X_OFFSET + yUnit / 5, currentY))
-            frame.drawText(Vec2i(frame.frameSize().x / 2 + X_OFFSET + yUnit / 5, currentY), "(0, $yModified)")
+            var yModified = Math.round((-currentY + frame.frameSize().y / 2) / yScale.toDouble() * 100) / 100.0
+            if(frame.curve is FiniteEllipticCurve) {
+                val ellipticCurve = frame.curve as FiniteEllipticCurve
+                val modulus = ellipticCurve.modulus
+                yModified = Math.round((currentY + 100 - frame.frameSize().y) * modulus / (100 - frame.frameSize().y).toDouble() * 100)/100.0
+                frame.drawLine(Vec2i(10 - yUnit / 5, currentY), Vec2i(10 + yUnit / 5, currentY))
+                frame.drawText(Vec2i(10 + yUnit / 5, currentY), "(0, $yModified)")
+            } else {
+                frame.drawLine(Vec2i(frame.frameSize().x / 2 + X_OFFSET - yUnit / 5, currentY), Vec2i(frame.frameSize().x / 2 + X_OFFSET + yUnit / 5, currentY))
+                frame.drawText(Vec2i(frame.frameSize().x / 2 + X_OFFSET + yUnit / 5, currentY), "(0, $yModified)")
+            }
+
             currentY += yUnit
         }
 
         var currentX = xUnit
         while (currentX < frame.frameSize().x) {
-            val xModified = Math.round((currentX - frame.frameSize().x / 2 - X_OFFSET) / xScale.toDouble() * 100) / 100.0
-            frame.drawLine(Vec2i(currentX, frame.frameSize().y / 2 - xUnit / 20), Vec2i(currentX, frame.frameSize().y / 2 + xUnit / 20))
-            frame.drawText(Vec2i(currentX, frame.frameSize().y / 2 - xUnit / 20), "($xModified, 0)")
+            var xModified = Math.round((currentX - frame.frameSize().x / 2 - X_OFFSET) / xScale.toDouble() * 100) / 100.0
+            if(frame.curve is FiniteEllipticCurve) {
+                val ellipticCurve = frame.curve as FiniteEllipticCurve
+                val modulus = ellipticCurve.modulus
+                xModified = Math.round((currentX - 10) * modulus / (frame.frameSize().x - 10).toDouble() * 100) / 100.0
+                frame.drawLine(Vec2i(currentX, frame.frameSize().y - 100 - xUnit / 20), Vec2i(currentX, frame.frameSize().y - 100 + xUnit / 20))
+                frame.drawText(Vec2i(currentX, frame.frameSize().y - 100 - xUnit / 20), "($xModified, 0)")
+            } else {
+                frame.drawLine(Vec2i(currentX, frame.frameSize().y / 2 - xUnit / 20), Vec2i(currentX, frame.frameSize().y / 2 + xUnit / 20))
+                frame.drawText(Vec2i(currentX, frame.frameSize().y / 2 - xUnit / 20), "($xModified, 0)")
+            }
             currentX += xUnit
         }
         frame.changeColor(Color.BLACK)
@@ -128,7 +164,7 @@ object EllipticSimulator {
         frame.changeColor(Color.RED)
         if(frame.curve is FiniteEllipticCurve) {
             val modulus = (frame.curve as FiniteEllipticCurve).modulus
-            val xModified = {x: Int -> (x - frame.frameSize().x / 2 - X_OFFSET) / xScale.toDouble() }
+            val xModified = { x: Int-> x - 10 * modulus / (frame.frameSize().x - 10).toDouble() }
             var currentXModified = xModified(0)
             var currentX = 0
             while(currentX <= frame.frameSize().x) {

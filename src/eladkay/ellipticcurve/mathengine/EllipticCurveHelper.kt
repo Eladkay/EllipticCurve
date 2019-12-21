@@ -13,7 +13,7 @@ class EllipticCurveHelper(private val curve: EllipticCurve) {
         var (x1, y1) = a
         var (x2, y2) = b
         // well then screw this, this does NOT seem like good code does it? but it is
-        if(curve is FiniteEllipticCurve) if(curve.field == "z2" || curve.field == "z3") throw IllegalArgumentException("elliptic curves over Z2 or Z3 don't quite work the same")
+        if(curve is FiniteEllipticCurve) if(curve.field == "z2" || curve.field == "z3") throw IllegalArgumentException("elliptic curves over Z2 or Z3 don't quite work the same") // besides, when working with elliptic curve cryptography, we generally want to use large primes anyways
         else {
             x1 %= curve.modulus
             y1 %= curve.modulus

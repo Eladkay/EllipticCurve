@@ -72,7 +72,7 @@ class CurvePanel(private val size: Vec2i, curve: EllipticCurve) : CurveFrame, JP
         if (operations.isEmpty() || redraw) {
             if(curve is FiniteEllipticCurve) {
                 changePointSize(5)
-                EllipticSimulator.drawCurve(curve, this, false)
+                EllipticSimulator.drawFiniteCurve(curve as FiniteEllipticCurve, this, false)
             }
             else EllipticSimulator.drawCurveApprox(curve, this, ::errorFunction, false)
 
