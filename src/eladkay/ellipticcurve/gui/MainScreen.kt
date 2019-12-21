@@ -26,7 +26,7 @@ object MainScreen : EllipticCurveWindow((getScreenSize() * 2) / 3) {
 
         encryptionHelper.mnemonic = KeyEvent.VK_E
         encryptionHelper.actionCommand = "encryptionhelper"
-        encryptionHelper.setBounds(size.x * 9 / 24, size.y * 7 / 8, 200, 40)
+        encryptionHelper.setBounds(size.x * 2 / 3, size.y * 7 / 8, 200, 40)
         encryptionHelper.addActionListener(MainScreen)
         add(encryptionHelper)
 
