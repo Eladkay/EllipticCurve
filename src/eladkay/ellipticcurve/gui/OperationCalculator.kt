@@ -306,7 +306,12 @@ object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener
         super.actionPerformed(e!!)
         when (e.actionCommand) {
             "changecurve" -> CurveChanger.createAndShow()
-            "changescale" -> ScaleChanger.createAndShow()
+            "changescale" -> {
+                if(panel.curve is FiniteEllipticCurve) {
+                    JOptionPane.showMessageDialog(null, +"gui.discretecurve")
+                    return
+                } else ScaleChanger.createAndShow()
+            }
             "clear" -> {
                 p1 = null
                 p2 = null
@@ -354,7 +359,7 @@ object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener
             }
             "select" -> PointSelector.createAndShow()
             "ptinfo" -> if (p1 == null) JOptionPane.showMessageDialog(null, +"gui.operationcalculator.choosept") else PointInfo.createAndShow()
-            "changefield_zp" -> FieldZp.createAndShow() //panel.curve = FiniteEllipticCurve(2.0, 3.0, 5)
+            "changefield_zp" -> FieldZp.createAndShow()
             "changefield_reals" -> panel.curve = EllipticCurve(panel.curve.aValue, panel.curve.bValue, MathHelper.REALS)
         }
     }
@@ -610,7 +615,9 @@ object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener
             panel.clear()
             if (slider?.valueIsAdjusting?.not() == true) {
                 try {
-                    panel.curve = EllipticCurve(sliderA.value.toDouble(), sliderB.value.toDouble(), MathHelper.REALS)
+                    if(panel.curve !is FiniteEllipticCurve)
+                        panel.curve = EllipticCurve(sliderA.value.toDouble(), sliderB.value.toDouble(), MathHelper.REALS)
+                    else panel.curve = FiniteEllipticCurve(sliderA.value.toDouble(), sliderB.value.toDouble(), (panel.curve as FiniteEllipticCurve).modulus)
                 } catch (e: IllegalArgumentException) {
                     JOptionPane.showMessageDialog(null, +"gui.invalidcurve")
                 }

@@ -1,6 +1,7 @@
 package eladkay.ellipticcurve.gui
 
 import eladkay.ellipticcurve.mathengine.EllipticCurve
+import eladkay.ellipticcurve.mathengine.FiniteEllipticCurve
 import eladkay.ellipticcurve.mathengine.MathHelper
 import eladkay.ellipticcurve.mathengine.Vec2i
 import eladkay.ellipticcurve.simulationengine.CurveFrame
@@ -98,11 +99,11 @@ object EncryptDecryptHelper : EllipticCurveWindow(getScreenSize()), MouseListene
         changeCurve.actionCommand = "changecurve"
         menuCurve.add(changeCurve)
 
-        changeField.addActionListener(this)
-        changeField.actionCommand = "changefield_reals"
+        realsField.addActionListener(this)
+        realsField.actionCommand = "changefield_reals"
         changeField.add(realsField)
-        changeField.addActionListener(this)
-        changeField.actionCommand = "changefield_zp"
+        finiteField.addActionListener(this)
+        finiteField.actionCommand = "changefield_zp"
         changeField.add(finiteField)
         menuCurve.add(changeField)
         
@@ -156,7 +157,12 @@ object EncryptDecryptHelper : EllipticCurveWindow(getScreenSize()), MouseListene
         super.actionPerformed(e!!)
         when (e.actionCommand) {
             "changecurve" -> CurveChanger.createAndShow()
-            "changescale" -> ScaleChanger.createAndShow()
+            "changescale" -> {
+                if(panel.curve is FiniteEllipticCurve) {
+                    JOptionPane.showMessageDialog(null, +"gui.discretecurve")
+                    return
+                } else ScaleChanger.createAndShow()
+            }
             "clear" -> {
                 panel.clear()
                 panel.redraw()
@@ -183,6 +189,9 @@ object EncryptDecryptHelper : EllipticCurveWindow(getScreenSize()), MouseListene
             }
             "exit" -> this.isVisible = false
             "select" -> +"noop"
+            "changefield_zp" -> FieldZp.createAndShow()
+            "changefield_reals" -> panel.curve = EllipticCurve(OperationCalculator.panel.curve.aValue, OperationCalculator.panel.curve.bValue, MathHelper.REALS)
+
         }
     }
 
@@ -271,7 +280,9 @@ object EncryptDecryptHelper : EllipticCurveWindow(getScreenSize()), MouseListene
             panel.clear()
             if (slider?.valueIsAdjusting?.not() == true) {
                 try {
-                    panel.curve = EllipticCurve(sliderA.value.toDouble(), sliderB.value.toDouble(), MathHelper.REALS)
+                    if(panel.curve !is FiniteEllipticCurve)
+                        panel.curve = EllipticCurve(sliderA.value.toDouble(), sliderB.value.toDouble(), MathHelper.REALS)
+                    else panel.curve = FiniteEllipticCurve(sliderA.value.toDouble(), sliderB.value.toDouble(), (panel.curve as FiniteEllipticCurve).modulus)
                 } catch (e: IllegalArgumentException) {
                     JOptionPane.showMessageDialog(null, +"gui.invalidcurve!")
                 }
@@ -279,6 +290,54 @@ object EncryptDecryptHelper : EllipticCurveWindow(getScreenSize()), MouseListene
             }
 
         }
+    }
+    private object FieldZp : EllipticCurveWindow((EllipticCurveWindow.getScreenSize() / 4.5).vec2i()) {
+        val spinner = JSpinner(SpinnerNumberModel(1, 1, 1000000, 1))
+        val labelA = JLabel(+"gui.fieldzp")
+        val okButton = JButton(+"gui.ok")
+        override fun updateTextForI18n() {
+            super.updateTextForI18n()
+            labelA.text = +"gui.fieldzp"
+            okButton.text = +"gui.ok"
+        }
+
+        init {
+            val font = Font("Serif", Font.BOLD, 18)
+            spinner.setBounds(size.x * 1 / 2 - 200, size.y * 5 / 16, 400, 40)
+            spinner.addChangeListener(this)
+            labelA.setBounds(size.x * 1 / 2 - 18, 0, 200, 30)
+            labelA.verticalTextPosition = JLabel.TOP
+            labelA.font = font
+            labelA.isVisible = true
+            labelA.isOpaque = true
+            okButton.mnemonic = KeyEvent.VK_S
+            okButton.actionCommand = "ok"
+            okButton.setBounds(size.x * 1 / 2 - 200, size.y * 12 / 16, 400, 40)
+            okButton.addActionListener(this)
+            add(okButton)
+            add(labelA)
+            add(spinner)
+        }
+
+        override fun actionPerformed(e: ActionEvent?) {
+            super.actionPerformed(e)
+            when (e!!.actionCommand) {
+                "ok" -> {
+                    this.isVisible = false
+                    if(spinner.value == 2 || spinner.value == 3) {
+                        JOptionPane.showMessageDialog(null, +"gui.curveover2or3")
+                        return
+                    }
+                    if(!MathHelper.isPrime(spinner.value as Int)) {
+                        JOptionPane.showMessageDialog(null, +"gui.notaprime")
+                        return
+                    }
+
+                    panel.curve = FiniteEllipticCurve(panel.curve.aValue, panel.curve.bValue, spinner.value as Int)
+                }
+            }
+        }
+
     }
 
 }

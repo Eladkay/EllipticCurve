@@ -47,5 +47,6 @@ gui.ok=OK
 gui.invalidcurve=Invalid elliptic curve!
 gui.outofbounds=The result is out of bounds:
 gui.curveover2or3=Elliptic Curves over Z2 and Z3 don't work as well
+gui.discretecurve=Unsupported operation on discrete curve!
 
 fields.reals=Reals
