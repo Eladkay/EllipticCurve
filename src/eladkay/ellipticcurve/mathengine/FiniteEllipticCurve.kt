@@ -1,7 +1,7 @@
 package eladkay.ellipticcurve.mathengine
 
 // this is partially inspired by https://andrea.corbellini.name/2015/05/17/elliptic-curve-cryptography-a-gentle-introduction/
-class FiniteEllipticCurve(aValue: Double, bValue: Double, val modulus: Int) : EllipticCurve(aValue, bValue, MathHelper.zp(modulus)) {
+class FiniteEllipticCurve(aValue: Double, bValue: Double, val modulus: Int) : EllipticCurve(aValue % modulus, bValue % modulus, MathHelper.zp(modulus)) {
 
     private val curvePoints = mutableListOf<Vec2d>()
 

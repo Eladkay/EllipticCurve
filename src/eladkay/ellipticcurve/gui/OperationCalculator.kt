@@ -66,7 +66,7 @@ object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener
         val xModified = modifyX(x)
         val yModified = modifyY(y)
         var condition = panel.curve.isPointOnCurve(Vec2d(xModified, yModified))
-        val errorTerm = panel.errorFunction(xModified, yModified) * Math.sin(Math.PI / 4) // this can but should not be replaced with 1/sqrt2. todo: i forgot why
+        val errorTerm = panel.errorFunction(xModified, yModified)
         if (!condition && panel.curve.difference(xModified + errorTerm, yModified + errorTerm).sign
                 != panel.curve.difference(xModified - errorTerm, yModified - errorTerm).sign)
             condition = true
