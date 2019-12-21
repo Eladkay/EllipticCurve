@@ -10,7 +10,6 @@ import javax.swing.JLabel
 object MainScreen : EllipticCurveWindow((getScreenSize() * 2) / 3) {
     private val operationCalc = JButton(+"gui.operationcalculator")
     private val encryptionHelper = JButton(+"gui.encryptdecrypthelper")
-    private val studyHelper = JButton(+"gui.studyHelper")
     private val titleL1 = JLabel(+"gui.welcomeL1")
     private val titleL2 = JLabel(+"gui.welcomeL2")
     private val jComboBox = JComboBox(languages.toTypedArray())
@@ -32,12 +31,6 @@ object MainScreen : EllipticCurveWindow((getScreenSize() * 2) / 3) {
         add(encryptionHelper)
 
 
-        studyHelper.mnemonic = KeyEvent.VK_S
-        studyHelper.actionCommand = "studyhelper"
-        studyHelper.setBounds(size.x * 2 / 3, size.y * 7 / 8, 200, 40)
-        studyHelper.addActionListener(MainScreen)
-        add(studyHelper)
-
         titleL1.setBounds(size.x * 28 / 81, size.y * 1 / 8, 400, 40)
         titleL1.font = titleL1.font.deriveFont(18f)
         add(titleL1)
@@ -57,7 +50,6 @@ object MainScreen : EllipticCurveWindow((getScreenSize() * 2) / 3) {
         super.updateTextForI18n()
         operationCalc.text = +"gui.operationcalculator"
         encryptionHelper.text = +"gui.encryptdecrypthelper"
-        studyHelper.text = +"gui.studyHelper"
         titleL1.text = +"gui.welcomeL1"
         titleL2.text = +"gui.welcomeL2"
     }
