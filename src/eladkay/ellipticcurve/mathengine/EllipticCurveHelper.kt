@@ -1,5 +1,6 @@
 package eladkay.ellipticcurve.mathengine
 
+import java.util.*
 import kotlin.math.roundToInt
 
 class EllipticCurveHelper(private val curve: EllipticCurve) {
@@ -86,6 +87,7 @@ class EllipticCurveHelper(private val curve: EllipticCurve) {
         return result
     }
 
+    // the following two functions ought to be bijections, or i guess at least the String->Vec2d one be an injection. I guess it doesn't have to be a surjection
     // Encoding methodology due to
     // Reyad, Omar. (2018). Text Message Encoding Based on Elliptic Curve Cryptography and a Mapping Methodology. 10.12785/isl/070102.
 
@@ -103,4 +105,14 @@ class EllipticCurveHelper(private val curve: EllipticCurve) {
     // integer selected by Alice. G is a point agreed on by both sides. Alice's public key is A = xG and Bob's, B = yG.
     // The encrypted message is ((kG), (M+kB)).
     // If the encrypted message is (P, Q), then Bob can decrypt it as Q-yP.
+
+    fun createPublicKey(privateKey: Int, agreedUponPt: Vec2d) = multiply(agreedUponPt, privateKey)
+
+    val rand = Random()
+    fun encrypt(message: Vec2d, bobPublicKey: Vec2d, agreedUponPt: Vec2d): Pair<Vec2d, Vec2d> {
+        val k = if(curve is FiniteEllipticCurve) rand.nextInt(curve.modulus) else rand.nextInt(1000000)
+        return Pair(multiply(agreedUponPt, k), add(message, multiply(bobPublicKey, k)))
+    }
+    fun decrypt(encryptedMessage: Pair<Vec2d, Vec2d>, bobPrivateKey: Int)
+            = add(encryptedMessage.second, multiply(encryptedMessage.first, bobPrivateKey).invertY())
 }
