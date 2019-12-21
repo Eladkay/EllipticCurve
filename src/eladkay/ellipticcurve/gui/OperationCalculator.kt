@@ -144,7 +144,6 @@ object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener
     private val fc = JFileChooser()
     private var drawPtLocs: Boolean = false
     var autoAdd: Boolean = false
-    var showLineOfSymmetry: Boolean = false
     var p1: Vec2i? = null
     var p2: Vec2i? = null
 

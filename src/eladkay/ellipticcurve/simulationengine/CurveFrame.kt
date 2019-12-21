@@ -20,6 +20,7 @@ interface CurveFrame {
     fun drawPointLineText(vec2i: Vec2i, string: String)
     fun clearPointLines()
     fun shouldShowLineOfSymmetry(boolean: Boolean)
+    fun drawLineOfSymmetry(a: Vec2i, b: Vec2i)
 
     var curve: EllipticCurve
     operator fun <T> invoke(action: CurveFrame.() -> T) = action()

@@ -64,6 +64,7 @@ class CurvePanel(private val size: Vec2i, curve: EllipticCurve) : CurveFrame, JP
     var gridsAndTicks: Boolean = false
     private val pointLines = mutableListOf<Vec2i>()
     private val pointText = mutableListOf<Pair<Vec2i, String>>()
+    private val linesOfSymmetry = mutableListOf<Pair<Vec2i, Vec2i>>()
     override fun paint(g: Graphics?) {
         super.paint(g)
 
@@ -128,6 +129,12 @@ class CurvePanel(private val size: Vec2i, curve: EllipticCurve) : CurveFrame, JP
             g2.drawString(text.second, text.first.x + 5, text.first.y)
         }
 
+        for(p in linesOfSymmetry) {
+            g2.color = Color.RED
+            g2.draw(Line2D.Double(p.first.x.toDouble(), p.first.y.toDouble(), p.second.x.toDouble(), p.second.y.toDouble()))
+            g2.color = Color.BLACK
+        }
+
         changeColor(Color.BLACK)
 
         // end drawing auxiliary shapes
@@ -189,9 +196,14 @@ class CurvePanel(private val size: Vec2i, curve: EllipticCurve) : CurveFrame, JP
         pointText.add(vec2i to string)
     }
 
+    override fun drawLineOfSymmetry(a: Vec2i, b: Vec2i) {
+        linesOfSymmetry.add(Pair(a, b))
+    }
+
     var showLineOfSymmetry: Boolean = false
     override fun shouldShowLineOfSymmetry(boolean: Boolean) {
         showLineOfSymmetry = boolean
+        linesOfSymmetry.clear()
     }
 
     // end methods for CurveFrame impl

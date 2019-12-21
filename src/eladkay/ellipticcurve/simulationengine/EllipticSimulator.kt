@@ -163,20 +163,16 @@ object EllipticSimulator {
     fun drawLineOfSymmetry(frame: CurveFrame, xScale: Int = defaultXScale, yScale: Int = defaultYScale) {
         frame.changeColor(Color.RED)
         if(frame.curve is FiniteEllipticCurve) {
+            // i did the work, there are two lines of symmetry: x = 0, x = p/2
             val modulus = (frame.curve as FiniteEllipticCurve).modulus
-            val xModified = { x: Int-> x - 10 * modulus / (frame.frameSize().x - 10).toDouble() }
-            var currentXModified = xModified(0)
-            var currentX = 0
-            while(currentX <= frame.frameSize().x) {
-                if(currentXModified % modulus < -1 + modulus / 2 && currentXModified % modulus > modulus / 2)
-                    frame.drawLine(Vec2i(currentX, 0), Vec2i(currentX, frame.frameSize().y))
-                currentXModified += modulus
-                currentX = demodifyX(currentXModified, frame)
-            }
+            frame.drawLineOfSymmetry(Vec2i(10, 0), Vec2i(10, frame.frameSize().y))
+            val xNeeded = (modulus/2 * frame.frameSize().x - 10)/modulus + 10
+            frame.drawLineOfSymmetry(Vec2i(xNeeded, 0), Vec2i(xNeeded, frame.frameSize().y))
         } else {
             val yValue = demodifyY(0.0, frame)
-            frame.drawLine(Vec2i(0, yValue), Vec2i(frame.frameSize().x, yValue))
+            frame.drawLineOfSymmetry(Vec2i(0, yValue), Vec2i(frame.frameSize().x, yValue))
         }
+        frame.redraw()
         frame.changeColor(Color.BLACK)
     }
 
