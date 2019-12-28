@@ -43,7 +43,7 @@ class EllipticCurveHelper(private val curve: EllipticCurve) {
                     }
                 }
                 fun BigInteger.floorMod(int: Long): Double {
-                    return this.minus(BigInteger.valueOf(int).multiply(this.divide( BigInteger.valueOf(int)))).toDouble()
+                    return this.minus(BigInteger.valueOf(int).multiply(this.divide(BigInteger.valueOf(int)))).toDouble()
                 }
                 return specificDefinition.map { BigInteger.valueOf(curve.modulus).floorMod(it.roundToLong()) }
             }
@@ -67,6 +67,8 @@ class EllipticCurveHelper(private val curve: EllipticCurve) {
     // this is naiive. O(2^k)
     //@Deprecated("this is slow and naiive and kept here for 1. brevity 2. future use perhaps in the study helper")
     fun multiply(a: Vec2d, num: Int): Vec2d {
+        if(num < 0) return multiply(a.invertY(), -num)
+        if(num == 0) return Vec2d.PT_AT_INF
         return if (num == 1)
             a
         else
@@ -91,7 +93,7 @@ class EllipticCurveHelper(private val curve: EllipticCurve) {
         return result
     }
 
-    // the following two functions ought to be bijections, or i guess at least the String->Vec2d one be an injection. I guess it doesn't have to be a surjection
+    // the following two functions ought to be bijections, otherwise obviously one of them won't be defined
     // Encoding methodology due to
     // Reyad, Omar. (2018). Text Message Encoding Based on Elliptic Curve Cryptography and a Mapping Methodology. 10.12785/isl/070102.
 
@@ -119,4 +121,12 @@ class EllipticCurveHelper(private val curve: EllipticCurve) {
     }
     fun decrypt(encryptedMessage: Pair<Vec2d, Vec2d>, bobPrivateKey: Int)
             = add(encryptedMessage.second, multiply(encryptedMessage.first, bobPrivateKey).invertY())
+
+    /**
+     * A description of the Elliptic Curve Diffie-Hellman:
+     * Let G, E, p be parameters known to the public.
+     * Let Alice select her private key a and Bob select his private key b
+     * Alice calculates the public key aG and Bob calculates the public key bG
+     * They swap the public keys in public, and they both can calculate the session key abG.
+     */
 }
