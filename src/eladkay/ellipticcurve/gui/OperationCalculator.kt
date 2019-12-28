@@ -7,6 +7,8 @@ import eladkay.ellipticcurve.simulationengine.EllipticSimulator
 import java.awt.Color
 import java.awt.Font
 import java.awt.Font.BOLD
+import java.awt.Toolkit
+import java.awt.datatransfer.StringSelection
 import java.awt.event.*
 import java.io.File
 import javax.swing.*
@@ -76,6 +78,7 @@ object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener
         if (condition) {
             if (p1 == null || !autoAdd) {
                 p1 = Vec2i(x, y)
+                p1modified = Vec2d(modifyX(x), modifyY(y))
                 panel.drawPoint(Vec2i(x, y))
             } else if (p2 == null) {
                 p2 = Vec2i(x, y)
@@ -95,6 +98,7 @@ object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener
                 else panel.drawPoint(Vec2i(EllipticSimulator.demodifyX(sum.x, panel), EllipticSimulator.demodifyY(sum.y, panel)), 15)
 
                 p1 = null
+                p1modified = null
                 p2 = null
 
             }
@@ -145,6 +149,7 @@ object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener
     private var drawPtLocs: Boolean = false
     var autoAdd: Boolean = false
     var p1: Vec2i? = null
+    private var p1modified: Vec2d? = null
     var p2: Vec2i? = null
 
     init {
@@ -314,6 +319,7 @@ object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener
             }
             "clear" -> {
                 p1 = null
+                p1modified = null
                 p2 = null
                 panel.clear()
                 panel.redraw()
@@ -355,6 +361,7 @@ object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener
                     panel.changeColor(Color.BLACK)
                     panel.repaint()
                     p1 = Vec2i(EllipticSimulator.demodifyX(multiplied.x, panel), EllipticSimulator.demodifyY(multiplied.y, panel))
+                    p1modified = multiplied
                 }
             }
             "select" -> PointSelector.createAndShow()
@@ -387,22 +394,36 @@ object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener
         super.itemStateChanged(e)
     }
 
-    private object PointInfo : EllipticCurveWindow((EllipticCurveWindow.getScreenSize() / 9.0).vec2i()) {
+    private object PointInfo : EllipticCurveWindow((EllipticCurveWindow.getScreenSize() / 6.0).vec2i()) {
         val pointInfoBox = JTextField()
-        override fun createAndShow() {
-            super.createAndShow()
+        val button = JButton(+"gui.copytoclipboard")
+        override fun updateTextForI18n() {
+            super.updateTextForI18n()
             pointInfoBox.text = "(${Math.round(100.0 * modifyX(p1!!.x)) / 100.0}, ${Math.round(100.0 * modifyY(p1!!.y)) / 100.0})"
         }
 
         init {
+            updateTextForI18n()
             pointInfoBox.isEnabled = false
             pointInfoBox.setBounds(size.x * 1 / 6, size.y * 1 / 6, size.x * 4 / 6, 40)
             pointInfoBox.disabledTextColor = Color.BLACK
             pointInfoBox.text = "(${Math.round(100.0 * modifyX(p1!!.x)) / 100}, ${Math.round(100.0 * modifyY(p1!!.y)) / 100})"
             pointInfoBox.horizontalAlignment = JTextField.CENTER
+            button.setBounds(size.x * 1/6, size.y * 2/6, size.x * 4/6, 40)
+            button.actionCommand = "copy"
+            button.addActionListener(this)
             add(pointInfoBox)
+            add(button)
         }
-
+        override fun actionPerformed(e: ActionEvent?) {
+            super.actionPerformed(e)
+            when (e!!.actionCommand) {
+                "copy" -> {
+                    val ss = StringSelection("$p1modified")
+                    Toolkit.getDefaultToolkit().systemClipboard.setContents(ss, ss)
+                }
+            }
+        }
 
     }
 
@@ -457,6 +478,7 @@ object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener
                     panel.changePointSize(5)
                     if (p1 == null || !autoAdd) {
                         p1 = Vec2i(EllipticSimulator.demodifyX(x, panel), EllipticSimulator.demodifyY(y, panel))
+                        p1modified = Vec2d(x, y)
                         panel.drawPoint(p1!!)
                     } else {
                         p2 = Vec2i(EllipticSimulator.demodifyX(x, panel), EllipticSimulator.demodifyY(y, panel))
@@ -472,6 +494,7 @@ object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener
                             JOptionPane.showMessageDialog(null, +"gui.outofbounds" + sum.map { Math.round(it * 100) / 100.0 }.toString())
                         else panel.drawPoint(Vec2i(EllipticSimulator.demodifyX(sum.x, panel), EllipticSimulator.demodifyY(sum.y, panel)), 15)
                         p1 = null
+                        p1modified = null
                         p2 = null
                     }
                     panel.changeColor(Color.BLACK)
@@ -524,6 +547,7 @@ object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener
                     panel.changeColor(Color.BLACK)
                     panel.repaint()
                     p1 = Vec2i(EllipticSimulator.demodifyX(multiplied.x, panel), EllipticSimulator.demodifyY(multiplied.y, panel))
+                    p1modified = multiplied
                 }
             }
         }

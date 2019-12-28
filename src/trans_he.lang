@@ -13,7 +13,7 @@ gui.operationcalculator.changescale=שנה סדר גודל...
 gui.curvechanger=שנה עקום
 gui.scalechanger=שנה סדר גודל
 gui.scalechanger.scale=סדר גודל
-gui.operationcalculator.curve.changefield=שנה שדה... (טרם מומש)
+gui.operationcalculator.curve.changefield=שנה שדה...
 gui.operationcalculator.visualization=המחשה
 gui.operationcalculator.operation=פעולות
 gui.operationcalculator.file=קובץ
@@ -38,5 +38,7 @@ gui.operationcalculator.checkboxAutoadd=הוסף שתי נקודות נבחרו�
 gui.outofbounds=התוצאה מחוץ לגבול:
 gui.operationcalculator.pointinfo=הצג מידע על נקודה מסומנת...
 gui.pointinfo=נקודה נבחרת
+
+gui.encryptdecrypthelper=ממחיש ההצפנה והפענוח
 
 fields.reals=ממשיים

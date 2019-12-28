@@ -5,6 +5,11 @@ class Vec2d(val x: Double, val y: Double) {
 
     companion object {
         val PT_AT_INF = Vec2d(Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY)
+        fun of(string: String): Vec2d {
+            val strippedSplit = string.removeSurrounding("(", ")").split(", ").map { it.toDouble() }
+            return Vec2d(strippedSplit[0], strippedSplit[1])
+
+        }
     }
 
     constructor(x: Number, y: Number) : this(x.toDouble(), y.toDouble())
@@ -18,7 +23,6 @@ class Vec2d(val x: Double, val y: Double) {
     override fun toString(): String {
         return "($x, $y)"
     }
-
 
     operator fun component1() = x
     operator fun component2() = y

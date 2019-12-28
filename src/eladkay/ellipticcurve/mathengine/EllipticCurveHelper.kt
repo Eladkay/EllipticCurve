@@ -105,6 +105,10 @@ class EllipticCurveHelper(private val curve: EllipticCurve) {
         val x = if(curve is FiniteEllipticCurve) rand.nextInt(curve.modulus.toInt()) else 55//rand.nextInt(35)
         Vec2d(x, Math.sqrt(lhs(x*1.0)))
     }
+    val agreedUponPt: Vec2d by lazy {
+        val x = if(curve is FiniteEllipticCurve) rand.nextInt(curve.modulus.toInt()) else 55//rand.nextInt(35)
+        Vec2d(x, Math.sqrt(lhs(x*1.0)))
+    }
     private val asciiGeneratorTable : List<Vec2d> by lazy {
         val list = mutableListOf<Vec2d>()
         for(i in 0..127) list.add(multiply(generator, i))
@@ -114,6 +118,7 @@ class EllipticCurveHelper(private val curve: EllipticCurve) {
     // Encoding methodology due to
     // Reyad, Omar. (2018). Text Message Encoding Based on Elliptic Curve Cryptography and a Mapping Methodology. 10.12785/isl/070102.
 
+    // the bee movie script encoded in this method: https://hastebin.com/kakewudubi.css
     fun getPointOnCurveFromString(string: String): List<Vec2d> {
         val list = mutableListOf<Vec2d>()
         for(ch in string) {
@@ -140,10 +145,10 @@ class EllipticCurveHelper(private val curve: EllipticCurve) {
     // The encrypted message is ((kG), (M+kB)).
     // If the encrypted message is (P, Q), then Bob can decrypt it as Q-yP.
 
-    fun createPublicKey(privateKey: Int, agreedUponPt: Vec2d) = multiply(agreedUponPt, privateKey)
+    fun createPublicKey(privateKey: Int, agreedUponPt: Vec2d = this.agreedUponPt) = multiply(agreedUponPt, privateKey)
 
     val rand = Random()
-    fun encrypt(message: Vec2d, bobPublicKey: Vec2d, agreedUponPt: Vec2d): Pair<Vec2d, Vec2d> {
+    fun encrypt(message: Vec2d, bobPublicKey: Vec2d, agreedUponPt: Vec2d = this.agreedUponPt): Pair<Vec2d, Vec2d> {
         val k = if(curve is FiniteEllipticCurve) rand.nextInt(curve.modulus.toInt()) else rand.nextInt(100)
         return Pair(multiply(agreedUponPt, k), add(message, multiply(bobPublicKey, k)))
     }
