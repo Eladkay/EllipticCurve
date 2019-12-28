@@ -93,16 +93,44 @@ class EllipticCurveHelper(private val curve: EllipticCurve) {
         return result
     }
 
-    // the following two functions ought to be bijections, otherwise obviously one of them won't be defined
+    // the right-hand-side of the curve equation
+    private fun rhs(y: Double) = if(curve is FiniteEllipticCurve) y * y % curve.modulus else y * y
+
+    // the left-hand-side of the curve equation
+    private fun lhs(x: Double) = x * x * x + curve.aValue * x + curve.bValue % (if(curve is FiniteEllipticCurve) curve.modulus else 1)
+
+    // please forgive me, i will excuse this by saying it was done in the name of speed
+    val asciiTable = listOf('\u0000', '\u0001', '\u0002', '\u0003', '\u0004', '\u0005', '\u0006', '\u0007', '\u0008', '\u0009', '\u000a', '\u000b', '\u000c', '\u000d', '\u000e', '\u000f', '\u0010', '\u0011', '\u0012', '\u0013', '\u0014', '\u0015', '\u0016', '\u0017', '\u0018', '\u0019', '\u001a', '\u001b', '\u001c', '\u001d', '\u001e', '\u001f', '\u0020', '\u0021', '\u0022', '\u0023', '\u0024', '\u0025', '\u0026', '\u0027', '\u0028', '\u0029', '\u002a', '\u002b', '\u002c', '\u002d', '\u002e', '\u002f', '\u0030', '\u0031', '\u0032', '\u0033', '\u0034', '\u0035', '\u0036', '\u0037', '\u0038', '\u0039', '\u003a', '\u003b', '\u003c', '\u003d', '\u003e', '\u003f', '\u0040', '\u0041', '\u0042', '\u0043', '\u0044', '\u0045', '\u0046', '\u0047', '\u0048', '\u0049', '\u004a', '\u004b', '\u004c', '\u004d', '\u004e', '\u004f', '\u0050', '\u0051', '\u0052', '\u0053', '\u0054', '\u0055', '\u0056', '\u0057', '\u0058', '\u0059', '\u005a', '\u005b', '\u005c', '\u005d', '\u005e', '\u005f', '\u0060', '\u0061', '\u0062', '\u0063', '\u0064', '\u0065', '\u0066', '\u0067', '\u0068', '\u0069', '\u006a', '\u006b', '\u006c', '\u006d', '\u006e', '\u006f', '\u0070', '\u0071', '\u0072', '\u0073', '\u0074', '\u0075', '\u0076', '\u0077', '\u0078', '\u0079', '\u007a', '\u007b', '\u007c', '\u007d', '\u007e', '\u007f')
+    val generator: Vec2d by lazy {
+        val x = if(curve is FiniteEllipticCurve) rand.nextInt(curve.modulus.toInt()) else rand.nextInt(1000000)
+        Vec2d(x, Math.sqrt(lhs(x*1.0)))
+    }
+    private val asciiGeneratorTable : List<Vec2d> by lazy {
+        val list = mutableListOf<Vec2d>()
+        for(i in 0..127) list.add(multiply(generator, i))
+        list
+    }
+    // the following two functions ought to be bijections, otherwise obviously one of them won't be defined (they are not exactly bijections)
     // Encoding methodology due to
     // Reyad, Omar. (2018). Text Message Encoding Based on Elliptic Curve Cryptography and a Mapping Methodology. 10.12785/isl/070102.
 
-    fun getPointOnCurveFromString(string: String): Vec2d {
-        TODO()
+    fun getPointOnCurveFromString(string: String): List<Vec2d> {
+        val list = mutableListOf<Vec2d>()
+        for(ch in string) {
+            if(ch !in asciiTable) throw UnsupportedOperationException("That's not an ASCII string!")
+            list.add(asciiGeneratorTable[asciiTable.indexOf(ch)])
+        }
+        return list
     }
 
-    fun getStringFromPointOnCurve(vec2d: Vec2d): String {
-        TODO()
+    fun getStringFromPointOnCurve(vec2d: List<Vec2d>): String {
+        return buildString {
+            for(vec in vec2d) {
+                if(vec !in asciiGeneratorTable) throw UnsupportedOperationException("That's not an ASCII string!")
+                append(asciiTable[asciiGeneratorTable.indexOf(vec)])
+            }
+
+        }
     }
 
     // Below is the sequence of steps for encryption and decryption of a message from Alice to Bob:

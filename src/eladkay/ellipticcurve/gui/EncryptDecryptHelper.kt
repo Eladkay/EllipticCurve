@@ -1,9 +1,6 @@
 package eladkay.ellipticcurve.gui
 
-import eladkay.ellipticcurve.mathengine.EllipticCurve
-import eladkay.ellipticcurve.mathengine.FiniteEllipticCurve
-import eladkay.ellipticcurve.mathengine.MathHelper
-import eladkay.ellipticcurve.mathengine.Vec2i
+import eladkay.ellipticcurve.mathengine.*
 import eladkay.ellipticcurve.simulationengine.CurveFrame
 import eladkay.ellipticcurve.simulationengine.CurvePanel
 import eladkay.ellipticcurve.simulationengine.EllipticSimulator
@@ -135,12 +132,14 @@ object EncryptDecryptHelper : EllipticCurveWindow(getScreenSize()), MouseListene
     }
 
     private lateinit var menuOperation: JMenu
-    private lateinit var mult: JMenuItem
-    private lateinit var flip: JMenuItem
+    private lateinit var stringToPts: JMenuItem
+    private lateinit var ptsToString: JMenuItem
     private lateinit var select: JMenuItem
     private fun getOperationMenu(): JMenu {
         menuOperation = JMenu(+"gui.operationcalculator.operation")
         select = JMenuItem(+"gui.operationcalculator.selectpt")
+        stringToPts = JMenuItem(+"gui.encryptdecrypthelper.stringtopts")
+        ptsToString = JMenuItem(+"gui.encryptdecrypthelper.ptstostring")
 
         menuOperation.mnemonic = KeyEvent.VK_O
 
@@ -148,6 +147,16 @@ object EncryptDecryptHelper : EllipticCurveWindow(getScreenSize()), MouseListene
         select.actionCommand = "select"
         select.mnemonic = KeyEvent.VK_S
         menuOperation.add(select)
+
+        stringToPts.addActionListener(this)
+        stringToPts.actionCommand = "stringToPts"
+        stringToPts.mnemonic = KeyEvent.VK_C
+        menuOperation.add(stringToPts)
+
+        ptsToString.addActionListener(this)
+        ptsToString.actionCommand = "ptsToString"
+        ptsToString.mnemonic = KeyEvent.VK_P
+        menuOperation.add(ptsToString)
 
         return menuOperation
     }
@@ -191,7 +200,8 @@ object EncryptDecryptHelper : EllipticCurveWindow(getScreenSize()), MouseListene
             "select" -> +"noop"
             "changefield_zp" -> FieldZp.createAndShow()
             "changefield_reals" -> panel.curve = EllipticCurve(OperationCalculator.panel.curve.aValue, OperationCalculator.panel.curve.bValue, MathHelper.REALS)
-
+            "stringToPts" -> StringToPts.createAndShow()
+            "ptsToString" -> PtsToString.createAndShow()
         }
     }
 
@@ -338,6 +348,54 @@ object EncryptDecryptHelper : EllipticCurveWindow(getScreenSize()), MouseListene
             }
         }
 
+    }
+    private object StringToPts : EllipticCurveWindow((EllipticCurveWindow.getScreenSize() / 4.5).vec2i()) {
+        val okButton = JButton(+"gui.ok")
+        val text = JTextArea()
+        init {
+            okButton.mnemonic = KeyEvent.VK_S
+            okButton.actionCommand = "ok"
+            okButton.setBounds(size.x * 1 / 2 - 200, size.y * 12 / 16, 400, 40)
+            okButton.addActionListener(this)
+            text.setBounds(0, size.y * 4 / 16, 800, 400)
+            add(okButton)
+            add(text)
+        }
+        override fun actionPerformed(e: ActionEvent?) {
+            super.actionPerformed(e)
+            when (e!!.actionCommand) {
+                "ok" -> {
+                    this.isVisible = false
+                    val stringResult = EncryptDecryptHelper.panel.curve.helper.getPointOnCurveFromString(text.text)
+                            .map { "(${it.x}, ${it.y})" }.joinToString("\n")
+                    InformationalScreen(stringResult, +"gui.stringtopts").createAndShow()
+                }
+            }
+        }
+    }
+    private object PtsToString : EllipticCurveWindow((EllipticCurveWindow.getScreenSize() / 4.5).vec2i()) {
+        val okButton = JButton(+"gui.ok")
+        val text = JTextArea()
+        init {
+            okButton.mnemonic = KeyEvent.VK_S
+            okButton.actionCommand = "ok"
+            okButton.setBounds(size.x * 1 / 2 - 200, size.y * 12 / 16, 400, 40)
+            okButton.addActionListener(this)
+            text.setBounds(0, size.y * 4 / 16, 800, 400)
+            add(okButton)
+            add(text)
+        }
+        override fun actionPerformed(e: ActionEvent?) {
+            super.actionPerformed(e)
+            when (e!!.actionCommand) {
+                "ok" -> {
+                    this.isVisible = false
+                    val stringResult = EncryptDecryptHelper.panel.curve.helper.getStringFromPointOnCurve(text.text.split("\n")
+                            .map { val xy = it.removeSurrounding("(", ")").split(", ").map { it.toDouble() }; Vec2d(xy[0], xy[1]) })
+                    InformationalScreen(stringResult, +"gui.ptstostring").createAndShow()
+                }
+            }
+        }
     }
 
 }

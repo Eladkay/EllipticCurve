@@ -3,7 +3,11 @@ package eladkay.ellipticcurve.test
 import eladkay.ellipticcurve.mathengine.MathHelper
 
 fun main(args: Array<String>) {
-    exactnessPrimeTest()
+    for(i in 0..127) {
+        val s = if (i<=0xF) "000${i.toString(16)}" else "00${i.toString(16)}"
+        print("\'\\u$s\', ")
+    }
+    //exactnessPrimeTest()
 //    println(MathHelper.isPrimeFast(66977))
     //EventQueue.invokeLater(MainScreen::createAndShow)
 //    EllipticCurve(-1.0, 1.0, Field.REALS) ({

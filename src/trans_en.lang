@@ -36,7 +36,10 @@ gui.operationcalculator.file.opencurve=Open Curve...
 gui.operationcalculator.file.exit=Exit
 
 gui.encryptdecrypthelper=Encryption/Decryption Helper
-
+gui.encryptdecrypthelper.stringtopts=Convert String to Pts...
+gui.encryptdecrypthelper.ptstostring=Convert Pts to String...
+gui.stringtopts=Convert String to List of Points
+gui.ptstostring=Convert List of Points to String
 
 gui.studyHelper=Study Helper
 
@@ -48,5 +51,6 @@ gui.invalidcurve=Invalid elliptic curve!
 gui.outofbounds=The result is out of bounds:
 gui.curveover2or3=Elliptic Curves over Z2 and Z3 don't work as well
 gui.discretecurve=Unsupported operation on discrete curve!
+gui.informationalscreen=Information
 
 fields.reals=Reals

@@ -64,10 +64,10 @@ open class EllipticCurve(val aValue: Long, val bValue: Long, val field: String) 
         if (bValue > 0) throw IllegalArgumentException("This function is not defined for b>0")
         else return Math.sqrt(-bValue / 3.0)
     }
-
+    val helper: EllipticCurveHelper by lazy { EllipticCurveHelper(this) }
     operator fun <T> invoke(action: EllipticCurve.() -> T) = this.action()
-    operator fun Vec2d.plus(b: Vec2d): Vec2d = EllipticCurveHelper(this@EllipticCurve).add(this, b)
-    operator fun Vec2d.minus(b: Vec2d): Vec2d = EllipticCurveHelper(this@EllipticCurve).add(this, -b)
-    operator fun Vec2d.times(b: Int): Vec2d = EllipticCurveHelper(this@EllipticCurve).multiply(this, b)
+    operator fun Vec2d.plus(b: Vec2d): Vec2d = helper.add(this, b)
+    operator fun Vec2d.minus(b: Vec2d): Vec2d = helper.add(this, -b)
+    operator fun Vec2d.times(b: Int): Vec2d = helper.multiply(this, b)
     operator fun Vec2d.unaryMinus(): Vec2d = this.invertY()
 }
