@@ -4,6 +4,7 @@ import eladkay.ellipticcurve.mathengine.*
 import eladkay.ellipticcurve.simulationengine.CurveFrame
 import eladkay.ellipticcurve.simulationengine.CurvePanel
 import eladkay.ellipticcurve.simulationengine.EllipticSimulator
+import java.awt.Color
 import java.awt.Font
 import java.awt.event.*
 import java.io.File
@@ -343,7 +344,7 @@ object EncryptDecryptHelper : EllipticCurveWindow(getScreenSize()), MouseListene
                         return
                     }
 
-                    panel.curve = FiniteEllipticCurve(panel.curve.aValue, panel.curve.bValue, spinner.value as Long)
+                    panel.curve = FiniteEllipticCurve(panel.curve.aValue, panel.curve.bValue, (spinner.value as Int).toLong())
                 }
             }
         }
@@ -366,8 +367,17 @@ object EncryptDecryptHelper : EllipticCurveWindow(getScreenSize()), MouseListene
             when (e!!.actionCommand) {
                 "ok" -> {
                     this.isVisible = false
-                    val stringResult = EncryptDecryptHelper.panel.curve.helper.getPointOnCurveFromString(text.text)
-                            .map { "(${it.x}, ${it.y})" }.joinToString("\n")
+                    val points = EncryptDecryptHelper.panel.curve.helper.getPointOnCurveFromString(text.text)
+                    panel.changeColor(Color.RED)
+                    panel.changePointSize(10)
+                    for(pt in points) {
+                        val x = EllipticSimulator.demodifyX(pt.x, panel)
+                        val y = EllipticSimulator.demodifyY(pt.y, panel)
+                        panel.drawPoint(Vec2i(x, y))
+                        panel.repaint()
+                    }
+                    panel.changeColor(Color.BLACK)
+                    val stringResult = points.map { "(${it.x}, ${it.y})" }.joinToString("\n")
                     InformationalScreen(stringResult, +"gui.stringtopts").createAndShow()
                 }
             }
