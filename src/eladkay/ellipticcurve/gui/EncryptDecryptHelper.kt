@@ -495,11 +495,11 @@ object EncryptDecryptHelper : EllipticCurveWindow(getScreenSize()), MouseListene
                     for(item in clean) str = str.replace(item, "")
                     val lines = str.split("\n")
                     val first = Vec2d.of(lines[0])
-                    val seconds = lines.subList(1, lines.size - 1).joinToString().split(";").filter { !it.isBlank() }.map { Vec2d.of(it) }
-                    println(seconds)
+                    val seconds = lines.subList(1, lines.size).joinToString("").split(";")
+                            .filter { !it.isBlank() }.map { it.removeSurrounding(",").trim() }
                     val bobkey = privKey.text.toInt()
-                    val decrypted = seconds.map { panel.curve.helper.decrypt(Pair(first, it), bobkey) }
-                    val stringText = "${+"decrypted"}: {${decrypted.joinToString(";\n")}}"
+                    val decrypted = seconds.map { panel.curve.helper.decrypt(Pair(first, Vec2d.of(it)), bobkey) }
+                    val stringText = "${+"decrypted"}: \n${decrypted.joinToString("\n")}"
                     InformationalScreen(stringText, +"gui.decryptor").createAndShow()
                 }
             }

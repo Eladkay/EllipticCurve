@@ -150,10 +150,11 @@ class EllipticCurveHelper(private val curve: EllipticCurve) {
     val rand = Random()
     fun encrypt(message: Vec2d, bobPublicKey: Vec2d, agreedUponPt: Vec2d = this.agreedUponPt): Pair<Vec2d, Vec2d> {
         val k = if(curve is FiniteEllipticCurve) rand.nextInt(curve.modulus.toInt()) else rand.nextInt(100)
-        return Pair(multiply(agreedUponPt, k), add(message, multiply(bobPublicKey, k)))
+        return curve { Pair(agreedUponPt*k, message + bobPublicKey*k)}
+        //return Pair(multiply(agreedUponPt, k), add(message, multiply(bobPublicKey, k)))
     }
     fun decrypt(encryptedMessage: Pair<Vec2d, Vec2d>, bobPrivateKey: Int)
-            = add(encryptedMessage.second, multiply(encryptedMessage.first, bobPrivateKey).invertY())
+            = curve { encryptedMessage.second - encryptedMessage.first * bobPrivateKey} //add(encryptedMessage.second, multiply(encryptedMessage.first, bobPrivateKey).invertY())
 
     /**
      * A description of the Elliptic Curve Diffie-Hellman:

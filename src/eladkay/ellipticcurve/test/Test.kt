@@ -3,6 +3,7 @@ package eladkay.ellipticcurve.test
 import eladkay.ellipticcurve.mathengine.MathHelper
 
 fun main(args: Array<String>) {
+    //println(EllipticCurve(1, -1, "reals").helper.asciiGeneratorTable)
     /*val ss = StringSelection("hifdidf")
     Toolkit.getDefaultToolkit().systemClipboard.setContents(ss, ss)*/
     /*for(i in 0..127) {
