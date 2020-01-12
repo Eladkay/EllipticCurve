@@ -16,7 +16,6 @@ class EllipticCurveHelper(private val curve: EllipticCurve) {
 
         var (x1, y1) = a
         var (x2, y2) = b
-        // well then screw this, this does NOT seem like good code does it? but it is
         if (curve is FiniteEllipticCurve) {
             if (curve.field == "z2" || curve.field == "z3") throw IllegalArgumentException("elliptic curves over Z2 or Z3 don't quite work the same") // besides, when working with elliptic curve cryptography, we generally want to use large primes anyways
             else {
@@ -65,7 +64,6 @@ class EllipticCurveHelper(private val curve: EllipticCurve) {
     }
 
     // this is naiive. O(2^k)
-    //@Deprecated("this is slow and naiive and kept here for 1. brevity 2. future use perhaps in the study helper")
     fun multiply(a: Vec2d, num: Int): Vec2d {
         if(num < 0) return multiply(a.invertY(), -num)
         if(num == 0) return Vec2d.PT_AT_INF
@@ -134,7 +132,6 @@ class EllipticCurveHelper(private val curve: EllipticCurve) {
                 if(vec !in asciiGeneratorTable) throw UnsupportedOperationException("That's not an ASCII string!")
                 append(asciiTable[asciiGeneratorTable.indexOf(vec)])
             }
-
         }
     }
 
@@ -151,10 +148,9 @@ class EllipticCurveHelper(private val curve: EllipticCurve) {
     fun encrypt(message: Vec2d, bobPublicKey: Vec2d, agreedUponPt: Vec2d = this.agreedUponPt): Pair<Vec2d, Vec2d> {
         val k = if(curve is FiniteEllipticCurve) rand.nextInt(curve.modulus.toInt()) else rand.nextInt(100)
         return curve { Pair(agreedUponPt*k, message + bobPublicKey*k)}
-        //return Pair(multiply(agreedUponPt, k), add(message, multiply(bobPublicKey, k)))
     }
     fun decrypt(encryptedMessage: Pair<Vec2d, Vec2d>, bobPrivateKey: Int)
-            = curve { encryptedMessage.second - encryptedMessage.first * bobPrivateKey} //add(encryptedMessage.second, multiply(encryptedMessage.first, bobPrivateKey).invertY())
+            = curve { encryptedMessage.second - encryptedMessage.first * bobPrivateKey}
 
     /**
      * A description of the Elliptic Curve Diffie-Hellman:

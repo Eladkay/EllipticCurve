@@ -22,9 +22,6 @@ object MathHelper {
 
     // If a modulus operation is O(1), this is O(n)
     fun isPrime(n: Int): Boolean {
-        if(n < 2) return false
-        for(i in 2..Math.sqrt(n.toDouble()).toInt())
-            if(n % i == 0) return false
-        return true
+        return n >= 2 && (2..Math.sqrt(n.toDouble()).toInt()).none { n % it == 0}
     }
 }

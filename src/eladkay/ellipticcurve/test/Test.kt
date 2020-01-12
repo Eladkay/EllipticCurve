@@ -3,6 +3,7 @@ package eladkay.ellipticcurve.test
 import eladkay.ellipticcurve.mathengine.MathHelper
 
 fun main(args: Array<String>) {
+    exactnessPrimeTest()
     //println(EllipticCurve(1, -1, "reals").helper.asciiGeneratorTable)
     /*val ss = StringSelection("hifdidf")
     Toolkit.getDefaultToolkit().systemClipboard.setContents(ss, ss)*/
@@ -34,18 +35,17 @@ fun primeTests() {
 }
 
 fun exactnessPrimeTest() {
-    val array = listOf(mutableListOf(), mutableListOf(), mutableListOf<Boolean>())
+    val array = listOf(mutableListOf(), mutableListOf<Boolean>())
     for(i in 1..100000) {
         array[0].add(MathHelper.isPrime(i))
-        array[2].add(MathHelper.isPrimeFastBigInt(i))
+        array[1].add(MathHelper.isPrimeFastBigInt(i))
     }
 
     for(i in 1..100000) {
         val isPrime = array[0][i-1]
         val isPrimeFast = array[1][i-1]
-        val isPrimeFastBigInt = array[2][i-1]
-        if(isPrime != isPrimeFast || isPrime != isPrimeFastBigInt || isPrimeFast != isPrimeFastBigInt) {
-            println("$i: isPrime $isPrime isPrimeFast $isPrimeFast isPrimeFastBigInt $isPrimeFastBigInt")
+        if(isPrime != isPrimeFast) {
+            println("$i: isPrime $isPrime isPrimeFastBigInt $isPrimeFast")
             continue
         }
     }
