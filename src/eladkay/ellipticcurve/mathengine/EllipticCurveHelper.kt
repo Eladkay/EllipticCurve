@@ -13,82 +13,69 @@ class EllipticCurveHelper(private val curve: EllipticCurve) {
            if (!curve.isPointOnCurve(b)) throw IllegalArgumentException("point $b not on curve!") */ // since we're working with very crude approximations, this can't be
         if (a == Vec2d.PT_AT_INF) return b
         if (b == Vec2d.PT_AT_INF) return a
+        if (curve is FiniteEllipticCurve) return addFinite(a, b)
 
+        val (x1, y1) = a
+        val (x2, y2) = b
+        val lambda =
+                if(a == b)
+                    if(y1 == 0.0) return Vec2d.PT_AT_INF
+                    else (3*x1*x1 + curve.aValue)/(2*y1)
+                else if(x1 == x2) return Vec2d.PT_AT_INF
+                else (y1-y2)/(x1-x2)
+        val x3 = lambda * lambda - x1 - x2
+        val y3 = lambda*(x2 - x3) - y2
+        return Vec2d(x3, y3)
+    }
+
+    private fun addFinite(a: Vec2d, b: Vec2d): Vec2d {
         var (x1, y1) = a
         var (x2, y2) = b
-        if (curve is FiniteEllipticCurve) {
-            if (curve.field == "z2" || curve.field == "z3") throw IllegalArgumentException("elliptic curves over Z2 or Z3 don't quite work the same") // besides, when working with elliptic curve cryptography, we generally want to use large primes anyways
-            else {
-                x1 %= curve.modulus
-                y1 %= curve.modulus
-                x2 %= curve.modulus
-                y2 %= curve.modulus
-                val specificDefinition = curve {
-                    operator fun Double.not() = FiniteEllipticCurve.NumberWrapper(this, curve.modulus)
-                    if (a == b) {
-                        if (y1 == 0.0) return@curve Vec2d.PT_AT_INF
-
-                        val m = (!3.0 * (!x1 exp 2) + !curve.aValue.toDouble()) / (!2.0 * !y1)
-                        val x3 = (m exp 2) + !-2.0 * !x1
-                        val y3 = m * (!x1 - x3) - !y1
-                        Vec2d(!x3, !y3).takeUnless { it.isNaN() } ?: Vec2d.PT_AT_INF
-                    } else {
-                        if (x1 == x2) return@curve Vec2d.PT_AT_INF
-
-                        val m = !(y2 - y1) / !(x2 - x1)
-                        val x3 = (m exp 2) - !x1 - !x2
-                        val y3 = m * (!x1 - x3) - !y1
-                        Vec2d(!x3, !y3).takeUnless { it.isNaN() } ?: Vec2d.PT_AT_INF
-                    }
-                }
-                fun BigInteger.floorMod(int: Long): Double {
-                    return this.minus(BigInteger.valueOf(int).multiply(this.divide(BigInteger.valueOf(int)))).toDouble()
-                }
-                return specificDefinition.map { BigInteger.valueOf(curve.modulus).floorMod(it.roundToLong()) }
+        this.curve as FiniteEllipticCurve
+        if (curve.field == "z2" || curve.field == "z3") throw IllegalArgumentException("elliptic curves over Z2 or Z3 don't quite work the same") // besides, when working with elliptic curve cryptography, we generally want to use large primes anyways
+        else {
+            x1 %= curve.modulus
+            y1 %= curve.modulus
+            x2 %= curve.modulus
+            y2 %= curve.modulus
+            val lambda =
+                    if(a == b)
+                        if(y1 == 0.0) return Vec2d.PT_AT_INF
+                        else (3*x1*x1 + curve.aValue)/(2*y1)
+                    else if(x1 == x2) return Vec2d.PT_AT_INF
+                    else (y1-y2)/(x1-x2)
+            val specificDefinition = curve {
+                val x3 = lambda * lambda - x1 - x2
+                val y3 = lambda*(x2 - x3) - y2
+                Vec2d(x3, y3)
             }
-        } else return if (a == b) {
-            if (y1 == 0.0) return Vec2d.PT_AT_INF
-
-            val m = (3.0 * (x1 * x1) + curve.aValue) / (2.0 * y1)
-            val x3 = (m * m) + -2.0 * x1
-            val y3 = m * (x1 - x3) - y1
-            Vec2d(x3, y3).takeUnless { it.isNaN() } ?: Vec2d.PT_AT_INF
-        } else {
-            if (x1 == x2) return Vec2d.PT_AT_INF
-
-            val m = (y2 - y1) / (x2 - x1)
-            val x3 = (m * m) - x1 - x2
-            val y3 = m * (x1 - x3) - y1
-            Vec2d(x3, y3).takeUnless { it.isNaN() } ?: Vec2d.PT_AT_INF
+            fun BigInteger.floorMod(int: Long): Double {
+                return this.minus(BigInteger.valueOf(int).multiply(this.divide(BigInteger.valueOf(int)))).toDouble()
+            }
+            return specificDefinition.map { BigInteger.valueOf(curve.modulus).floorMod(it.roundToLong()) }
         }
     }
 
     // this is naiive. O(2^k)
-    fun multiply(a: Vec2d, num: Int): Vec2d {
-        if(num < 0) return multiply(a.invertY(), -num)
+    @Deprecated("This is naiive and slow I will remove it later")
+    fun slowMultiply(a: Vec2d, num: Int): Vec2d {
+        if(num < 0) return slowMultiply(a.invertY(), -num)
         if(num == 0) return Vec2d.PT_AT_INF
         return if (num == 1)
             a
         else
-            add(a, multiply(a, num - 1))
+            add(a, slowMultiply(a, num - 1))
     }
 
-    // this is better, O(k), if it had worked. todo
-    fun fastMultiply(a: Vec2d, num: Int): Vec2d {
-        var numTemp = num
-        val bits = generateSequence {
-            if (numTemp == 0) return@generateSequence null
-            val bit = numTemp and 1
-            numTemp = numTemp shr 1
-            bit
+    // this is way better, O(k)
+    fun multiply(p: Vec2d, d: Int): Vec2d {
+        return when {
+            d < 0 -> multiply(p.invertY(), -d)
+            d == 0 -> Vec2d.PT_AT_INF
+            d == 1 -> p
+            d % 2 == 1 -> add(p, multiply(p, d - 1))
+            else -> multiply(add(p, p), d / 2)
         }
-        var addend = a
-        var result = Vec2d.PT_AT_INF
-        for (bit in bits) {
-            if (bit == 1) result = add(result, addend)
-            addend = add(addend, addend)
-        }
-        return result
     }
 
     // the right-hand-side of the curve equation

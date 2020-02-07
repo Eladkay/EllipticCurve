@@ -693,7 +693,7 @@ object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener
                         return
                     }
 
-                    panel.curve = FiniteEllipticCurve(panel.curve.aValue, panel.curve.bValue, spinner.value as Long)
+                    panel.curve = FiniteEllipticCurve(panel.curve.aValue, panel.curve.bValue, (spinner.value as Int).toLong())
                 }
             }
         }
