@@ -22,7 +22,7 @@ class CurvePanel(private val size: Vec2i, curve: EllipticCurve) : CurveFrame, JP
 
     init {
         setBounds(0, 0, size.x, size.y)
-        background = Color.gray
+        background = Color.lightGray
     }
 
 

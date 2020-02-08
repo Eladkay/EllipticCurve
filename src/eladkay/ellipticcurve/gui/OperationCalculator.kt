@@ -402,7 +402,16 @@ object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener
             pointInfoBox.text = "(${Math.round(100.0 * modifyX(p1!!.x)) / 100.0}, ${Math.round(100.0 * modifyY(p1!!.y)) / 100.0})"
         }
 
+        override fun createAndShow() {
+            super.createAndShow()
+            init()
+        }
+
         init {
+            init()
+        }
+
+        fun init() {
             updateTextForI18n()
             pointInfoBox.isEnabled = false
             pointInfoBox.setBounds(size.x * 1 / 6, size.y * 1 / 6, size.x * 4 / 6, 40)

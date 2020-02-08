@@ -138,6 +138,7 @@ object EncryptDecryptHelper : EllipticCurveWindow(getScreenSize()), MouseListene
     private lateinit var select: JMenuItem
     private lateinit var encryptor: JMenuItem
     private lateinit var decryptor: JMenuItem
+    private lateinit var showAgreedUponPt: JMenuItem
     private fun getOperationMenu(): JMenu {
         menuOperation = JMenu(+"gui.operationcalculator.operation")
         select = JMenuItem(+"gui.operationcalculator.selectpt")
@@ -145,7 +146,7 @@ object EncryptDecryptHelper : EllipticCurveWindow(getScreenSize()), MouseListene
         ptsToString = JMenuItem(+"gui.encryptdecrypthelper.ptstostring")
         encryptor = JMenuItem(+"gui.encryptdecrypthelper.encryptor")
         decryptor = JMenuItem(+"gui.encryptdecrypthelper.decryptor")
-
+        showAgreedUponPt = JMenuItem(+"gui.encryptdecrypthelper.showAgreedUponPt")
         menuOperation.mnemonic = KeyEvent.VK_O
 
         select.addActionListener(this)
@@ -172,6 +173,11 @@ object EncryptDecryptHelper : EllipticCurveWindow(getScreenSize()), MouseListene
         decryptor.actionCommand = "decrypt"
         decryptor.mnemonic = KeyEvent.VK_D
         menuOperation.add(decryptor)
+
+        showAgreedUponPt.addActionListener(this)
+        showAgreedUponPt.actionCommand = "showAgreedUponPt"
+        showAgreedUponPt.mnemonic = KeyEvent.VK_A
+        menuOperation.add(showAgreedUponPt)
 
         return menuOperation
     }
@@ -219,6 +225,7 @@ object EncryptDecryptHelper : EllipticCurveWindow(getScreenSize()), MouseListene
             "ptsToString" -> PtsToString.createAndShow()
             "encrypt" -> Encryptor.createAndShow()
             "decrypt" -> Decryptor.createAndShow()
+            "showAgreedUponPt" -> InformationalScreen(panel.curve.helper.agreedUponPt.toString()).createAndShow()
         }
     }
 
