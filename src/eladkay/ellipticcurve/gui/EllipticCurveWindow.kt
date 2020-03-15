@@ -32,6 +32,10 @@ open class EllipticCurveWindow(xSize: Int, ySize: Int) : JFrame(), ActionListene
         title = +"gui.${javaClass.simpleName.toLowerCase()}"
     }
 
+    open fun setSize(vec2i: Vec2i) {
+        setSize(vec2i.x, vec2i.y)
+    }
+
     init {
         title = +"gui.${javaClass.simpleName.toLowerCase()}"
         defaultCloseOperation = JFrame.DISPOSE_ON_CLOSE

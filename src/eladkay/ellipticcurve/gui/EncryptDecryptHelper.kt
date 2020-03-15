@@ -139,6 +139,7 @@ object EncryptDecryptHelper : EllipticCurveWindow(getScreenSize()), MouseListene
     private lateinit var encryptor: JMenuItem
     private lateinit var decryptor: JMenuItem
     private lateinit var showAgreedUponPt: JMenuItem
+    private lateinit var showGenerators: JMenuItem
     private fun getOperationMenu(): JMenu {
         menuOperation = JMenu(+"gui.operationcalculator.operation")
         select = JMenuItem(+"gui.operationcalculator.selectpt")
@@ -147,6 +148,7 @@ object EncryptDecryptHelper : EllipticCurveWindow(getScreenSize()), MouseListene
         encryptor = JMenuItem(+"gui.encryptdecrypthelper.encryptor")
         decryptor = JMenuItem(+"gui.encryptdecrypthelper.decryptor")
         showAgreedUponPt = JMenuItem(+"gui.encryptdecrypthelper.showAgreedUponPt")
+        showGenerators = JMenuItem(+"gui.encryptdecrypthelper.showGenerators")
         menuOperation.mnemonic = KeyEvent.VK_O
 
         select.addActionListener(this)
@@ -178,6 +180,11 @@ object EncryptDecryptHelper : EllipticCurveWindow(getScreenSize()), MouseListene
         showAgreedUponPt.actionCommand = "showAgreedUponPt"
         showAgreedUponPt.mnemonic = KeyEvent.VK_A
         menuOperation.add(showAgreedUponPt)
+
+        showGenerators.addActionListener(this)
+        showGenerators.actionCommand = "generators"
+        showGenerators.mnemonic = KeyEvent.VK_G
+        menuOperation.add(showGenerators)
 
         return menuOperation
     }
@@ -226,8 +233,16 @@ object EncryptDecryptHelper : EllipticCurveWindow(getScreenSize()), MouseListene
             "encrypt" -> Encryptor.createAndShow()
             "decrypt" -> Decryptor.createAndShow()
             "showAgreedUponPt" -> InformationalScreen(panel.curve.helper.agreedUponPt.toString()).createAndShow()
+            "generators" -> {
+                InformationalScreen(letters.joinToString("\n") {  "$it ${panel.curve.helper.getPointOnCurveFromString(it.toString())[0]}" }, true)
+                        .apply { setSize(EllipticCurveWindow.getScreenSize() * 2 / 5) }.createAndShow()
+            }
         }
     }
+
+    // for some very odd reason, using the char range 'a'..'Z' simply does not work. i have therefore been forced into creating the following constant
+    // is it really any less of an eyesore than just a full list of the letters?
+    private val letters = listOf(*('a'..'z').toList().toTypedArray(), *('A'..'Z').toList().toTypedArray())
 
     private object ScaleChanger : EllipticCurveWindow((EllipticCurveWindow.getScreenSize() / 4.5).vec2i()) {
 
@@ -401,7 +416,7 @@ object EncryptDecryptHelper : EllipticCurveWindow(getScreenSize()), MouseListene
                     }
                     panel.changeColor(Color.BLACK)
                     val stringResult = points.map { "(${it.x}, ${it.y})" }.joinToString("\n")
-                    InformationalScreen(stringResult, +"gui.stringtopts").createAndShow()
+                    InformationalScreen(stringResult, true, +"gui.stringtopts").createAndShow()
                 }
             }
         }
@@ -425,7 +440,7 @@ object EncryptDecryptHelper : EllipticCurveWindow(getScreenSize()), MouseListene
                     this.isVisible = false
                     val stringResult = EncryptDecryptHelper.panel.curve.helper.getStringFromPointOnCurve(text.text.split("\n")
                             .map { val xy = it.removeSurrounding("(", ")").split(", ").map { it.toDouble() }; Vec2d(xy[0], xy[1]) })
-                    InformationalScreen(stringResult, +"gui.ptstostring").createAndShow()
+                    InformationalScreen(stringResult, true, +"gui.ptstostring").createAndShow()
                 }
             }
         }
@@ -464,7 +479,7 @@ object EncryptDecryptHelper : EllipticCurveWindow(getScreenSize()), MouseListene
                     val first = encrypted[0].first
                     val theRest = encrypted.map { it.second }
                     val stringText = "${+"shared"}: $first\n" + "${+"ordered"}: {${theRest.joinToString(";\n")}}"
-                    InformationalScreen(stringText, +"gui.encryptor").createAndShow()
+                    InformationalScreen(stringText, true, +"gui.encryptor").createAndShow()
                 }
             }
         }
@@ -507,7 +522,7 @@ object EncryptDecryptHelper : EllipticCurveWindow(getScreenSize()), MouseListene
                     val bobkey = privKey.text.toInt()
                     val decrypted = seconds.map { panel.curve.helper.decrypt(Pair(first, Vec2d.of(it)), bobkey) }
                     val stringText = "${+"decrypted"}: \n${decrypted.joinToString("\n")}"
-                    InformationalScreen(stringText, +"gui.decryptor").createAndShow()
+                    InformationalScreen(stringText, true, +"gui.decryptor").createAndShow()
                 }
             }
         }
