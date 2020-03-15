@@ -234,8 +234,18 @@ object EncryptDecryptHelper : EllipticCurveWindow(getScreenSize()), MouseListene
             "decrypt" -> Decryptor.createAndShow()
             "showAgreedUponPt" -> InformationalScreen(panel.curve.helper.agreedUponPt.toString()).createAndShow()
             "generators" -> {
-                InformationalScreen(letters.joinToString("\n") {  "$it ${panel.curve.helper.getPointOnCurveFromString(it.toString())[0]}" }, true)
-                        .apply { setSize(EllipticCurveWindow.getScreenSize() * 2 / 5) }.createAndShow()
+                val pts = letters.map { it to panel.curve.helper.getPointOnCurveFromString(it.toString())[0] }
+                fun checkDuplicates(): Set<Pair<Char, Vec2d>> {
+                    val ret = mutableSetOf<Pair<Char, Vec2d>>()
+                    for(p in pts) for (q in pts) if(p.first != p.first && p.second == q.second) { ret.add(p); ret.add(q) }
+                    return ret
+                }
+                val duplicates = checkDuplicates()
+                val text1 = pts.joinToString("\n") { "${it.first} ${it.second}" }
+                val text2 = "\n\nDuplicates: ${if(duplicates.isEmpty()) "None" else duplicates.toString()}"
+                val screen = InformationalScreen(text1 + text2, true)
+                screen.setSize(EllipticCurveWindow.getScreenSize() * 2 / 5)
+                screen.createAndShow()
             }
         }
     }
