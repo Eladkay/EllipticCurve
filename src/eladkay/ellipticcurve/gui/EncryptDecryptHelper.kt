@@ -234,7 +234,7 @@ object EncryptDecryptHelper : EllipticCurveWindow(getScreenSize()), MouseListene
             "decrypt" -> Decryptor.createAndShow()
             "showAgreedUponPt" -> InformationalScreen(panel.curve.helper.agreedUponPt.toString()).createAndShow()
             "generators" -> {
-                val pts = letters.map { it to panel.curve.helper.getPointOnCurveFromString(it.toString())[0] }
+                val pts = EllipticCurveHelper.asciiTable.map { it to panel.curve.helper.getPointOnCurveFromString(it.toString())[0] }
                 fun checkDuplicates(): Set<Pair<Char, Vec2d>> {
                     val ret = mutableSetOf<Pair<Char, Vec2d>>()
                     for(p in pts) for (q in pts) if(p.first != p.first && p.second == q.second) { ret.add(p); ret.add(q) }
@@ -246,13 +246,12 @@ object EncryptDecryptHelper : EllipticCurveWindow(getScreenSize()), MouseListene
                 val screen = InformationalScreen(text1 + text2, true)
                 screen.setSize(EllipticCurveWindow.getScreenSize() * 2 / 5)
                 screen.createAndShow()
+                if(debug) File("generators.curvelog").writeText(text1 + text2)
             }
         }
     }
 
-    // for some very odd reason, using the char range 'a'..'Z' simply does not work. i have therefore been forced into creating the following constant
-    // is it really any less of an eyesore than just a full list of the letters?
-    private val letters = listOf(*('a'..'z').toList().toTypedArray(), *('A'..'Z').toList().toTypedArray())
+    private const val debug = true // set to false in prod
 
     private object ScaleChanger : EllipticCurveWindow((EllipticCurveWindow.getScreenSize() / 4.5).vec2i()) {
 
@@ -484,6 +483,10 @@ object EncryptDecryptHelper : EllipticCurveWindow(getScreenSize()), MouseListene
                     this.isVisible = false
                     val vecs = text.text.split("\n").map { val xy = it.removeSurrounding("(", ")").split(", ").map { it.toDouble() }
                         Vec2d(xy[0], xy[1]) }
+                    if(!pubKey.text.matches("\\((-)*\\d+(?:.\\d+)*,(\\s)*(-)*\\d+(?:.\\d+)*\\)".toRegex())) {
+                        InformationalScreen(+"gui.encryptdecrypthelper.invalidpubkey").createAndShow()
+                        return
+                    }
                     val bobKey = pubKey.text.removeSurrounding("(", ")").split(", ").map { it.toDouble() }
                     val encrypted = vecs.map { panel.curve.helper.encrypt(it, Vec2d(bobKey[0], bobKey[1])) }
                     val first = encrypted[0].first

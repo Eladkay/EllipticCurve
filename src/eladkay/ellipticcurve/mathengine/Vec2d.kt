@@ -50,4 +50,14 @@ class Vec2d(val x: Double, val y: Double) {
     }
 
     fun vec2i() = Vec2i(x.toInt(), y.toInt())
+
+    /**
+     * Cut the precision of this Vec2d down to [num] decimal places.
+     */
+    fun truncate(num: Int): Vec2d {
+        val pow10 = Math.pow(10.0, num.toDouble())
+        val xTruncate = (x * pow10).toInt() / pow10
+        val yTruncate = (y * pow10).toInt() / pow10
+        return Vec2d(xTruncate, yTruncate)
+    }
 }
