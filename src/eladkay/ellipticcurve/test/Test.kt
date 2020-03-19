@@ -1,9 +1,11 @@
 package eladkay.ellipticcurve.test
 
 import eladkay.ellipticcurve.mathengine.MathHelper
+import eladkay.ellipticcurve.mathengine.Vec2d
 
 fun main(args: Array<String>) {
     exactnessPrimeTest()
+    println(Vec2d.of("(-231285.1541, 87843.1452)"))
     //println(EllipticCurve(1, -1, "reals").helper.asciiGeneratorTable)
     /*val ss = StringSelection("hifdidf")
     Toolkit.getDefaultToolkit().systemClipboard.setContents(ss, ss)*/

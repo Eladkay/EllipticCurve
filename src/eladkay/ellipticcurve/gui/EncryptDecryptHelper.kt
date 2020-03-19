@@ -140,6 +140,7 @@ object EncryptDecryptHelper : EllipticCurveWindow(getScreenSize()), MouseListene
     private lateinit var decryptor: JMenuItem
     private lateinit var showAgreedUponPt: JMenuItem
     private lateinit var showGenerators: JMenuItem
+    private lateinit var createKey: JMenuItem
     private fun getOperationMenu(): JMenu {
         menuOperation = JMenu(+"gui.operationcalculator.operation")
         select = JMenuItem(+"gui.operationcalculator.selectpt")
@@ -149,6 +150,7 @@ object EncryptDecryptHelper : EllipticCurveWindow(getScreenSize()), MouseListene
         decryptor = JMenuItem(+"gui.encryptdecrypthelper.decryptor")
         showAgreedUponPt = JMenuItem(+"gui.encryptdecrypthelper.showAgreedUponPt")
         showGenerators = JMenuItem(+"gui.encryptdecrypthelper.showGenerators")
+        createKey = JMenuItem(+"gui.encryptdecrypthelper.createKey")
         menuOperation.mnemonic = KeyEvent.VK_O
 
         select.addActionListener(this)
@@ -185,6 +187,11 @@ object EncryptDecryptHelper : EllipticCurveWindow(getScreenSize()), MouseListene
         showGenerators.actionCommand = "generators"
         showGenerators.mnemonic = KeyEvent.VK_G
         menuOperation.add(showGenerators)
+
+        createKey.addActionListener(this)
+        createKey.actionCommand = "createKey"
+        createKey.mnemonic = KeyEvent.VK_K
+        menuOperation.add(createKey)
 
         return menuOperation
     }
@@ -248,10 +255,15 @@ object EncryptDecryptHelper : EllipticCurveWindow(getScreenSize()), MouseListene
                 screen.createAndShow()
                 if(debug) File("generators.curvelog").writeText(text1 + text2)
             }
+            "createKey" -> KeyCreator.createAndShow()
         }
     }
 
-    private const val debug = true // set to false in prod
+    private var debug = false // set to false in prod
+        set(value) {
+            field = value
+            panel.curve.helper.setDebug(value)
+        }
 
     private object ScaleChanger : EllipticCurveWindow((EllipticCurveWindow.getScreenSize() / 4.5).vec2i()) {
 
@@ -447,8 +459,7 @@ object EncryptDecryptHelper : EllipticCurveWindow(getScreenSize()), MouseListene
             when (e!!.actionCommand) {
                 "ok" -> {
                     this.isVisible = false
-                    val stringResult = EncryptDecryptHelper.panel.curve.helper.getStringFromPointOnCurve(text.text.split("\n")
-                            .map { val xy = it.removeSurrounding("(", ")").split(", ").map { it.toDouble() }; Vec2d(xy[0], xy[1]) })
+                    val stringResult = EncryptDecryptHelper.panel.curve.helper.getStringFromPointOnCurve(text.text.replace("Decrypted: ", "").split("\n").mapNotNull { Vec2d.of(it) })
                     InformationalScreen(stringResult, true, +"gui.ptstostring").createAndShow()
                 }
             }
@@ -481,14 +492,19 @@ object EncryptDecryptHelper : EllipticCurveWindow(getScreenSize()), MouseListene
             when (e!!.actionCommand) {
                 "ok" -> {
                     this.isVisible = false
-                    val vecs = text.text.split("\n").map { val xy = it.removeSurrounding("(", ")").split(", ").map { it.toDouble() }
-                        Vec2d(xy[0], xy[1]) }
-                    if(!pubKey.text.matches("\\((-)*\\d+(?:.\\d+)*,(\\s)*(-)*\\d+(?:.\\d+)*\\)".toRegex())) {
+                    if(!Vec2d.isValid(pubKey.text)) {
                         InformationalScreen(+"gui.encryptdecrypthelper.invalidpubkey").createAndShow()
                         return
                     }
+                    val vecs = text.text.split("\n").map { val xy = it.removeSurrounding("(", ")").split(", ").map { it.toDouble() }
+                        Vec2d(xy[0], xy[1]) }
                     val bobKey = pubKey.text.removeSurrounding("(", ")").split(", ").map { it.toDouble() }
-                    val encrypted = vecs.map { panel.curve.helper.encrypt(it, Vec2d(bobKey[0], bobKey[1])) }
+                    val helper = panel.curve.helper
+                    val k = if(panel.curve is FiniteEllipticCurve)
+                        helper.rand.nextInt((panel.curve as FiniteEllipticCurve).modulus.toInt())
+                        else helper.rand.nextInt(100)
+
+                    val encrypted = vecs.map { panel.curve.helper.encrypt(it, Vec2d(bobKey[0], bobKey[1]), helper.agreedUponPt, k) }
                     val first = encrypted[0].first
                     val theRest = encrypted.map { it.second }
                     val stringText = "${+"shared"}: $first\n" + "${+"ordered"}: {${theRest.joinToString(";\n")}}"
@@ -533,13 +549,42 @@ object EncryptDecryptHelper : EllipticCurveWindow(getScreenSize()), MouseListene
                     val seconds = lines.subList(1, lines.size).joinToString("").split(";")
                             .filter { !it.isBlank() }.map { it.removeSurrounding(",").trim() }
                     val bobkey = privKey.text.toInt()
-                    val decrypted = seconds.map { panel.curve.helper.decrypt(Pair(first, Vec2d.of(it)), bobkey) }
+                    val decrypted = seconds.map { panel.curve.helper.decrypt(Pair(first!!, Vec2d.of(it)!!), bobkey) }
                     val stringText = "${+"decrypted"}: \n${decrypted.joinToString("\n")}"
                     InformationalScreen(stringText, true, +"gui.decryptor").createAndShow()
                 }
             }
         }
 
+    }
+
+    private object KeyCreator : EllipticCurveWindow((EllipticCurveWindow.getScreenSize() / 4.5).vec2i()) {
+        val okButton = JButton(+"gui.ok")
+        val text = JTextArea()
+        init {
+            okButton.mnemonic = KeyEvent.VK_S
+            okButton.actionCommand = "ok"
+            okButton.setBounds(size.x * 1 / 2 - 200, 0, 400, 40)
+            okButton.addActionListener(this)
+            text.setBounds(0, size.y * 4 / 16, 800, 400)
+            add(okButton)
+            add(text)
+        }
+        override fun actionPerformed(e: ActionEvent?) {
+            super.actionPerformed(e)
+            when (e!!.actionCommand) {
+                "ok" -> {
+                    this.isVisible = false
+                    if(text.text.toIntOrNull() == null) {
+                        InformationalScreen(+"gui.encryptdecrypthelper.invalidprivkey")
+                        return
+                    }
+                    val k = text.text.toInt()
+                    val pt = panel.curve.helper.multiply(panel.curve.helper.agreedUponPt, k)
+                    InformationalScreen(pt.toString(), true, this.title).createAndShow()
+                }
+            }
+        }
     }
 
 }

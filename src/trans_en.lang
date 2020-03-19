@@ -34,6 +34,9 @@ gui.operationcalculator.file=File
 gui.operationcalculator.file.savecurve=Save Curve...
 gui.operationcalculator.file.opencurve=Open Curve...
 gui.operationcalculator.file.exit=Exit
+gui.operationcalculator.addPtsNumerically=Add two points numerically...
+gui.pointadder=Point Addition
+gui.operationcalculator.selectRandomPt=Select random point on the curve
 
 gui.encryptdecrypthelper=Encryption/Decryption Helper
 gui.encryptdecrypthelper.stringtopts=Convert String to Pts...
@@ -43,15 +46,19 @@ gui.ptstostring=Convert List of Points to String
 gui.encryptdecrypthelper.encryptor=Encrypt point...
 gui.encryptor=Encrypt Point
 gui.encryptdecrypthelper.decryptor=Decrypt point...
-gui.decryptor=Decryptor Point
+gui.decryptor=Decrypt Point
 gui.encryptdecrypthelper.showAgreedUponPt=Show agreed upon point...
 gui.encryptdecrypthelper.showGenerators=Show generator points
-gui.encryptdecrypthelper.invalidpubkey=Invalid public key! A public key is a pair of integers.
+gui.encryptdecrypthelper.invalidpubkey=Invalid public key! A public key is a pair of doubles.
+gui.encryptdecrypthelper.invalidprivkey=Invalid private key! A private key is an integer.
+gui.encryptdecrypthelper.createKey=Create public key...
+gui.keycreator=Create Public Key
 
 gui.studyHelper=Study Helper
 
 
 gui.invalidnumber=Invalid number entered!
+gui.invalidpoint=Invalid point!
 gui.notaprime=That's not a prime number!
 gui.ok=OK
 gui.invalidcurve=Invalid elliptic curve!

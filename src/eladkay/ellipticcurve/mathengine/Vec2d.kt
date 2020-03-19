@@ -5,10 +5,15 @@ class Vec2d(val x: Double, val y: Double) {
 
     companion object {
         val PT_AT_INF = Vec2d(Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY)
-        fun of(string: String): Vec2d {
-            val strippedSplit = string.removeSurrounding("(", ")").split(", ").map { it.toDouble() }
-            return Vec2d(strippedSplit[0], strippedSplit[1])
-
+        private val MATCHING_REGEX = "\\(((?:-)*\\d+(?:.\\d+)*),(?:\\s)*((?:-)*\\d+(?:.\\d+)*)\\)".toRegex()
+        fun of(string: String): Vec2d? {
+            //val strippedSplit = string.removeSurrounding("(", ")").split(", ").map { it.toDouble() }
+            if(!isValid(string)) return null
+            val groups = MATCHING_REGEX.matchEntire(string)!!.groups
+            return Vec2d(groups[1]!!.value.toDouble(), groups[2]!!.value.toDouble())
+        }
+        fun isValid(text: String): Boolean {
+            return text.matches(MATCHING_REGEX)
         }
     }
 
@@ -56,8 +61,13 @@ class Vec2d(val x: Double, val y: Double) {
      */
     fun truncate(num: Int): Vec2d {
         val pow10 = Math.pow(10.0, num.toDouble())
-        val xTruncate = (x * pow10).toInt() / pow10
-        val yTruncate = (y * pow10).toInt() / pow10
-        return Vec2d(xTruncate, yTruncate)
+        return map { (it * pow10).toInt() / pow10 }
     }
+
+    fun round(num: Int): Vec2d {
+        val pow10 = Math.pow(10.0, num.toDouble())
+        return map { Math.round(it * pow10) / pow10 }
+    }
+
+
 }

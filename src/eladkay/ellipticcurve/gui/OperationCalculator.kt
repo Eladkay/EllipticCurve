@@ -203,12 +203,14 @@ object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener
     private lateinit var changeField: JMenuItem
     private lateinit var realsField: JMenuItem
     private lateinit var finiteField: JMenuItem
+    private lateinit var selectRandomPt: JMenuItem
     private fun getCurveMenu(): JMenu {
         menuCurve = JMenu(+"gui.operationcalculator.curve")
         changeCurve = JMenuItem(+"gui.operationcalculator.curve.changecurve")
         changeField = JMenu(+"gui.operationcalculator.curve.changefield")
         realsField = JMenuItem(+"fields.reals")
         finiteField = JMenuItem(+"gui.operationcalculator.curve.changetozp")
+        selectRandomPt = JMenuItem(+"gui.operationcalculator.selectRandomPt")
 
         menuCurve.mnemonic = KeyEvent.VK_C
 
@@ -223,6 +225,11 @@ object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener
         finiteField.actionCommand = "changefield_zp"
         changeField.add(finiteField)
         menuCurve.add(changeField)
+
+        selectRandomPt.addActionListener(this)
+        selectRandomPt.actionCommand = "selectRandomPt"
+        menuCurve.add(selectRandomPt)
+
         return menuCurve
     }
 
@@ -275,11 +282,13 @@ object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener
     private lateinit var mult: JMenuItem
     private lateinit var flip: JMenuItem
     private lateinit var select: JMenuItem
+    private lateinit var addPtsNumerically: JMenuItem
     private fun getOperationMenu(): JMenu {
         menuOperation = JMenu(+"gui.operationcalculator.operation")
         mult = JMenuItem(+"gui.operationcalculator.mult")
         flip = JMenuItem(+"gui.operationcalculator.flip")
         select = JMenuItem(+"gui.operationcalculator.selectpt")
+        addPtsNumerically = JMenuItem(+"gui.operationcalculator.addPtsNumerically")
 
         menuOperation.mnemonic = KeyEvent.VK_O
 
@@ -297,6 +306,11 @@ object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener
         select.actionCommand = "select"
         select.mnemonic = KeyEvent.VK_S
         menuOperation.add(select)
+
+        addPtsNumerically.addActionListener(this)
+        addPtsNumerically.actionCommand = "addPtsNumerically"
+        addPtsNumerically.mnemonic = KeyEvent.VK_N
+        menuOperation.add(addPtsNumerically)
 
         checkboxAutoadd.addItemListener(this)
         checkboxAutoadd.mnemonic = KeyEvent.VK_A
@@ -368,6 +382,20 @@ object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener
             "ptinfo" -> if (p1 == null) JOptionPane.showMessageDialog(null, +"gui.operationcalculator.choosept") else PointInfo.createAndShow()
             "changefield_zp" -> FieldZp.createAndShow()
             "changefield_reals" -> panel.curve = EllipticCurve(panel.curve.aValue, panel.curve.bValue, MathHelper.REALS)
+            "addPtsNumerically" -> PointAdder.createAndShow()
+            "selectRandomPt" -> {
+                val helper = panel.curve.helper
+                val x = helper.rand.nextInt(15).toDouble() + helper.rand.nextDouble()
+                val y = Math.sqrt(helper.lhs(x))
+                InformationalScreen("($x, $y)").createAndShow()
+                p1 = Vec2i(EllipticSimulator.demodifyX(x, panel), EllipticSimulator.demodifyY(y, panel))
+                p1modified = Vec2d(x, y)
+                panel.changeColor(Color.GREEN)
+                panel.drawPoint(p1!!, 15)
+                panel.changeColor(Color.BLACK)
+                panel.repaint()
+
+            }
         }
     }
 
@@ -399,7 +427,7 @@ object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener
         val button = JButton(+"gui.copytoclipboard")
         override fun updateTextForI18n() {
             super.updateTextForI18n()
-            pointInfoBox.text = "(${Math.round(100.0 * modifyX(p1!!.x)) / 100.0}, ${Math.round(100.0 * modifyY(p1!!.y)) / 100.0})"
+            pointInfoBox.text = "(${Vec2d(modifyX(p1!!.x), modifyY(p1!!.y)).truncate(4)})"
         }
 
         override fun createAndShow() {
@@ -416,7 +444,7 @@ object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener
             pointInfoBox.isEnabled = false
             pointInfoBox.setBounds(size.x * 1 / 6, size.y * 1 / 6, size.x * 4 / 6, 40)
             pointInfoBox.disabledTextColor = Color.BLACK
-            pointInfoBox.text = "(${Math.round(100.0 * modifyX(p1!!.x)) / 100}, ${Math.round(100.0 * modifyY(p1!!.y)) / 100})"
+            pointInfoBox.text = "(${Vec2d(modifyX(p1!!.x), modifyY(p1!!.y)).truncate(4)})"
             pointInfoBox.horizontalAlignment = JTextField.CENTER
             button.setBounds(size.x * 1/6, size.y * 2/6, size.x * 4/6, 40)
             button.actionCommand = "copy"
@@ -438,8 +466,8 @@ object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener
 
     private object PointSelector : EllipticCurveWindow((EllipticCurveWindow.getScreenSize() / 4.5).vec2i()) {
         val okButton = JButton(+"gui.ok")
-        val xBox = JTextField(2)
-        val yBox = JTextField(2)
+        val xBox = JTextField(4)
+        val yBox = JTextField(4)
         val labelA = JLabel(+"gui.pointselector.selectpt")
         override fun updateTextForI18n() {
             super.updateTextForI18n()
@@ -707,6 +735,48 @@ object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener
             }
         }
 
+    }
+
+    private object PointAdder : EllipticCurveWindow((EllipticCurveWindow.getScreenSize() / 4.5).vec2i()) {
+        val okButton = JButton(+"gui.ok")
+        val xBox = JTextField(8)
+        val yBox = JTextField(8)
+
+        init {
+            val font = Font("Serif", BOLD, 18)
+
+            okButton.mnemonic = KeyEvent.VK_S
+            okButton.actionCommand = "ok"
+            okButton.setBounds(size.x * 1 / 2 - 200, size.y * 9 / 16, 400, 40)
+            okButton.addActionListener(this)
+            add(okButton)
+
+            xBox.setBounds(size.x * 1 / 2 - 30, size.y * 6 / 16, 50, 20)
+            yBox.setBounds(size.x * 1 / 2 + 15, size.y * 6 / 16, 50, 20)
+            add(xBox)
+            add(yBox)
+        }
+
+        override fun actionPerformed(e: ActionEvent?) {
+            super.actionPerformed(e)
+            when (e!!.actionCommand) {
+                "ok" -> {
+                    this.isVisible = false
+                    if (!Vec2d.isValid(xBox.text)) {
+                        JOptionPane.showMessageDialog(null, +"gui.invalidpoint" + " ${xBox.text}")
+                        return
+                    }
+                    val x = Vec2d.of(xBox.text)!!
+                    if (!Vec2d.isValid(yBox.text)) {
+                        JOptionPane.showMessageDialog(null, +"gui.invalidpoint" + " ${yBox.text}")
+                        return
+                    }
+                    val y = Vec2d.of(yBox.text)!!
+                    val xPlusY = panel.curve.helper.add(x, y)
+                    InformationalScreen(xPlusY.toString()).createAndShow()
+                }
+            }
+        }
     }
 
 
