@@ -383,7 +383,7 @@ object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener
             "changefield_zp" -> FieldZp.createAndShow()
             "changefield_reals" -> panel.curve = EllipticCurve(panel.curve.aValue, panel.curve.bValue, MathHelper.REALS)
             "addPtsNumerically" -> PointAdder.createAndShow()
-            "selectRandomPt" -> {
+            "selectRandomPt" -> { // todo finite fields exist
                 val helper = panel.curve.helper
                 val x = helper.rand.nextInt(15).toDouble() + helper.rand.nextDouble()
                 val y = Math.sqrt(helper.lhs(x))

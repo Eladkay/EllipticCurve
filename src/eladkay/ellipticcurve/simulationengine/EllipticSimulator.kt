@@ -72,7 +72,6 @@ object EllipticSimulator {
                     val xModified = (x - frame.frameSize().x / 2 - X_OFFSET) / xScale.toDouble()
                     val yModified = (-y + frame.frameSize().y / 2) / yScale.toDouble()
                     if (yModified < 0) continue // elliptic curves are always symmetric
-                    if (xModified < ellipticCurve.getPeak2().x) continue
 
                     var condition = ellipticCurve.isPointOnCurve(Vec2d(xModified, yModified))
                     val errorTerm = error(xModified, yModified)

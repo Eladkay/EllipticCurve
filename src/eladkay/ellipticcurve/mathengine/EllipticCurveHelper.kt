@@ -1,9 +1,7 @@
 package eladkay.ellipticcurve.mathengine
 
-import java.math.BigInteger
 import java.util.*
 import javax.swing.JOptionPane
-import kotlin.math.roundToLong
 
 class EllipticCurveHelper(private val curve: EllipticCurve) {
 
@@ -19,14 +17,27 @@ class EllipticCurveHelper(private val curve: EllipticCurve) {
         val (x1, y1) = a
         val (x2, y2) = b
         val lambda =
-                if(a == b)
-                    if(y1 == 0.0) return Vec2d.PT_AT_INF
-                    else (3*x1*x1 + curve.aValue)/(2*y1)
-                else if(x1 == x2) return Vec2d.PT_AT_INF
-                else (y1-y2)/(x1-x2)
+                if (a == b)
+                    if (y1 == 0.0) return Vec2d.PT_AT_INF
+                    else (3 * x1 * x1 + curve.aValue) / (2 * y1)
+                else if (x1 == x2) return Vec2d.PT_AT_INF
+                else (y1 - y2) / (x1 - x2)
         val x3 = lambda * lambda - x1 - x2
-        val y3 = lambda*(x2 - x3) - y2
+        val y3 = lambda * (x2 - x3) - y2
         return Vec2d(x3, y3)
+    }
+
+    // invert on finite field fast
+    private val inv: Map<Long, Long>? by lazy {
+        if(curve !is FiniteEllipticCurve) return@lazy null
+        val map = mutableMapOf<Long, Long>()
+        for(i in 0 until curve.modulus)
+            for(j in i until curve.modulus)
+                if((i*j)%curve.modulus == 1L) {
+                    map.put(i, j)
+                    map.put(j, i)
+                }
+        return@lazy map
     }
 
     private fun addFinite(a: Vec2d, b: Vec2d): Vec2d {
@@ -34,34 +45,30 @@ class EllipticCurveHelper(private val curve: EllipticCurve) {
         var (x2, y2) = b
         this.curve as FiniteEllipticCurve
         if (curve.field == "z2" || curve.field == "z3") throw IllegalArgumentException("elliptic curves over Z2 or Z3 don't quite work the same") // besides, when working with elliptic curve cryptography, we generally want to use large primes anyways
-        else {
-            x1 %= curve.modulus
-            y1 %= curve.modulus
-            x2 %= curve.modulus
-            y2 %= curve.modulus
-            val lambda =
-                    if(a == b)
-                        if(y1 == 0.0) return Vec2d.PT_AT_INF
-                        else (3*x1*x1 + curve.aValue)/(2*y1)
-                    else if(x1 == x2) return Vec2d.PT_AT_INF
-                    else (y1-y2)/(x1-x2)
-            val specificDefinition = curve {
-                val x3 = lambda * lambda - x1 - x2
-                val y3 = lambda*(x2 - x3) - y2
-                Vec2d(x3, y3)
-            }
-            fun BigInteger.floorMod(int: Long): Double {
-                return this.minus(BigInteger.valueOf(int).multiply(this.divide(BigInteger.valueOf(int)))).toDouble()
-            }
-            return specificDefinition.map { BigInteger.valueOf(curve.modulus).floorMod(it.roundToLong()) }
-        }
+        val card = curve.modulus
+        x1 %= card
+        y1 %= card
+        x2 %= card
+        y2 %= card
+        val invSafe = inv!!
+        fun mod(x: Double, r: Long) = (((x % r) + r) % r).toLong()
+        if (a == Vec2d.PT_AT_INF) return b
+        if (b == Vec2d.PT_AT_INF) return a
+        val s = if(a.x == b.x) {
+            if(a.y != b.y || a.y == 0.0) return Vec2d.PT_AT_INF
+            else mod((3*a.x*a.x + curve.aValue)*invSafe[mod(2*a.y, card)]!!, card)
+        } else mod((a.y - b.y)*invSafe[mod(a.x - b.x, card)]!!, card)
+        val x3 = mod(s*s-a.x-b.x, card)
+        val y3 = mod(s*a.x - s*x3 - a.y, card)
+        return Vec2d(x3, y3)
+
     }
 
     // this is naiive. O(2^k)
     @Deprecated("This is naiive and slow I will remove it later")
     fun slowMultiply(a: Vec2d, num: Int): Vec2d {
-        if(num < 0) return slowMultiply(a.invertY(), -num)
-        if(num == 0) return Vec2d.PT_AT_INF
+        if (num < 0) return slowMultiply(a.invertY(), -num)
+        if (num == 0) return Vec2d.PT_AT_INF
         return if (num == 1)
             a
         else
@@ -80,10 +87,10 @@ class EllipticCurveHelper(private val curve: EllipticCurve) {
     }
 
     // the right-hand-side of the curve equation
-    fun rhs(y: Double) = if(curve is FiniteEllipticCurve) y * y % curve.modulus else y * y
+    fun rhs(y: Double) = if (curve is FiniteEllipticCurve) y * y % curve.modulus else y * y
 
     // the left-hand-side of the curve equation
-    fun lhs(x: Double) = x * x * x + curve.aValue * x + curve.bValue % (if(curve is FiniteEllipticCurve) curve.modulus else 1)
+    fun lhs(x: Double) = x * x * x + curve.aValue * x + curve.bValue % (if (curve is FiniteEllipticCurve) curve.modulus else 1)
 
 
     companion object {
@@ -92,16 +99,16 @@ class EllipticCurveHelper(private val curve: EllipticCurve) {
     }
 
     val generator: Vec2d by lazy {
-        val x = if(curve is FiniteEllipticCurve) rand.nextInt(curve.modulus.toInt()) else rand.nextInt(35)
-        Vec2d(x + 1, Math.sqrt(lhs(x*1.0)))
+        val x = if (curve is FiniteEllipticCurve) rand.nextInt(curve.modulus.toInt()) else rand.nextInt(35)
+        Vec2d(x + 1, Math.sqrt(lhs(x * 1.0)))
     }
     val agreedUponPt: Vec2d by lazy {
-        val x = if(curve is FiniteEllipticCurve) rand.nextInt(curve.modulus.toInt()) else rand.nextInt(35)
-        Vec2d(x + 1, Math.sqrt(lhs(x*1.0)))
+        val x = if (curve is FiniteEllipticCurve) rand.nextInt(curve.modulus.toInt()) else rand.nextInt(35)
+        Vec2d(x + 1, Math.sqrt(lhs(x * 1.0)))
     }
-    private val asciiGeneratorTable : List<Vec2d> by lazy {
+    private val asciiGeneratorTable: List<Vec2d> by lazy {
         val list = mutableListOf<Vec2d>()
-        for(i in 0..127) list.add(multiply(generator, i).truncate(2)) // the constant is empirically derived
+        for (i in 0..127) list.add(multiply(generator, i).truncate(2)) // the constant is empirically derived
         list
     }
     // the following two functions ought to be bijections, otherwise obviously one of them won't be defined (they are not exactly bijections)
@@ -111,8 +118,8 @@ class EllipticCurveHelper(private val curve: EllipticCurve) {
     // the bee movie script encoded in this method: https://hastebin.com/kakewudubi.css
     fun getPointOnCurveFromString(string: String): List<Vec2d> {
         val list = mutableListOf<Vec2d>()
-        for(ch in string) {
-            if(ch !in asciiTable) throw UnsupportedOperationException("That's not an ASCII string!")
+        for (ch in string) {
+            if (ch !in asciiTable) throw UnsupportedOperationException("That's not an ASCII string!")
             list.add(asciiGeneratorTable[asciiTable.indexOf(ch)])
         }
         return list
@@ -120,8 +127,8 @@ class EllipticCurveHelper(private val curve: EllipticCurve) {
 
     fun getStringFromPointOnCurve(vec2d: List<Vec2d>): String {
         return buildString {
-            for(vec in vec2d.map { it.round(2) }) {
-                if(vec in asciiGeneratorTable) append(asciiTable[asciiGeneratorTable.indexOf(vec)])
+            for (vec in vec2d.map { it.round(2) }) {
+                if (vec in asciiGeneratorTable) append(asciiTable[asciiGeneratorTable.indexOf(vec)])
             }
         }
     }
@@ -137,15 +144,16 @@ class EllipticCurveHelper(private val curve: EllipticCurve) {
 
     val rand = Random()
     fun encrypt(message: Vec2d, bobPublicKey: Vec2d, agreedUponPt: Vec2d = this.agreedUponPt): Pair<Vec2d, Vec2d> {
-        val k = if(curve is FiniteEllipticCurve) rand.nextInt(curve.modulus.toInt()) else rand.nextInt(100)
+        val k = if (curve is FiniteEllipticCurve) rand.nextInt(curve.modulus.toInt()) else rand.nextInt(100)
         return encrypt(message, bobPublicKey, agreedUponPt, k)
     }
+
     fun encrypt(message: Vec2d, bobPublicKey: Vec2d, agreedUponPt: Vec2d = this.agreedUponPt, k: Int): Pair<Vec2d, Vec2d> {
-        if(isDebug) JOptionPane.showMessageDialog(null, "The random constant is $k")
-        return curve { Pair(agreedUponPt*k, message + bobPublicKey*k)}
+        if (isDebug) JOptionPane.showMessageDialog(null, "The random constant is $k")
+        return curve { Pair(agreedUponPt * k, message + bobPublicKey * k) }
     }
-    fun decrypt(encryptedMessage: Pair<Vec2d, Vec2d>, bobPrivateKey: Int)
-            = curve { encryptedMessage.second - encryptedMessage.first * bobPrivateKey}
+
+    fun decrypt(encryptedMessage: Pair<Vec2d, Vec2d>, bobPrivateKey: Int) = curve { encryptedMessage.second - encryptedMessage.first * bobPrivateKey }
 
 
     private var isDebug = false

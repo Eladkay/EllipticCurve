@@ -20,41 +20,23 @@ open class EllipticCurve(val aValue: Long, val bValue: Long, val field: String) 
             if (bValue != 0L)
                 "y²=x³ + " + this.bValue
             else
-                throw IllegalStateException()
+                throw IllegalStateException() // invalid curve, determinant 0
         }
 
     }
 
     open fun isPointOnCurve(p: Vec2d): Boolean {
-        return  (p.y * p.y) == (p.x * p.x * p.x) + (aValue * p.x) + bValue
+        return (p.y * p.y) == (p.x * p.x * p.x) + (aValue * p.x) + bValue
     }
 
     /**
      * 0 if and only if (x, y) is on the curve.
-     * Let wlog y be constant anc consider difference(x). If x1!=x2 implies sgn(difference(x1)) != sgn(difference(x2))
-     * then there exists an x3 between x1 and x2 such that (x3, y) is on the curve. This is a direct consequence of the
-     * mean value theorem.
+     * Let wlog y be constant anc consider difference(x). For every x1, x2, y1, y2 s.t. sgn(difference(x1,y1)) != sgn(difference(x2,y2))
+     * there exists an x3 between x1 and x2 and a y3 between y1 and y2 s.t (x3, y3) is on the curve. This is a provable consequence of the
+     * mean value theorem, given the curve is continuous of course, for a suitable definition of this term.
      */
     open fun difference(x: Double, y: Double) = y * y  - (x * x * x) - (aValue * x) - bValue
 
-    // not fieldified, todo
-    // https://i.imgur.com/uSvI4bF.jpg
-    // i have no idea what this value means. it seems to be garbage and the real value is getPeak2
-    @Deprecated("this returns garbage and I will remove it as soon as I realize what this is")
-    fun getPeak1(): Vec2d {
-        val k = aValue / 3.0
-        val rec = Math.cbrt((-bValue + Math.sqrt(bValue * bValue + 4.0 * k * k)) / 2)
-        return Vec2d(rec - k / rec, 0)
-    }
-
-    // not fieldified, todo
-    // https://i.imgur.com/uSvI4bF.jpg
-    // this seems to have a slight negative bias from the true value. that's okay
-    fun getPeak2(): Vec2d {
-        val k = aValue / 3.0
-        val rec = Math.cbrt((-bValue - Math.sqrt(bValue * bValue + 4.0 * k * k)) / 2)
-        return Vec2d(rec - k / rec, 0)
-    }
 
     // in absolute value
     // take positive branch: y = sqrt(x^3+bx+c)
