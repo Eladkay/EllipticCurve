@@ -23,8 +23,8 @@ class EllipticCurveHelper(private val curve: EllipticCurve) {
     }
 
     // invert on finite field fast
-    private val inv: Map<Long, Long>? by lazy {
-        if(curve !is FiniteEllipticCurve) return@lazy null
+    private val inv: Map<Long, Long>? get() {
+        if(curve !is FiniteEllipticCurve) return null
         val map = mutableMapOf<Long, Long>()
         for(i in 0 until curve.modulus)
             for(j in i until curve.modulus)
@@ -32,7 +32,7 @@ class EllipticCurveHelper(private val curve: EllipticCurve) {
                     map.put(i, j)
                     map.put(j, i)
                 }
-        return@lazy map
+        return map
     }
 
     private fun addFinite(a: Vec2d, b: Vec2d): Vec2d {
@@ -50,7 +50,7 @@ class EllipticCurveHelper(private val curve: EllipticCurve) {
         y2 %= card
         val invSafe = inv!!
         val s = if(a.x == b.x) {
-            if(a.y != b.y || a.y == 0.0) return Vec2d.PT_AT_INF
+            if(a.y != b.y || mod(2*a.y, card) == 0L) return Vec2d.PT_AT_INF
             else mod((3*a.x*a.x + curve.aValue)*invSafe[mod(2*a.y, card)]!!, card)
         } else mod((a.y - b.y)*invSafe[mod(a.x - b.x, card)]!!, card)
         val x3 = mod(s*s-a.x-b.x, card)

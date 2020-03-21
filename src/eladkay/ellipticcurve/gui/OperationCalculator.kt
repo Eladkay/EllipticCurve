@@ -484,7 +484,7 @@ object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener
             pointInfoBox.isEnabled = false
             pointInfoBox.setBounds(size.x * 1 / 6, size.y * 1 / 6, size.x * 4 / 6, 40)
             pointInfoBox.disabledTextColor = Color.BLACK
-            pointInfoBox.text = "(${Vec2d(modifyX(p1!!.x), modifyY(p1!!.y)).truncate(4)})"
+            pointInfoBox.text = "${Vec2d(modifyX(p1!!.x), modifyY(p1!!.y)).truncate(4)}"
             pointInfoBox.horizontalAlignment = JTextField.CENTER
             button.setBounds(size.x * 1/6, size.y * 2/6, size.x * 4/6, 40)
             button.actionCommand = "copy"
@@ -783,7 +783,6 @@ object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener
         val yBox = JTextField(8)
 
         init {
-            val font = Font("Serif", BOLD, 18)
 
             okButton.mnemonic = KeyEvent.VK_S
             okButton.actionCommand = "ok"
