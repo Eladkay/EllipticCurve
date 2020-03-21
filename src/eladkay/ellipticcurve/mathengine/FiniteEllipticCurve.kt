@@ -3,19 +3,19 @@ package eladkay.ellipticcurve.mathengine
 // this is partially inspired by https://andrea.corbellini.name/2015/05/17/elliptic-curve-cryptography-a-gentle-introduction/
 open class FiniteEllipticCurve(aValue: Long, bValue: Long, val modulus: Long) : EllipticCurve(aValue % modulus, bValue % modulus, MathHelper.zp(modulus)) {
 
-    val curvePoints = mutableListOf<Vec2d>()
+    val curvePoints = mutableSetOf<Vec2d>()
 
     fun order() = curvePoints.size
 
     fun order(vec2d: Vec2d) = helper.order(vec2d)
 
     init {
-        curvePoints.add(Vec2d.PT_AT_INF)
-        for(x in 0 until modulus) for (y in 0..modulus/2)
-            if(y*y % modulus == helper.mod(x * x *x - aValue*x - bValue.toDouble(), modulus)) {
+        for(x in 0 until modulus) for(y in 0 until modulus)
+            if(y*y % modulus == helper.mod(x * x * x + aValue*x + bValue.toDouble(), modulus)) {
                 curvePoints.add(Vec2d(x, y))
-                if(y % modulus != (x-y) % modulus) curvePoints.add(Vec2d(x, modulus-y))
             }
+        curvePoints.removeIf { it.x >= modulus || it.y >= modulus }
+        curvePoints.add(Vec2d.PT_AT_INF)
     }
 
     override fun determinant(): Double {

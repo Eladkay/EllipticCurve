@@ -22,17 +22,25 @@ class EllipticCurveHelper(private val curve: EllipticCurve) {
         return Vec2d(x3, y3)
     }
 
-    // invert on finite field fast
-    private val inv: Map<Long, Long>? get() {
-        if(curve !is FiniteEllipticCurve) return null
-        val map = mutableMapOf<Long, Long>()
-        for(i in 0 until curve.modulus)
-            for(j in i until curve.modulus)
-                if((i*j)%curve.modulus == 1L) {
-                    map.put(i, j)
-                    map.put(j, i)
-                }
-        return map
+    private fun inv(int: Long): Double {
+        if(curve !is FiniteEllipticCurve) return 1.0/int
+        for(i in 1 until curve.modulus) if (int*i % curve.modulus == 1L) return i.toDouble()
+        return -1.0
+    }
+
+    private fun generateInversionTable(): Map<Vec2d, Vec2d> {
+        if(curve !is FiniteEllipticCurve) throw UnsupportedOperationException("This function is only defined for finite elliptic curves!")
+        val ret = mutableMapOf(Vec2d.PT_AT_INF to Vec2d.PT_AT_INF)
+        for(p1 in curve.curvePoints) for(p2 in curve.curvePoints)
+            if(add(p1, p2) == Vec2d.PT_AT_INF) ret[p1] = p2
+        return ret
+    }
+
+    private val inversionTable by lazy { generateInversionTable() }
+
+    fun invPoint(vec2d: Vec2d): Vec2d {
+        if(curve !is FiniteEllipticCurve) return vec2d.invertY()
+        return inversionTable[vec2d]!!
     }
 
     private fun addFinite(a: Vec2d, b: Vec2d): Vec2d {
@@ -48,16 +56,28 @@ class EllipticCurveHelper(private val curve: EllipticCurve) {
         y1 %= card
         x2 %= card
         y2 %= card
-        val invSafe = inv!!
         val s = if(a.x == b.x) {
             if(a.y != b.y || mod(2*a.y, card) == 0L) return Vec2d.PT_AT_INF
-            else mod((3*a.x*a.x + curve.aValue)*invSafe[mod(2*a.y, card)]!!, card)
-        } else mod((a.y - b.y)*invSafe[mod(a.x - b.x, card)]!!, card)
+            else mod((3*a.x*a.x + curve.aValue)*inv(mod(2*a.y, card)), card)
+        } else mod((a.y - b.y)*inv(mod(a.x - b.x, card)), card)
         val x3 = mod(s*s-a.x-b.x, card)
         val y3 = mod(s*a.x - s*x3 - a.y, card)
         return Vec2d(x3, y3)
 
     }
+
+    fun subgroup(p: Vec2d): List<Vec2d> {
+        if(curve !is FiniteEllipticCurve) throw UnsupportedOperationException("This function is only defined for finite elliptic curves!")
+        val ret = mutableListOf(p)
+        var pt = p
+        while(pt != Vec2d.PT_AT_INF) {
+            pt = add(pt, p)
+            ret.add(pt)
+        }
+        return ret
+    }
+
+    private val additionTable by lazy { generateAdditionTable() }
 
     private fun generateAdditionTable(): Map<Pair<Vec2d, Vec2d>, Vec2d> {
         if(curve !is FiniteEllipticCurve) throw UnsupportedOperationException("This function is only defined for finite elliptic curves!")
@@ -72,7 +92,7 @@ class EllipticCurveHelper(private val curve: EllipticCurve) {
     }
 
     fun generateAdditionTableFormatting(): String {
-        val additionTable = generateAdditionTable() // finiteness checked here
+        additionTable // finiteness checked here
         fun format(it: Vec2d) = if(it.isInfinite()) "∞" else it.toString()
         val strings = additionTable.mapValues { format(it.value) }.mapKeys { format(it.key.first) to format(it.key.second) }
         val pts = (curve as FiniteEllipticCurve).curvePoints.map { it.toString() }
@@ -95,7 +115,7 @@ class EllipticCurveHelper(private val curve: EllipticCurve) {
     fun order(vec2d: Vec2d): Int {
         if(vec2d == Vec2d.PT_AT_INF) return 0
         if(curve !is FiniteEllipticCurve) throw UnsupportedOperationException("This function is only defined for finite elliptic curves!")
-        var order = -1
+        var order = 1
         var vector = vec2d
         while(vector != Vec2d.PT_AT_INF) {
             vector = add(vector, vec2d)
@@ -132,7 +152,7 @@ class EllipticCurveHelper(private val curve: EllipticCurve) {
     fun rhs(y: Double) = if (curve is FiniteEllipticCurve) y * y % curve.modulus else y * y
 
     // the left-hand-side of the curve equation
-    fun lhs(x: Double) = x * x * x + curve.aValue * x + curve.bValue % (if (curve is FiniteEllipticCurve) curve.modulus else 1)
+    fun lhs(x: Double) = x * x * x + curve.aValue * x + curve.bValue % ((curve as? FiniteEllipticCurve)?.modulus ?: 1)
 
 
     companion object {
@@ -141,11 +161,11 @@ class EllipticCurveHelper(private val curve: EllipticCurve) {
     }
 
     val generator: Vec2d by lazy {
-        val x = if (curve is FiniteEllipticCurve) rand.nextInt(curve.modulus.toInt()) else rand.nextInt(35)
+        val x = if (curve is FiniteEllipticCurve) return@lazy curve.curvePoints.toList()[rand.nextInt(curve.order())] else rand.nextInt(35)
         Vec2d(x + 1, Math.sqrt(lhs(x * 1.0)))
     }
     val agreedUponPt: Vec2d by lazy {
-        val x = if (curve is FiniteEllipticCurve) rand.nextInt(curve.modulus.toInt()) else rand.nextInt(35)
+        val x = if (curve is FiniteEllipticCurve) return@lazy curve.curvePoints.toList()[rand.nextInt(curve.order())] else rand.nextInt(35)
         Vec2d(x + 1, Math.sqrt(lhs(x * 1.0)))
     }
     private val asciiGeneratorTable: List<Vec2d> by lazy {

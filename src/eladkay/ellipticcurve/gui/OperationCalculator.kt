@@ -205,6 +205,7 @@ object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener
     private lateinit var finiteField: JMenuItem
     private lateinit var selectRandomPt: JMenuItem
     private lateinit var listPoints: JMenuItem
+    private lateinit var subgroupPointList: JMenuItem
     private fun getCurveMenu(): JMenu {
         menuCurve = JMenu(+"gui.operationcalculator.curve")
         changeCurve = JMenuItem(+"gui.operationcalculator.curve.changecurve")
@@ -213,6 +214,7 @@ object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener
         finiteField = JMenuItem(+"gui.operationcalculator.curve.changetozp")
         selectRandomPt = JMenuItem(+"gui.operationcalculator.selectRandomPt")
         listPoints = JMenuItem(+"gui.operationcalculator.listPoints")
+        subgroupPointList = JMenuItem(+"gui.operationcalculator.subgroupPointList")
 
         menuCurve.mnemonic = KeyEvent.VK_C
 
@@ -236,6 +238,10 @@ object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener
         listPoints.actionCommand = "listPoints"
         menuCurve.add(listPoints)
 
+        subgroupPointList.addActionListener(this)
+        subgroupPointList.actionCommand = "subgroupPointList"
+        menuCurve.add(subgroupPointList)
+
         return menuCurve
     }
 
@@ -243,11 +249,13 @@ object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener
     private lateinit var changeScale: JMenuItem
     private lateinit var clear: JMenuItem
     private lateinit var showPointInfo: JMenuItem
+    private lateinit var showSubgroupOfSelected: JMenuItem
     private fun getVisualizationMenu(): JMenu {
         menuVisualization = JMenu(+"gui.operationcalculator.visualization")
         changeScale = JMenuItem(+"gui.operationcalculator.changescale")
         clear = JMenuItem(+"gui.operationcalculator.clear")
         showPointInfo = JMenuItem(+"gui.operationcalculator.pointinfo")
+        showSubgroupOfSelected = JMenuItem(+"gui.operationcalculator.showSubgroupOfSelected")
 
         menuVisualization.mnemonic = KeyEvent.VK_V
 
@@ -262,7 +270,7 @@ object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener
         menuVisualization.add(clear)
 
         checkboxGridsAndTicks.addItemListener(this)
-        checkboxGridsAndTicks.mnemonic = KeyEvent.VK_G
+        checkboxGridsAndTicks.mnemonic = KeyEvent.VK_T
         checkboxGridsAndTicks.isSelected = false
         menuVisualization.add(checkboxGridsAndTicks)
 
@@ -280,6 +288,11 @@ object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener
         showPointInfo.actionCommand = "ptinfo"
         showPointInfo.mnemonic = KeyEvent.VK_P
         menuVisualization.add(showPointInfo)
+
+        showSubgroupOfSelected.addActionListener(this)
+        showSubgroupOfSelected.actionCommand = "showSubgroupOfSelected"
+        showSubgroupOfSelected.mnemonic = KeyEvent.VK_G
+        menuVisualization.add(showSubgroupOfSelected)
 
         return menuVisualization
     }
@@ -379,8 +392,8 @@ object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener
             "flip" -> {
                 if (p1 == null) JOptionPane.showMessageDialog(null, +"gui.operationcalculator.choosept")
                 else {
-                    val (x, y) = p1!!
-                    val multiplied = panel.curve { Vec2d(modifyX(x), modifyY(y)).invertY() }
+                    val (x, y) = p1modified!!
+                    val multiplied = panel.curve.helper.invPoint(Vec2d(x, y))
                     panel.changeColor(Color.BLUE)
                     panel.drawPoint(Vec2i(EllipticSimulator.demodifyX(multiplied.x, panel), EllipticSimulator.demodifyY(multiplied.y, panel)), 15)
                     panel.changeColor(Color.GREEN)
@@ -401,7 +414,7 @@ object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener
                 val vec = when(panel.curve) {
                     is FiniteEllipticCurve -> {
                         val curve = panel.curve as FiniteEllipticCurve
-                        curve.curvePoints[helper.rand.nextInt(curve.order())]
+                        curve.curvePoints.toList()[helper.rand.nextInt(curve.order())]
                     }
                     else -> {
                         val x = helper.rand.nextInt(15).toDouble() + helper.rand.nextDouble()
@@ -433,6 +446,35 @@ object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener
                 }
                 val curve = panel.curve as FiniteEllipticCurve
                 InformationalScreen(curve.helper.generateAdditionTableFormatting(), true).createAndShow()
+            }
+            "showSubgroupOfSelected" -> {
+                if(panel.curve !is FiniteEllipticCurve) {
+                    JOptionPane.showMessageDialog(null, +"gui.notfinite")
+                    return
+                }
+                if(p1 == null) {
+                    JOptionPane.showMessageDialog(null, +"gui.operationcalculator.choosept")
+                    return
+                }
+                panel.changeColor(Color.GREEN)
+                for(pt in panel.curve.helper.subgroup(p1modified!!)) {
+                    val vec = Vec2i(EllipticSimulator.demodifyX(pt.x, panel), EllipticSimulator.demodifyY(pt.y, panel))
+                    panel.drawPoint(vec, 15)
+                }
+                panel.changeColor(Color.BLACK)
+                panel.repaint()
+            }
+            "subgroupPointList" -> {
+                if(panel.curve !is FiniteEllipticCurve) {
+                    JOptionPane.showMessageDialog(null, +"gui.notfinite")
+                    return
+                }
+                if(p1 == null) {
+                    JOptionPane.showMessageDialog(null, +"gui.operationcalculator.choosept")
+                    return
+                }
+                val string = panel.curve.helper.subgroup(p1modified!!).joinToString(" -> ")
+                InformationalScreen(string).createAndShow()
             }
 
         }
