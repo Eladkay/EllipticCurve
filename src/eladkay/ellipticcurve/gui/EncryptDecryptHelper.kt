@@ -13,26 +13,23 @@ import javax.swing.event.ChangeEvent
 import javax.swing.filechooser.FileNameExtensionFilter
 
 object EncryptDecryptHelper : EllipticCurveWindow(getScreenSize()), MouseListener, MouseMotionListener {
-    override fun mouseReleased(e: MouseEvent?) {  }
+    override fun mouseReleased(e: MouseEvent?) {}
 
-    override fun mouseEntered(e: MouseEvent?) {  }
+    override fun mouseEntered(e: MouseEvent?) {}
 
-    override fun mouseClicked(e: MouseEvent?) {  }
+    override fun mouseClicked(e: MouseEvent?) {}
 
-    override fun mouseExited(e: MouseEvent?) {  }
+    override fun mouseExited(e: MouseEvent?) {}
 
-    override fun mousePressed(e: MouseEvent?) {  }
+    override fun mousePressed(e: MouseEvent?) {}
 
-    override fun mouseMoved(e: MouseEvent?) {  }
+    override fun mouseMoved(e: MouseEvent?) {}
 
-    override fun mouseDragged(e: MouseEvent?) {  }
+    override fun mouseDragged(e: MouseEvent?) {}
 
-    private fun modifyX(x: Number): Double = (x.toDouble() - panel.frameSize().x / 2 - EllipticSimulator.X_OFFSET) / EllipticSimulator.defaultXScale.toDouble()
-    private fun modifyY(y: Number): Double = (-y.toDouble() + panel.frameSize().y / 2) / EllipticSimulator.defaultYScale.toDouble()
-    
     var panel = CurvePanel(Vec2i(size.x, size.y), EllipticCurve(-1L, 1L, EllipticCurve.REALS))
     private val fc = JFileChooser()
-    
+
     init {
         contentPane.add(panel)
         panel.addMouseListener(this)
@@ -104,7 +101,7 @@ object EncryptDecryptHelper : EllipticCurveWindow(getScreenSize()), MouseListene
         finiteField.actionCommand = "changefield_zp"
         changeField.add(finiteField)
         menuCurve.add(changeField)
-        
+
         return menuCurve
     }
 
@@ -194,7 +191,7 @@ object EncryptDecryptHelper : EllipticCurveWindow(getScreenSize()), MouseListene
         when (e.actionCommand) {
             "changecurve" -> CurveChanger.createAndShow()
             "changescale" -> {
-                if(panel.curve is FiniteEllipticCurve) {
+                if (panel.curve is FiniteEllipticCurve) {
                     JOptionPane.showMessageDialog(null, +"gui.discretecurve")
                     return
                 } else ScaleChanger.createAndShow()
@@ -221,7 +218,7 @@ object EncryptDecryptHelper : EllipticCurveWindow(getScreenSize()), MouseListene
                     ScaleChanger.sliderScale.value = EllipticSimulator.scale
                     CurveChanger.sliderA.value = panel.curve.aValue.toInt()
                     CurveChanger.sliderB.value = panel.curve.bValue.toInt()
-                    if(panel.curve is FiniteEllipticCurve) FieldZp.spinner.value = (panel.curve as FiniteEllipticCurve).modulus
+                    if (panel.curve is FiniteEllipticCurve) FieldZp.spinner.value = (panel.curve as FiniteEllipticCurve).modulus
                 }
             }
             "exit" -> this.isVisible = false
@@ -236,16 +233,19 @@ object EncryptDecryptHelper : EllipticCurveWindow(getScreenSize()), MouseListene
                 val pts = EllipticCurveHelper.asciiTable.map { it to panel.curve.helper.getPointOnCurveFromString(it.toString())[0] }
                 fun checkDuplicates(): Set<Pair<Char, Vec2d>> {
                     val ret = mutableSetOf<Pair<Char, Vec2d>>()
-                    for(p in pts) for (q in pts) if(p.first != p.first && p.second == q.second) { ret.add(p); ret.add(q) }
+                    for (p in pts) for (q in pts) if (p.first != p.first && p.second == q.second) {
+                        ret.add(p); ret.add(q)
+                    }
                     return ret
                 }
+
                 val duplicates = checkDuplicates()
                 val text1 = pts.joinToString("\n") { "${it.first} ${it.second}" }
-                val text2 = "\n\nDuplicates: ${if(duplicates.isEmpty()) "None" else duplicates.toString()}"
+                val text2 = "\n\nDuplicates: ${if (duplicates.isEmpty()) "None" else duplicates.toString()}"
                 val screen = InformationalScreen(text1 + text2, true)
                 screen.setSize(EllipticCurveWindow.getScreenSize() * 2 / 5)
                 screen.createAndShow()
-                if(debug) File("generators.curvelog").writeText(text1 + text2)
+                if (debug) File("generators.curvelog").writeText(text1 + text2)
             }
             "createKey" -> KeyCreator.createAndShow()
         }
@@ -342,7 +342,7 @@ object EncryptDecryptHelper : EllipticCurveWindow(getScreenSize()), MouseListene
             panel.clear()
             if (slider?.valueIsAdjusting?.not() == true) {
                 try {
-                    if(panel.curve !is FiniteEllipticCurve)
+                    if (panel.curve !is FiniteEllipticCurve)
                         panel.curve = EllipticCurve(sliderA.value.toLong(), sliderB.value.toLong(), EllipticCurve.REALS)
                     else panel.curve = FiniteEllipticCurve(sliderA.value.toLong(), sliderB.value.toLong(), (panel.curve as FiniteEllipticCurve).modulus)
                 } catch (e: IllegalArgumentException) {
@@ -353,6 +353,7 @@ object EncryptDecryptHelper : EllipticCurveWindow(getScreenSize()), MouseListene
 
         }
     }
+
     private object FieldZp : EllipticCurveWindow((EllipticCurveWindow.getScreenSize() / 4.5).vec2i()) {
         val spinner = JSpinner(SpinnerNumberModel(1, 1, 1000000, 1))
         val labelA = JLabel(+"gui.fieldzp")
@@ -386,11 +387,11 @@ object EncryptDecryptHelper : EllipticCurveWindow(getScreenSize()), MouseListene
             when (e!!.actionCommand) {
                 "ok" -> {
                     this.isVisible = false
-                    if(spinner.value == 2 || spinner.value == 3) {
+                    if (spinner.value == 2 || spinner.value == 3) {
                         JOptionPane.showMessageDialog(null, +"gui.curveover2or3")
                         return
                     }
-                    if(!FiniteEllipticCurve.isPrime(spinner.value as Int)) {
+                    if (!FiniteEllipticCurve.isPrime(spinner.value as Int)) {
                         JOptionPane.showMessageDialog(null, +"gui.notaprime")
                         return
                     }
@@ -401,9 +402,11 @@ object EncryptDecryptHelper : EllipticCurveWindow(getScreenSize()), MouseListene
         }
 
     }
+
     private object StringToPts : EllipticCurveWindow((EllipticCurveWindow.getScreenSize() / 4.5).vec2i()) {
         val okButton = JButton(+"gui.ok")
         val text = JTextArea()
+
         init {
             okButton.mnemonic = KeyEvent.VK_S
             okButton.actionCommand = "ok"
@@ -413,6 +416,7 @@ object EncryptDecryptHelper : EllipticCurveWindow(getScreenSize()), MouseListene
             add(okButton)
             add(text)
         }
+
         override fun actionPerformed(e: ActionEvent?) {
             super.actionPerformed(e)
             when (e!!.actionCommand) {
@@ -421,7 +425,7 @@ object EncryptDecryptHelper : EllipticCurveWindow(getScreenSize()), MouseListene
                     val points = EncryptDecryptHelper.panel.curve.helper.getPointOnCurveFromString(text.text)
                     panel.changeColor(Color.RED)
                     panel.changePointSize(10)
-                    for(pt in points) {
+                    for (pt in points) {
                         val x = EllipticSimulator.demodifyX(pt.x, panel)
                         val y = EllipticSimulator.demodifyY(pt.y, panel)
                         panel.drawPoint(Vec2i(x, y))
@@ -434,9 +438,11 @@ object EncryptDecryptHelper : EllipticCurveWindow(getScreenSize()), MouseListene
             }
         }
     }
+
     private object PtsToString : EllipticCurveWindow((EllipticCurveWindow.getScreenSize() / 4.5).vec2i()) {
         val okButton = JButton(+"gui.ok")
         val text = JTextArea()
+
         init {
             okButton.mnemonic = KeyEvent.VK_S
             okButton.actionCommand = "ok"
@@ -446,6 +452,7 @@ object EncryptDecryptHelper : EllipticCurveWindow(getScreenSize()), MouseListene
             add(okButton)
             add(text)
         }
+
         override fun actionPerformed(e: ActionEvent?) {
             super.actionPerformed(e)
             when (e!!.actionCommand) {
@@ -484,17 +491,19 @@ object EncryptDecryptHelper : EllipticCurveWindow(getScreenSize()), MouseListene
             when (e!!.actionCommand) {
                 "ok" -> {
                     this.isVisible = false
-                    if(!Vec2d.isValid(pubKey.text)) {
+                    if (!Vec2d.isValid(pubKey.text)) {
                         InformationalScreen(+"gui.encryptdecrypthelper.invalidpubkey").createAndShow()
                         return
                     }
-                    val vecs = text.text.split("\n").map { val xy = it.removeSurrounding("(", ")").split(", ").map { it.toDouble() }
-                        Vec2d(xy[0], xy[1]) }
+                    val vecs = text.text.split("\n").map {
+                        val xy = it.removeSurrounding("(", ")").split(", ").map { it.toDouble() }
+                        Vec2d(xy[0], xy[1])
+                    }
                     val bobKey = pubKey.text.removeSurrounding("(", ")").split(", ").map { it.toDouble() }
                     val helper = panel.curve.helper
-                    val k = if(panel.curve is FiniteEllipticCurve)
+                    val k = if (panel.curve is FiniteEllipticCurve)
                         helper.rand.nextInt((panel.curve as FiniteEllipticCurve).modulus.toInt())
-                        else helper.rand.nextInt(100)
+                    else helper.rand.nextInt(100)
 
                     val encrypted = vecs.map { panel.curve.helper.encrypt(it, Vec2d(bobKey[0], bobKey[1]), helper.agreedUponPt, k) }
                     val first = encrypted[0].first
@@ -535,7 +544,7 @@ object EncryptDecryptHelper : EllipticCurveWindow(getScreenSize()), MouseListene
                     this.isVisible = false
                     val clean = listOf("Ordered: ", "Shared: ", "{", "}")
                     var str = text.text
-                    for(item in clean) str = str.replace(item, "")
+                    for (item in clean) str = str.replace(item, "")
                     val lines = str.split("\n")
                     val first = Vec2d.of(lines[0])
                     val seconds = lines.subList(1, lines.size).joinToString("").split(";")
@@ -553,6 +562,7 @@ object EncryptDecryptHelper : EllipticCurveWindow(getScreenSize()), MouseListene
     private object KeyCreator : EllipticCurveWindow((EllipticCurveWindow.getScreenSize() / 4.5).vec2i()) {
         val okButton = JButton(+"gui.ok")
         val text = JTextArea()
+
         init {
             okButton.mnemonic = KeyEvent.VK_S
             okButton.actionCommand = "ok"
@@ -562,12 +572,13 @@ object EncryptDecryptHelper : EllipticCurveWindow(getScreenSize()), MouseListene
             add(okButton)
             add(text)
         }
+
         override fun actionPerformed(e: ActionEvent?) {
             super.actionPerformed(e)
             when (e!!.actionCommand) {
                 "ok" -> {
                     this.isVisible = false
-                    if(text.text.toIntOrNull() == null) {
+                    if (text.text.toIntOrNull() == null) {
                         InformationalScreen(+"gui.encryptdecrypthelper.invalidprivkey")
                         return
                     }

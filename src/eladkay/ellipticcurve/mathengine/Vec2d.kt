@@ -8,10 +8,11 @@ class Vec2d(val x: Double, val y: Double) {
         private val MATCHING_REGEX = "\\(((?:-)*\\d+(?:.\\d+)*),(?:\\s)*((?:-)*\\d+(?:.\\d+)*)\\)".toRegex()
         fun of(string: String): Vec2d? {
             //val strippedSplit = string.removeSurrounding("(", ")").split(", ").map { it.toDouble() }
-            if(!isValid(string)) return null
+            if (!isValid(string)) return null
             val groups = MATCHING_REGEX.matchEntire(string)!!.groups
             return Vec2d(groups[1]!!.value.toDouble(), groups[2]!!.value.toDouble())
         }
+
         fun isValid(text: String): Boolean {
             return text.matches(MATCHING_REGEX)
         }
@@ -19,7 +20,7 @@ class Vec2d(val x: Double, val y: Double) {
 
     constructor(x: Number, y: Number) : this(x.toDouble(), y.toDouble())
 
-    fun invertY(): Vec2d {
+    fun invertY(): Vec2d { // are you looking for EllipticCurveHelper#invPoint?
         return Vec2d(x, -y)
     }
 

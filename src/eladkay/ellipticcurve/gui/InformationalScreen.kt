@@ -29,5 +29,4 @@ class InformationalScreen(val string: String, resizable: Boolean = false, nm: St
     }
 
 
-
 }

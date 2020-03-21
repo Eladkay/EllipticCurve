@@ -35,7 +35,7 @@ open class EllipticCurve(val aValue: Long, val bValue: Long, val field: String) 
      * there exists an x3 between x1 and x2 and a y3 between y1 and y2 s.t (x3, y3) is on the curve. This is a provable consequence of the
      * mean value theorem, given the curve is continuous of course, for a suitable definition of this term.
      */
-    open fun difference(x: Double, y: Double) = y * y  - (x * x * x) - (aValue * x) - bValue
+    open fun difference(x: Double, y: Double) = y * y - (x * x * x) - (aValue * x) - bValue
 
 
     // in absolute value
@@ -46,7 +46,9 @@ open class EllipticCurve(val aValue: Long, val bValue: Long, val field: String) 
         if (bValue > 0) throw IllegalArgumentException("This function is not defined for b>0")
         else return Math.sqrt(-bValue / 3.0)
     }
+
     val helper: EllipticCurveHelper by lazy { EllipticCurveHelper(this) }
+
     companion object {
         val REALS = "reals"
     }

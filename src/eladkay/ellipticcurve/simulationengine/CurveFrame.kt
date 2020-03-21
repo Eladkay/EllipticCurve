@@ -41,7 +41,7 @@ interface CurveFrame {
             EllipticSimulator.scale = split[3].toInt()
             val generator = Vec2d.of(split[4])
             val agreedUpon = Vec2d.of(split[5])
-            val curve = if(field == "R")
+            val curve = if (field == "R")
                 EllipticCurve(split[0].toLong(), split[1].toLong(), EllipticCurve.REALS)
             else FiniteEllipticCurve(split[0].toLong(), split[1].toLong(), split[2].toLong())
             curve.helper.generator = generator!!

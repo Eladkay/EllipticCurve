@@ -1,6 +1,9 @@
 package eladkay.ellipticcurve.gui
 
-import eladkay.ellipticcurve.mathengine.*
+import eladkay.ellipticcurve.mathengine.EllipticCurve
+import eladkay.ellipticcurve.mathengine.FiniteEllipticCurve
+import eladkay.ellipticcurve.mathengine.Vec2d
+import eladkay.ellipticcurve.mathengine.Vec2i
 import eladkay.ellipticcurve.simulationengine.CurveFrame
 import eladkay.ellipticcurve.simulationengine.CurvePanel
 import eladkay.ellipticcurve.simulationengine.EllipticSimulator
@@ -29,7 +32,7 @@ object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener
             panel.clearPointLines()
             panel.changeColor(Color.ORANGE)
             panel.addPointLines(Vec2i(x, y))
-            panel.drawPointLineText(Vec2i(x + 5, y), "(${Math.round(100.0 * modifyX(x)) / 100.0}, ${Math.round(100.0 * modifyY(y)) / 100.0})")
+            panel.drawPointLineText(Vec2i(x + 5, y), "${Vec2d(modifyX(x), modifyY(y)).truncate(2)}")
             panel.repaint()
         }
     }
@@ -47,21 +50,23 @@ object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener
     }
 
     private fun modifyX(x: Number): Double {
-        if(panel.curve !is FiniteEllipticCurve) return (x.toDouble() - panel.frameSize().x / 2 - EllipticSimulator.X_OFFSET) / EllipticSimulator.defaultXScale.toDouble()
+        if (panel.curve !is FiniteEllipticCurve) return (x.toDouble() - panel.frameSize().x / 2 - EllipticSimulator.X_OFFSET) / EllipticSimulator.defaultXScale.toDouble()
         @Suppress("NAME_SHADOWING")
         val x = x.toInt()
         val ellipticCurve = panel.curve as FiniteEllipticCurve
         val modulus = ellipticCurve.modulus
         return (x - 10) * modulus / (panel.frameSize().x - 10).toDouble()
     }
+
     private fun modifyY(y: Number): Double {
-        if(panel.curve !is FiniteEllipticCurve) return (-y.toDouble() + panel.frameSize().y / 2) / EllipticSimulator.defaultYScale.toDouble()
+        if (panel.curve !is FiniteEllipticCurve) return (-y.toDouble() + panel.frameSize().y / 2) / EllipticSimulator.defaultYScale.toDouble()
         @Suppress("NAME_SHADOWING")
         val y = y.toInt()
         val ellipticCurve = panel.curve as FiniteEllipticCurve
         val modulus = ellipticCurve.modulus
         return (y + 100 - panel.frameSize().y) * modulus / (100 - panel.frameSize().y).toDouble()
     }
+
     override fun mousePressed(e: MouseEvent) {
         val x = e.x
         val y = e.y
@@ -352,7 +357,7 @@ object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener
         when (e.actionCommand) {
             "changecurve" -> CurveChanger.createAndShow()
             "changescale" -> {
-                if(panel.curve is FiniteEllipticCurve) {
+                if (panel.curve is FiniteEllipticCurve) {
                     JOptionPane.showMessageDialog(null, +"gui.discretecurve")
                     return
                 } else ScaleChanger.createAndShow()
@@ -382,7 +387,7 @@ object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener
                     ScaleChanger.sliderScale.value = EllipticSimulator.scale
                     CurveChanger.sliderA.value = panel.curve.aValue.toInt()
                     CurveChanger.sliderB.value = panel.curve.bValue.toInt()
-                    if(panel.curve is FiniteEllipticCurve) FieldZp.spinner.value = (panel.curve as FiniteEllipticCurve).modulus
+                    if (panel.curve is FiniteEllipticCurve) FieldZp.spinner.value = (panel.curve as FiniteEllipticCurve).modulus
                 }
             }
             "exit" -> this.isVisible = false
@@ -412,7 +417,7 @@ object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener
             "addPtsNumerically" -> PointAdder.createAndShow()
             "selectRandomPt" -> {
                 val helper = panel.curve.helper
-                val vec = when(panel.curve) {
+                val vec = when (panel.curve) {
                     is FiniteEllipticCurve -> {
                         val curve = panel.curve as FiniteEllipticCurve
                         curve.curvePoints.toList()[helper.rand.nextInt(curve.order())]
@@ -457,7 +462,7 @@ object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener
 
             }
             "listPoints" -> {
-                if(panel.curve !is FiniteEllipticCurve) {
+                if (panel.curve !is FiniteEllipticCurve) {
                     JOptionPane.showMessageDialog(null, +"gui.notfinite")
                     return
                 }
@@ -465,7 +470,7 @@ object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener
                 InformationalScreen(curve.curvePoints.joinToString("\n")).createAndShow()
             }
             "showAdditionTable" -> {
-                if(panel.curve !is FiniteEllipticCurve) {
+                if (panel.curve !is FiniteEllipticCurve) {
                     JOptionPane.showMessageDialog(null, +"gui.notfinite")
                     return
                 }
@@ -473,16 +478,16 @@ object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener
                 InformationalScreen(curve.helper.generateAdditionTableFormatting(), true).createAndShow()
             }
             "showSubgroupOfSelected" -> {
-                if(panel.curve !is FiniteEllipticCurve) {
+                if (panel.curve !is FiniteEllipticCurve) {
                     JOptionPane.showMessageDialog(null, +"gui.notfinite")
                     return
                 }
-                if(p1 == null) {
+                if (p1 == null) {
                     JOptionPane.showMessageDialog(null, +"gui.operationcalculator.choosept")
                     return
                 }
                 panel.changeColor(Color.GREEN)
-                for(pt in panel.curve.helper.subgroup(p1modified!!)) {
+                for (pt in panel.curve.helper.subgroup(p1modified!!)) {
                     val vec = Vec2i(EllipticSimulator.demodifyX(pt.x, panel), EllipticSimulator.demodifyY(pt.y, panel))
                     panel.drawPoint(vec, 15)
                 }
@@ -490,11 +495,11 @@ object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener
                 panel.repaint()
             }
             "subgroupPointList" -> {
-                if(panel.curve !is FiniteEllipticCurve) {
+                if (panel.curve !is FiniteEllipticCurve) {
                     JOptionPane.showMessageDialog(null, +"gui.notfinite")
                     return
                 }
-                if(p1 == null) {
+                if (p1 == null) {
                     JOptionPane.showMessageDialog(null, +"gui.operationcalculator.choosept")
                     return
                 }
@@ -534,7 +539,7 @@ object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener
         val label = JLabel(+"orderpoint" + ": ")
         override fun updateTextForI18n() {
             super.updateTextForI18n()
-            pointInfoBox.text = "(${Vec2d(modifyX(p1!!.x), modifyY(p1!!.y)).truncate(4)})"
+            pointInfoBox.text = "(${p1modified!!.truncate(4)})"
             label.text = +"orderpoint" + ": "
         }
 
@@ -556,17 +561,18 @@ object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener
             pointInfoBox.disabledTextColor = Color.BLACK
             pointInfoBox.text = "${p1modified!!.truncate(4)}"
             pointInfoBox.horizontalAlignment = JTextField.CENTER
-            button.setBounds(size.x * 1/6, size.y * 2/6, size.x * 4/6, 40)
+            button.setBounds(size.x * 1 / 6, size.y * 2 / 6, size.x * 4 / 6, 40)
             button.actionCommand = "copy"
             button.addActionListener(this)
-            label.setBounds(size.x * 1/6, size.y * 2/6 + 60, size.x * 4/6, 40)
-            if(label.isVisible) {
+            label.setBounds(size.x * 1 / 6, size.y * 2 / 6 + 60, size.x * 4 / 6, 40)
+            if (label.isVisible) {
                 label.text += (panel.curve as FiniteEllipticCurve).order(p1modified!!)
             }
             add(pointInfoBox)
             add(button)
             add(label)
         }
+
         override fun actionPerformed(e: ActionEvent?) {
             super.actionPerformed(e)
             when (e!!.actionCommand) {
@@ -790,7 +796,7 @@ object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener
             panel.clear()
             if (slider?.valueIsAdjusting?.not() == true) {
                 try {
-                    if(panel.curve !is FiniteEllipticCurve)
+                    if (panel.curve !is FiniteEllipticCurve)
                         panel.curve = EllipticCurve(sliderA.value.toLong(), sliderB.value.toLong(), EllipticCurve.REALS)
                     else panel.curve = FiniteEllipticCurve(sliderA.value.toLong(), sliderB.value.toLong(), (panel.curve as FiniteEllipticCurve).modulus)
                 } catch (e: IllegalArgumentException) {
@@ -835,11 +841,11 @@ object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener
             when (e!!.actionCommand) {
                 "ok" -> {
                     this.isVisible = false
-                    if(spinner.value == 2 || spinner.value == 3) {
+                    if (spinner.value == 2 || spinner.value == 3) {
                         JOptionPane.showMessageDialog(null, +"gui.curveover2or3")
                         return
                     }
-                    if(!FiniteEllipticCurve.isPrime(spinner.value as Int)) {
+                    if (!FiniteEllipticCurve.isPrime(spinner.value as Int)) {
                         JOptionPane.showMessageDialog(null, +"gui.notaprime")
                         return
                     }

@@ -177,14 +177,14 @@ class EllipticCurveHelper(private val curve: EllipticCurve) {
             return field
         }
     private var asciiGeneratorTable: List<Vec2d> = listOf()
-    get() {
-        if(field.isEmpty()) {
-            val list = mutableListOf<Vec2d>()
-            for (i in 0..127) list.add(multiply(generator, i).truncate(2)) // the constant is empirically derived
-            field = list
+        get() {
+            if (field.isEmpty()) {
+                val list = mutableListOf<Vec2d>()
+                for (i in 0..127) list.add(multiply(generator, i).truncate(2)) // the constant is empirically derived
+                field = list
+            }
+            return field
         }
-        return field
-    }
     // the following two functions ought to be bijections, otherwise obviously one of them won't be defined (they are not exactly bijections)
     // Encoding methodology due to
     // Reyad, Omar. (2018). Text Message Encoding Based on Elliptic Curve Cryptography and a Mapping Methodology. 10.12785/isl/070102.

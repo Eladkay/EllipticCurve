@@ -49,7 +49,7 @@ class CurvePanel(private val size: Vec2i, curve: EllipticCurve) : CurveFrame, JP
      * Then (x,y) is colored in if and only if difference(x+e, y+e) is different in sign to difference(x-e, y-e)
      */
     fun errorFunction(x: Double, y: Double): Double {
-        if(curve is FiniteEllipticCurve) return 0.005
+        if (curve is FiniteEllipticCurve) return 0.005
         val withinErrorOfMinMax = if (curve.bValue < 0) Math.abs(x) + 0.3 > curve.getMinMaxXValue() && Math.abs(x) - 0.3 < curve.getMinMaxXValue() else false
         return Math.min(Math.max(1 / Math.log(Math.abs(x * y) + 1) / 50, 0.03) + if (y > 0 && x > 0) 0.15 else if (y > 0 && x < 0) 0.02 else if (withinErrorOfMinMax) 0.15 else 0.0, 0.17)
 
@@ -71,18 +71,17 @@ class CurvePanel(private val size: Vec2i, curve: EllipticCurve) : CurveFrame, JP
         // start handling by EllipticSimulator
 
         if (operations.isEmpty() || redraw) {
-            if(curve is FiniteEllipticCurve) {
+            if (curve is FiniteEllipticCurve) {
                 changePointSize(5)
                 EllipticSimulator.drawFiniteCurve(curve as FiniteEllipticCurve, this, false)
-            }
-            else EllipticSimulator.drawCurveApprox(curve, this, ::errorFunction, false)
+            } else EllipticSimulator.drawCurveApprox(curve, this, ::errorFunction, false)
 
             EllipticSimulator.drawAxis(this)
             if (gridsAndTicks) {
                 EllipticSimulator.drawTicks(this)
                 EllipticSimulator.drawGridlines(this)
             }
-            if(showLineOfSymmetry) {
+            if (showLineOfSymmetry) {
                 EllipticSimulator.drawLineOfSymmetry(this)
             }
             redraw = false
@@ -129,7 +128,7 @@ class CurvePanel(private val size: Vec2i, curve: EllipticCurve) : CurveFrame, JP
             g2.drawString(text.second, text.first.x + 5, text.first.y)
         }
 
-        for(p in linesOfSymmetry) {
+        for (p in linesOfSymmetry) {
             g2.color = Color.RED
             g2.draw(Line2D.Double(p.first.x.toDouble(), p.first.y.toDouble(), p.second.x.toDouble(), p.second.y.toDouble()))
             g2.color = Color.BLACK
