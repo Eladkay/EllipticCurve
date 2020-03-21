@@ -398,8 +398,7 @@ object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener
             "addPtsNumerically" -> PointAdder.createAndShow()
             "selectRandomPt" -> {
                 val helper = panel.curve.helper
-                var vec: Vec2d
-                vec = when(panel.curve) {
+                val vec = when(panel.curve) {
                     is FiniteEllipticCurve -> {
                         val curve = panel.curve as FiniteEllipticCurve
                         curve.curvePoints[helper.rand.nextInt(curve.order())]
@@ -465,13 +464,17 @@ object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener
     private object PointInfo : EllipticCurveWindow((EllipticCurveWindow.getScreenSize() / 6.0).vec2i()) {
         val pointInfoBox = JTextField()
         val button = JButton(+"gui.copytoclipboard")
+        val label = JLabel(+"orderpoint" + ": ")
         override fun updateTextForI18n() {
             super.updateTextForI18n()
             pointInfoBox.text = "(${Vec2d(modifyX(p1!!.x), modifyY(p1!!.y)).truncate(4)})"
+            label.text = +"orderpoint" + ": "
         }
 
         override fun createAndShow() {
             super.createAndShow()
+            label.text = +"orderpoint" + ": "
+            label.isVisible = panel.curve is FiniteEllipticCurve
             init()
         }
 
@@ -484,13 +487,18 @@ object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener
             pointInfoBox.isEnabled = false
             pointInfoBox.setBounds(size.x * 1 / 6, size.y * 1 / 6, size.x * 4 / 6, 40)
             pointInfoBox.disabledTextColor = Color.BLACK
-            pointInfoBox.text = "${Vec2d(modifyX(p1!!.x), modifyY(p1!!.y)).truncate(4)}"
+            pointInfoBox.text = "${p1modified!!.truncate(4)}"
             pointInfoBox.horizontalAlignment = JTextField.CENTER
             button.setBounds(size.x * 1/6, size.y * 2/6, size.x * 4/6, 40)
             button.actionCommand = "copy"
             button.addActionListener(this)
+            label.setBounds(size.x * 1/6, size.y * 2/6 + 60, size.x * 4/6, 40)
+            if(label.isVisible) {
+                label.text += (panel.curve as FiniteEllipticCurve).order(p1modified!!)
+            }
             add(pointInfoBox)
             add(button)
+            add(label)
         }
         override fun actionPerformed(e: ActionEvent?) {
             super.actionPerformed(e)

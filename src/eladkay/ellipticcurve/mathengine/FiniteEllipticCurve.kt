@@ -7,6 +7,8 @@ open class FiniteEllipticCurve(aValue: Long, bValue: Long, val modulus: Long) : 
 
     fun order() = curvePoints.size
 
+    fun order(vec2d: Vec2d) = helper.order(vec2d)
+
     init {
         curvePoints.add(Vec2d.PT_AT_INF)
         for(x in 0 until modulus) for (y in 0..modulus/2)

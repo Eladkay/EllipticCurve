@@ -92,6 +92,18 @@ class EllipticCurveHelper(private val curve: EllipticCurve) {
         }
     }
 
+    fun order(vec2d: Vec2d): Int {
+        if(vec2d == Vec2d.PT_AT_INF) return 0
+        if(curve !is FiniteEllipticCurve) throw UnsupportedOperationException("This function is only defined for finite elliptic curves!")
+        var order = -1
+        var vector = vec2d
+        while(vector != Vec2d.PT_AT_INF) {
+            vector = add(vector, vec2d)
+            order++
+        }
+        return order
+    }
+
     fun mod(x: Double, r: Long) = (((x % r) + r) % r).toLong() // very special mod
 
     // this is naiive. O(2^k)

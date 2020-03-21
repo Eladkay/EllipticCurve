@@ -17,17 +17,11 @@ object EllipticSimulator {
 
     fun drawFiniteCurve(ellipticCurve: FiniteEllipticCurve, frame: CurveFrame, drawText: Boolean) {
         frame.changePointSize(10)
-            for (x in 0..frame.frameSize().x)
-                for (y in 0..frame.frameSize().y) {
-                    val modulus = ellipticCurve.modulus
-                    val xModified = (x - 10) * modulus / (frame.frameSize().x - 10).toDouble()
-                    val yModified = (y + 100 - frame.frameSize().y) * modulus / (100 - frame.frameSize().y).toDouble()
-
-                    if (ellipticCurve.isPointOnCurve(Vec2d(xModified, yModified))) {
-                        frame.drawPoint(Vec2i(x, y))
-                        if (drawText) frame.drawText(Vec2i(x, y), "($xModified, $yModified)")
-                    }
-                }
+        for((x, y) in ellipticCurve.curvePoints) {
+            frame.drawPoint(Vec2i(demodifyX(x, frame), demodifyY(y, frame)))
+            if (drawText) frame.drawText(Vec2i(demodifyX(x, frame), demodifyY(y, frame)), "($x, $y)")
+        }
+        frame.redraw()
         frame.changePointSize(3)
 
     }
