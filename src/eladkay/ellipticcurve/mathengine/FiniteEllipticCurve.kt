@@ -3,13 +3,17 @@ package eladkay.ellipticcurve.mathengine
 // this is partially inspired by https://andrea.corbellini.name/2015/05/17/elliptic-curve-cryptography-a-gentle-introduction/
 open class FiniteEllipticCurve(aValue: Long, bValue: Long, val modulus: Long) : EllipticCurve(aValue % modulus, bValue % modulus, MathHelper.zp(modulus)) {
 
-    private val curvePoints = mutableListOf<Vec2d>()
+    val curvePoints = mutableListOf<Vec2d>()
 
-    private fun order() = curvePoints.size
+    fun order() = curvePoints.size
 
     init {
-        for(x in 0..modulus) for (y in 0..modulus)
-            if((y*y - x * x *x - aValue*x - bValue) % modulus == 0L) curvePoints.add(Vec2d(x, y))
+        curvePoints.add(Vec2d.PT_AT_INF)
+        for(x in 0 until modulus) for (y in 0..modulus/2)
+            if(y*y % modulus == helper.mod(x * x *x - aValue*x - bValue.toDouble(), modulus)) {
+                curvePoints.add(Vec2d(x, y))
+                if(y % modulus != (x-y) % modulus) curvePoints.add(Vec2d(x, modulus-y))
+            }
     }
 
     override fun determinant(): Double {
@@ -42,46 +46,4 @@ open class FiniteEllipticCurve(aValue: Long, bValue: Long, val modulus: Long) : 
         return modulus.toInt() + 31 * aValue.toInt() + 31 * bValue.toInt()
     }
 
-
-    class NumberWrapper(private val numberInternal: Number, private val modulus: Long) {
-        private val number get() = numberInternal.toDouble()
-        operator fun component1() = numberInternal
-        override fun toString(): String {
-            return numberInternal.toString()
-        }
-
-        override fun equals(other: Any?): Boolean {
-            return other is NumberWrapper && other.numberInternal == this.numberInternal
-        }
-
-        // let's um, just not use that, k?
-        override fun hashCode(): Int {
-            return numberInternal.toInt() * modulus.toInt()
-        }
-
-        operator fun not() = number
-        // :/
-        private operator fun Double.not() = NumberWrapper(this, modulus)
-
-        operator fun plus(b: NumberWrapper): NumberWrapper {
-            return !((!this + !b) % modulus)
-        }
-        operator fun minus(b: NumberWrapper): NumberWrapper = plus(b.unaryMinus())
-        operator fun times(b: NumberWrapper): NumberWrapper {
-            return !((!this * !b) % modulus)
-        }
-        operator fun div(b: NumberWrapper): NumberWrapper = this * !inv(!b)
-        operator fun unaryMinus(): NumberWrapper = if (!this == 0.0) !0.0 else !(modulus.toDouble() - !this)
-        infix fun exp(b: Int): NumberWrapper = if (b==1) this else this*exp(b-1)
-
-        fun inv(a: Double): Double {
-            if (a == 0.0) throw IllegalArgumentException("no inverse for additive identity")
-            // Euler's theorem
-            // hey, if this causes any problems, i can look at section 5.6 in my linear algebra book
-            var aInv = 1.0
-            for (i in 0 until modulus - 2) aInv *= a
-            return aInv % modulus
-        }
-
-    }
 }

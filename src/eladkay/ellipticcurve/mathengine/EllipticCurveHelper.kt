@@ -51,7 +51,6 @@ class EllipticCurveHelper(private val curve: EllipticCurve) {
         x2 %= card
         y2 %= card
         val invSafe = inv!!
-        fun mod(x: Double, r: Long) = (((x % r) + r) % r).toLong()
         if (a == Vec2d.PT_AT_INF) return b
         if (b == Vec2d.PT_AT_INF) return a
         val s = if(a.x == b.x) {
@@ -63,6 +62,7 @@ class EllipticCurveHelper(private val curve: EllipticCurve) {
         return Vec2d(x3, y3)
 
     }
+    fun mod(x: Double, r: Long) = (((x % r) + r) % r).toLong() // very special mod
 
     // this is naiive. O(2^k)
     @Deprecated("This is naiive and slow I will remove it later")

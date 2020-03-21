@@ -204,6 +204,7 @@ object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener
     private lateinit var realsField: JMenuItem
     private lateinit var finiteField: JMenuItem
     private lateinit var selectRandomPt: JMenuItem
+    private lateinit var listPoints: JMenuItem
     private fun getCurveMenu(): JMenu {
         menuCurve = JMenu(+"gui.operationcalculator.curve")
         changeCurve = JMenuItem(+"gui.operationcalculator.curve.changecurve")
@@ -211,6 +212,7 @@ object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener
         realsField = JMenuItem(+"fields.reals")
         finiteField = JMenuItem(+"gui.operationcalculator.curve.changetozp")
         selectRandomPt = JMenuItem(+"gui.operationcalculator.selectRandomPt")
+        listPoints = JMenuItem(+"gui.operationcalculator.listPoints")
 
         menuCurve.mnemonic = KeyEvent.VK_C
 
@@ -229,6 +231,10 @@ object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener
         selectRandomPt.addActionListener(this)
         selectRandomPt.actionCommand = "selectRandomPt"
         menuCurve.add(selectRandomPt)
+
+        listPoints.addActionListener(this)
+        listPoints.actionCommand = "listPoints"
+        menuCurve.add(listPoints)
 
         return menuCurve
     }
@@ -383,19 +389,38 @@ object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener
             "changefield_zp" -> FieldZp.createAndShow()
             "changefield_reals" -> panel.curve = EllipticCurve(panel.curve.aValue, panel.curve.bValue, MathHelper.REALS)
             "addPtsNumerically" -> PointAdder.createAndShow()
-            "selectRandomPt" -> { // todo finite fields exist
+            "selectRandomPt" -> {
                 val helper = panel.curve.helper
-                val x = helper.rand.nextInt(15).toDouble() + helper.rand.nextDouble()
-                val y = Math.sqrt(helper.lhs(x))
-                InformationalScreen("($x, $y)").createAndShow()
-                p1 = Vec2i(EllipticSimulator.demodifyX(x, panel), EllipticSimulator.demodifyY(y, panel))
-                p1modified = Vec2d(x, y)
+                var vec: Vec2d
+                vec = when(panel.curve) {
+                    is FiniteEllipticCurve -> {
+                        val curve = panel.curve as FiniteEllipticCurve
+                        curve.curvePoints[helper.rand.nextInt(curve.order())]
+                    }
+                    else -> {
+                        val x = helper.rand.nextInt(15).toDouble() + helper.rand.nextDouble()
+                        val y = Math.sqrt(helper.lhs(x))
+                        Vec2d(x, y)
+                    }
+                }
+                InformationalScreen(vec.toString()).createAndShow()
+                p1 = Vec2i(EllipticSimulator.demodifyX(vec.x, panel), EllipticSimulator.demodifyY(vec.y, panel))
+                p1modified = Vec2d(vec.x, vec.y)
                 panel.changeColor(Color.GREEN)
                 panel.drawPoint(p1!!, 15)
                 panel.changeColor(Color.BLACK)
                 panel.repaint()
 
             }
+            "listPoints" -> {
+                if(panel.curve !is FiniteEllipticCurve) {
+                    JOptionPane.showMessageDialog(null, +"gui.notfinite")
+                    return
+                }
+                val curve = panel.curve as FiniteEllipticCurve
+                InformationalScreen(curve.curvePoints.joinToString("\n")).createAndShow()
+            }
+
         }
     }
 
