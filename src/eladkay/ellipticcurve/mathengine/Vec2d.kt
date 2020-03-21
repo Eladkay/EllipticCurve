@@ -69,5 +69,7 @@ class Vec2d(val x: Double, val y: Double) {
         return map { Math.round(it * pow10) / pow10 }
     }
 
+    fun isInfinite(): Boolean = this == PT_AT_INF
+
 
 }

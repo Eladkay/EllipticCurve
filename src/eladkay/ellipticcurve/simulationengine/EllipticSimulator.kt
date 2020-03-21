@@ -16,6 +16,7 @@ object EllipticSimulator {
         get() = 200 / scale
 
     fun drawFiniteCurve(ellipticCurve: FiniteEllipticCurve, frame: CurveFrame, drawText: Boolean) {
+        frame.changePointSize(10)
             for (x in 0..frame.frameSize().x)
                 for (y in 0..frame.frameSize().y) {
                     val modulus = ellipticCurve.modulus
@@ -27,6 +28,7 @@ object EllipticSimulator {
                         if (drawText) frame.drawText(Vec2i(x, y), "($xModified, $yModified)")
                     }
                 }
+        frame.changePointSize(3)
 
     }
 

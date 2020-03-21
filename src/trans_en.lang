@@ -38,6 +38,7 @@ gui.operationcalculator.addPtsNumerically=Add two points numerically...
 gui.pointadder=Point Addition
 gui.operationcalculator.selectRandomPt=Select random point on the curve
 gui.operationcalculator.listPoints=Show list of points on finite curve
+gui.operationcalculator.showAdditionTable=Show addition table for finite curve
 
 gui.encryptdecrypthelper=Encryption/Decryption Helper
 gui.encryptdecrypthelper.stringtopts=Convert String to Pts...

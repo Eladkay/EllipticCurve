@@ -289,12 +289,14 @@ object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener
     private lateinit var flip: JMenuItem
     private lateinit var select: JMenuItem
     private lateinit var addPtsNumerically: JMenuItem
+    private lateinit var showAdditionTable: JMenuItem
     private fun getOperationMenu(): JMenu {
         menuOperation = JMenu(+"gui.operationcalculator.operation")
         mult = JMenuItem(+"gui.operationcalculator.mult")
         flip = JMenuItem(+"gui.operationcalculator.flip")
         select = JMenuItem(+"gui.operationcalculator.selectpt")
         addPtsNumerically = JMenuItem(+"gui.operationcalculator.addPtsNumerically")
+        showAdditionTable = JMenuItem(+"gui.operationcalculator.showAdditionTable")
 
         menuOperation.mnemonic = KeyEvent.VK_O
 
@@ -322,6 +324,11 @@ object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener
         checkboxAutoadd.mnemonic = KeyEvent.VK_A
         checkboxAutoadd.isSelected = false
         menuOperation.add(checkboxAutoadd)
+
+        showAdditionTable.addActionListener(this)
+        showAdditionTable.actionCommand = "showAdditionTable"
+        showAdditionTable.mnemonic = KeyEvent.VK_T
+        menuOperation.add(showAdditionTable)
 
         return menuOperation
     }
@@ -419,6 +426,14 @@ object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener
                 }
                 val curve = panel.curve as FiniteEllipticCurve
                 InformationalScreen(curve.curvePoints.joinToString("\n")).createAndShow()
+            }
+            "showAdditionTable" -> {
+                if(panel.curve !is FiniteEllipticCurve) {
+                    JOptionPane.showMessageDialog(null, +"gui.notfinite")
+                    return
+                }
+                val curve = panel.curve as FiniteEllipticCurve
+                InformationalScreen(curve.helper.generateAdditionTableFormatting(), true).createAndShow()
             }
 
         }

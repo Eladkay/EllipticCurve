@@ -8,18 +8,13 @@ class EllipticCurveHelper(private val curve: EllipticCurve) {
     // an elliptic curve over a finite field using this operation is a finite abelian group
     // moreover, each point generates a cyclic subgroup
     fun add(a: Vec2d, b: Vec2d): Vec2d {
-        /* if (!curve.isPointOnCurve(a)) throw IllegalArgumentException("point $a not on curve!")
-           if (!curve.isPointOnCurve(b)) throw IllegalArgumentException("point $b not on curve!") */ // since we're working with very crude approximations, this can't be
-        if (a == Vec2d.PT_AT_INF) return b
-        if (b == Vec2d.PT_AT_INF) return a
+        if (a.isInfinite()) return b
+        if (b.isInfinite()) return a
         if (curve is FiniteEllipticCurve) return addFinite(a, b)
 
         val (x1, y1) = a
         val (x2, y2) = b
-        val lambda =
-                if (a == b)
-                    if (y1 == 0.0) return Vec2d.PT_AT_INF
-                    else (3 * x1 * x1 + curve.aValue) / (2 * y1)
+        val lambda = if (a == b) if (y1 == 0.0) return Vec2d.PT_AT_INF else (3 * x1 * x1 + curve.aValue) / (2 * y1)
                 else if (x1 == x2) return Vec2d.PT_AT_INF
                 else (y1 - y2) / (x1 - x2)
         val x3 = lambda * lambda - x1 - x2
@@ -44,15 +39,16 @@ class EllipticCurveHelper(private val curve: EllipticCurve) {
         var (x1, y1) = a
         var (x2, y2) = b
         this.curve as FiniteEllipticCurve
-        if (curve.field == "z2" || curve.field == "z3") throw IllegalArgumentException("elliptic curves over Z2 or Z3 don't quite work the same") // besides, when working with elliptic curve cryptography, we generally want to use large primes anyways
+        if (curve.field == "z2" || curve.field == "z3")
+            throw IllegalArgumentException("elliptic curves over Z2 or Z3 don't quite work the same") // besides, when working with elliptic curve cryptography, we generally want to use large primes anyways
+        if (a.isInfinite()) return b
+        if (b.isInfinite()) return a
         val card = curve.modulus
         x1 %= card
         y1 %= card
         x2 %= card
         y2 %= card
         val invSafe = inv!!
-        if (a == Vec2d.PT_AT_INF) return b
-        if (b == Vec2d.PT_AT_INF) return a
         val s = if(a.x == b.x) {
             if(a.y != b.y || a.y == 0.0) return Vec2d.PT_AT_INF
             else mod((3*a.x*a.x + curve.aValue)*invSafe[mod(2*a.y, card)]!!, card)
@@ -62,6 +58,40 @@ class EllipticCurveHelper(private val curve: EllipticCurve) {
         return Vec2d(x3, y3)
 
     }
+
+    private fun generateAdditionTable(): Map<Pair<Vec2d, Vec2d>, Vec2d> {
+        if(curve !is FiniteEllipticCurve) throw UnsupportedOperationException("This function is only defined for finite elliptic curves!")
+        val ret = mutableMapOf<Pair<Vec2d, Vec2d>, Vec2d>()
+        val pts = curve.curvePoints
+        for(x in pts) for(y in pts) {
+            ret[x to y] = add(x, y)
+            ret[Vec2d.PT_AT_INF to y] = y
+            ret[x to Vec2d.PT_AT_INF] = x
+        }
+        return ret
+    }
+
+    fun generateAdditionTableFormatting(): String {
+        val additionTable = generateAdditionTable() // finiteness checked here
+        fun format(it: Vec2d) = if(it.isInfinite()) "∞" else it.toString()
+        val strings = additionTable.mapValues { format(it.value) }.mapKeys { format(it.key.first) to format(it.key.second) }
+        val pts = (curve as FiniteEllipticCurve).curvePoints.map { it.toString() }
+        return buildString {
+            append("+")
+            for(pt in pts) append("\t$pt")
+            append("\n")
+            for(pt1 in pts) {
+                append("$pt1\t")
+                for(pt2 in pts) {
+                    val str = if(pt1 == Vec2d.PT_AT_INF.toString()) pt2 else if(pt2 == Vec2d.PT_AT_INF.toString()) pt1 else strings[pt1 to pt2]
+                    append("${if(str == Vec2d.PT_AT_INF.toString()) "∞" else str}\t")
+                }
+                append("\n")
+            }
+
+        }
+    }
+
     fun mod(x: Double, r: Long) = (((x % r) + r) % r).toLong() // very special mod
 
     // this is naiive. O(2^k)
