@@ -48,4 +48,8 @@ open class FiniteEllipticCurve(aValue: Long, bValue: Long, val modulus: Long) : 
         return modulus.toInt() + 31 * aValue.toInt() + 31 * bValue.toInt()
     }
 
+    override fun toString(): String {
+        return super.toString() + " over $field"
+    }
+
 }

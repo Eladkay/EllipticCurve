@@ -382,6 +382,7 @@ object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener
                     ScaleChanger.sliderScale.value = EllipticSimulator.scale
                     CurveChanger.sliderA.value = panel.curve.aValue.toInt()
                     CurveChanger.sliderB.value = panel.curve.bValue.toInt()
+                    if(panel.curve is FiniteEllipticCurve) FieldZp.spinner.value = (panel.curve as FiniteEllipticCurve).modulus
                 }
             }
             "exit" -> this.isVisible = false

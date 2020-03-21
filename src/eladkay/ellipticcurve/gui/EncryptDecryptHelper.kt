@@ -111,7 +111,6 @@ object EncryptDecryptHelper : EllipticCurveWindow(getScreenSize()), MouseListene
     private lateinit var menuVisualization: JMenu
     private lateinit var changeScale: JMenuItem
     private lateinit var clear: JMenuItem
-    private lateinit var showPointInfo: JMenuItem
     private fun getVisualizationMenu(): JMenu {
         menuVisualization = JMenu(+"gui.operationcalculator.visualization")
         changeScale = JMenuItem(+"gui.operationcalculator.changescale")
@@ -135,7 +134,6 @@ object EncryptDecryptHelper : EllipticCurveWindow(getScreenSize()), MouseListene
     private lateinit var menuOperation: JMenu
     private lateinit var stringToPts: JMenuItem
     private lateinit var ptsToString: JMenuItem
-    private lateinit var select: JMenuItem
     private lateinit var encryptor: JMenuItem
     private lateinit var decryptor: JMenuItem
     private lateinit var showAgreedUponPt: JMenuItem
@@ -143,7 +141,6 @@ object EncryptDecryptHelper : EllipticCurveWindow(getScreenSize()), MouseListene
     private lateinit var createKey: JMenuItem
     private fun getOperationMenu(): JMenu {
         menuOperation = JMenu(+"gui.operationcalculator.operation")
-        select = JMenuItem(+"gui.operationcalculator.selectpt")
         stringToPts = JMenuItem(+"gui.encryptdecrypthelper.stringtopts")
         ptsToString = JMenuItem(+"gui.encryptdecrypthelper.ptstostring")
         encryptor = JMenuItem(+"gui.encryptdecrypthelper.encryptor")
@@ -152,11 +149,6 @@ object EncryptDecryptHelper : EllipticCurveWindow(getScreenSize()), MouseListene
         showGenerators = JMenuItem(+"gui.encryptdecrypthelper.showGenerators")
         createKey = JMenuItem(+"gui.encryptdecrypthelper.createKey")
         menuOperation.mnemonic = KeyEvent.VK_O
-
-        select.addActionListener(this)
-        select.actionCommand = "select"
-        select.mnemonic = KeyEvent.VK_S
-        menuOperation.add(select)
 
         stringToPts.addActionListener(this)
         stringToPts.actionCommand = "stringToPts"
@@ -229,10 +221,10 @@ object EncryptDecryptHelper : EllipticCurveWindow(getScreenSize()), MouseListene
                     ScaleChanger.sliderScale.value = EllipticSimulator.scale
                     CurveChanger.sliderA.value = panel.curve.aValue.toInt()
                     CurveChanger.sliderB.value = panel.curve.bValue.toInt()
+                    if(panel.curve is FiniteEllipticCurve) FieldZp.spinner.value = (panel.curve as FiniteEllipticCurve).modulus
                 }
             }
             "exit" -> this.isVisible = false
-            "select" -> +"noop"
             "changefield_zp" -> FieldZp.createAndShow()
             "changefield_reals" -> panel.curve = EllipticCurve(OperationCalculator.panel.curve.aValue, OperationCalculator.panel.curve.bValue, MathHelper.REALS)
             "stringToPts" -> StringToPts.createAndShow()
