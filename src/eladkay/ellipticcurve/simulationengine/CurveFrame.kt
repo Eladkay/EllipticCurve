@@ -1,6 +1,9 @@
 package eladkay.ellipticcurve.simulationengine
 
-import eladkay.ellipticcurve.mathengine.*
+import eladkay.ellipticcurve.mathengine.EllipticCurve
+import eladkay.ellipticcurve.mathengine.FiniteEllipticCurve
+import eladkay.ellipticcurve.mathengine.Vec2d
+import eladkay.ellipticcurve.mathengine.Vec2i
 import java.awt.Color
 
 interface CurveFrame {
@@ -21,13 +24,12 @@ interface CurveFrame {
     fun drawLineOfSymmetry(a: Vec2i, b: Vec2i)
 
     var curve: EllipticCurve
-    operator fun <T> invoke(action: CurveFrame.() -> T) = action()
 
     fun serializeCurveFrame(): String {
         val scale = EllipticSimulator.scale
         val generator = curve.helper.generator
         val agreedUponPt = curve.helper.agreedUponPt
-        val field = if (curve.field == MathHelper.REALS) "R" else curve.field.substring(1)
+        val field = if (curve.field == EllipticCurve.REALS) "R" else curve.field.substring(1)
         return "${curve.aValue};${curve.bValue};$field;$scale;$generator;$agreedUponPt"
     }
 
@@ -40,7 +42,7 @@ interface CurveFrame {
             val generator = Vec2d.of(split[4])
             val agreedUpon = Vec2d.of(split[5])
             val curve = if(field == "R")
-                EllipticCurve(split[0].toLong(), split[1].toLong(), MathHelper.REALS)
+                EllipticCurve(split[0].toLong(), split[1].toLong(), EllipticCurve.REALS)
             else FiniteEllipticCurve(split[0].toLong(), split[1].toLong(), split[2].toLong())
             curve.helper.generator = generator!!
             curve.helper.agreedUponPt = agreedUpon!!

@@ -30,7 +30,7 @@ object EncryptDecryptHelper : EllipticCurveWindow(getScreenSize()), MouseListene
     private fun modifyX(x: Number): Double = (x.toDouble() - panel.frameSize().x / 2 - EllipticSimulator.X_OFFSET) / EllipticSimulator.defaultXScale.toDouble()
     private fun modifyY(y: Number): Double = (-y.toDouble() + panel.frameSize().y / 2) / EllipticSimulator.defaultYScale.toDouble()
     
-    var panel = CurvePanel(Vec2i(size.x, size.y), EllipticCurve(-1L, 1L, MathHelper.REALS))
+    var panel = CurvePanel(Vec2i(size.x, size.y), EllipticCurve(-1L, 1L, EllipticCurve.REALS))
     private val fc = JFileChooser()
     
     init {
@@ -226,7 +226,7 @@ object EncryptDecryptHelper : EllipticCurveWindow(getScreenSize()), MouseListene
             }
             "exit" -> this.isVisible = false
             "changefield_zp" -> FieldZp.createAndShow()
-            "changefield_reals" -> panel.curve = EllipticCurve(OperationCalculator.panel.curve.aValue, OperationCalculator.panel.curve.bValue, MathHelper.REALS)
+            "changefield_reals" -> panel.curve = EllipticCurve(OperationCalculator.panel.curve.aValue, OperationCalculator.panel.curve.bValue, EllipticCurve.REALS)
             "stringToPts" -> StringToPts.createAndShow()
             "ptsToString" -> PtsToString.createAndShow()
             "encrypt" -> Encryptor.createAndShow()
@@ -343,7 +343,7 @@ object EncryptDecryptHelper : EllipticCurveWindow(getScreenSize()), MouseListene
             if (slider?.valueIsAdjusting?.not() == true) {
                 try {
                     if(panel.curve !is FiniteEllipticCurve)
-                        panel.curve = EllipticCurve(sliderA.value.toLong(), sliderB.value.toLong(), MathHelper.REALS)
+                        panel.curve = EllipticCurve(sliderA.value.toLong(), sliderB.value.toLong(), EllipticCurve.REALS)
                     else panel.curve = FiniteEllipticCurve(sliderA.value.toLong(), sliderB.value.toLong(), (panel.curve as FiniteEllipticCurve).modulus)
                 } catch (e: IllegalArgumentException) {
                     JOptionPane.showMessageDialog(null, +"gui.invalidcurve!")
@@ -390,7 +390,7 @@ object EncryptDecryptHelper : EllipticCurveWindow(getScreenSize()), MouseListene
                         JOptionPane.showMessageDialog(null, +"gui.curveover2or3")
                         return
                     }
-                    if(!MathHelper.isPrime(spinner.value as Int)) {
+                    if(!FiniteEllipticCurve.isPrime(spinner.value as Int)) {
                         JOptionPane.showMessageDialog(null, +"gui.notaprime")
                         return
                     }

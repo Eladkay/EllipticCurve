@@ -1,7 +1,7 @@
 package eladkay.ellipticcurve.mathengine
 
 // this is partially inspired by https://andrea.corbellini.name/2015/05/17/elliptic-curve-cryptography-a-gentle-introduction/
-open class FiniteEllipticCurve(aValue: Long, bValue: Long, val modulus: Long) : EllipticCurve(aValue % modulus, bValue % modulus, MathHelper.zp(modulus)) {
+open class FiniteEllipticCurve(aValue: Long, bValue: Long, val modulus: Long) : EllipticCurve(aValue % modulus, bValue % modulus, zp(modulus)) {
 
     val curvePoints = mutableSetOf<Vec2d>()
 
@@ -50,6 +50,14 @@ open class FiniteEllipticCurve(aValue: Long, bValue: Long, val modulus: Long) : 
 
     override fun toString(): String {
         return super.toString() + " over $field"
+    }
+
+    companion object {
+        fun zp(p: Long) = "z$p"
+        // If a modulus operation is O(1), this is O(n)
+        fun isPrime(n: Int): Boolean {
+            return n >= 2 && (2..Math.sqrt(n.toDouble()).toInt()).none { n % it == 0}
+        }
     }
 
 }

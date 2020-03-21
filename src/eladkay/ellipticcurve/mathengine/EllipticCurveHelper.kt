@@ -126,17 +126,6 @@ class EllipticCurveHelper(private val curve: EllipticCurve) {
 
     fun mod(x: Double, r: Long) = (((x % r) + r) % r).toLong() // very special mod
 
-    // this is naiive. O(2^k)
-    @Deprecated("This is naiive and slow I will remove it later")
-    fun slowMultiply(a: Vec2d, num: Int): Vec2d {
-        if (num < 0) return slowMultiply(a.invertY(), -num)
-        if (num == 0) return Vec2d.PT_AT_INF
-        return if (num == 1)
-            a
-        else
-            add(a, slowMultiply(a, num - 1))
-    }
-
     // this is way better, O(k)
     fun multiply(p: Vec2d, d: Int): Vec2d {
         return when {
@@ -234,10 +223,10 @@ class EllipticCurveHelper(private val curve: EllipticCurve) {
 
     fun encrypt(message: Vec2d, bobPublicKey: Vec2d, agreedUponPt: Vec2d = this.agreedUponPt, k: Int): Pair<Vec2d, Vec2d> {
         if (isDebug) JOptionPane.showMessageDialog(null, "The random constant is $k")
-        return curve { Pair(agreedUponPt * k, message + bobPublicKey * k) }
+        return Pair(multiply(agreedUponPt, k), add(message, multiply(bobPublicKey, k)))
     }
 
-    fun decrypt(encryptedMessage: Pair<Vec2d, Vec2d>, bobPrivateKey: Int) = curve { encryptedMessage.second - encryptedMessage.first * bobPrivateKey }
+    fun decrypt(encryptedMessage: Pair<Vec2d, Vec2d>, bobPrivateKey: Int) = add(encryptedMessage.second, invPoint(multiply(encryptedMessage.first, bobPrivateKey)))
 
 
     private var isDebug = false

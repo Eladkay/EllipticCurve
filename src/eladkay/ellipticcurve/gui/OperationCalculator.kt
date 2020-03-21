@@ -139,7 +139,7 @@ object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener
 
     }
 
-    var panel = CurvePanel(Vec2i(size.x, size.y), EllipticCurve(-1L, 1L, MathHelper.REALS))
+    var panel = CurvePanel(Vec2i(size.x, size.y), EllipticCurve(-1L, 1L, EllipticCurve.REALS))
     private val checkboxGridsAndTicks = JCheckBox(+"gui.operationcalculator.gridsandticks")
     private val checkboxPtLoc = JCheckBox(+"gui.operationcalculator.checkboxPtLoc")
     private val checkboxAutoadd = JCheckBox(+"gui.operationcalculator.checkboxAutoadd")
@@ -408,7 +408,7 @@ object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener
             "select" -> PointSelector.createAndShow()
             "ptinfo" -> if (p1 == null) JOptionPane.showMessageDialog(null, +"gui.operationcalculator.choosept") else PointInfo.createAndShow()
             "changefield_zp" -> FieldZp.createAndShow()
-            "changefield_reals" -> panel.curve = EllipticCurve(panel.curve.aValue, panel.curve.bValue, MathHelper.REALS)
+            "changefield_reals" -> panel.curve = EllipticCurve(panel.curve.aValue, panel.curve.bValue, EllipticCurve.REALS)
             "addPtsNumerically" -> PointAdder.createAndShow()
             "selectRandomPt" -> {
                 val helper = panel.curve.helper
@@ -639,7 +639,7 @@ object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener
                         panel.drawPoint(p1 as Vec2i, 10)
                         panel.drawPoint(p2 as Vec2i, 10)
                         panel.changeColor(Color.BLUE)
-                        val sum = panel.curve { Vec2d(x, y) + Vec2d(modifyX(p1!!.x), modifyY(p1!!.y)) }
+                        val sum = panel.curve.helper.add(Vec2d(x, y), p1modified!!)
                         val max = EllipticSimulator.getMaxBoundsOfFrame(panel)
                         val min = EllipticSimulator.getMinBoundsOfFrame(panel)
                         if (sum.x > max.x && sum.x > min.x || sum.y > max.y && sum.y > min.y || sum.x < min.x && sum.x < max.x || sum.y < min.y && sum.y < max.y)
@@ -689,7 +689,7 @@ object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener
             when (e!!.actionCommand) {
                 "ok" -> {
                     this.isVisible = false
-                    val multiplied = panel.curve.helper.slowMultiply(p1modified!!, spinner.value as Int)
+                    val multiplied = panel.curve.helper.multiply(p1modified!!, spinner.value as Int)
                     spinner.value = 1
                     panel.changeColor(Color.BLUE)
                     panel.drawPoint(Vec2i(EllipticSimulator.demodifyX(multiplied.x, panel), EllipticSimulator.demodifyY(multiplied.y, panel)), 15)
@@ -791,7 +791,7 @@ object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener
             if (slider?.valueIsAdjusting?.not() == true) {
                 try {
                     if(panel.curve !is FiniteEllipticCurve)
-                        panel.curve = EllipticCurve(sliderA.value.toLong(), sliderB.value.toLong(), MathHelper.REALS)
+                        panel.curve = EllipticCurve(sliderA.value.toLong(), sliderB.value.toLong(), EllipticCurve.REALS)
                     else panel.curve = FiniteEllipticCurve(sliderA.value.toLong(), sliderB.value.toLong(), (panel.curve as FiniteEllipticCurve).modulus)
                 } catch (e: IllegalArgumentException) {
                     JOptionPane.showMessageDialog(null, +"gui.invalidcurve")
@@ -839,7 +839,7 @@ object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener
                         JOptionPane.showMessageDialog(null, +"gui.curveover2or3")
                         return
                     }
-                    if(!MathHelper.isPrime(spinner.value as Int)) {
+                    if(!FiniteEllipticCurve.isPrime(spinner.value as Int)) {
                         JOptionPane.showMessageDialog(null, +"gui.notaprime")
                         return
                     }

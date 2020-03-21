@@ -47,9 +47,7 @@ open class EllipticCurve(val aValue: Long, val bValue: Long, val field: String) 
         else return Math.sqrt(-bValue / 3.0)
     }
     val helper: EllipticCurveHelper by lazy { EllipticCurveHelper(this) }
-    operator fun <T> invoke(action: EllipticCurve.() -> T) = this.action()
-    operator fun Vec2d.plus(b: Vec2d): Vec2d = helper.add(this, b)
-    operator fun Vec2d.minus(b: Vec2d): Vec2d = helper.add(this, -b)
-    operator fun Vec2d.times(b: Int): Vec2d = helper.multiply(this, b)
-    operator fun Vec2d.unaryMinus(): Vec2d = this.invertY()
+    companion object {
+        val REALS = "reals"
+    }
 }
