@@ -26,10 +26,6 @@ object EllipticSimulator {
 
     }
 
-    fun drawCurveApprox(ellipticCurve: EllipticCurve, frame: CurveFrame, error: Double, drawText: Boolean, xScale: Int = defaultXScale, yScale: Int = defaultYScale) {
-        drawCurveApprox(ellipticCurve, frame, { _, _ -> error }, drawText, xScale, yScale)
-    }
-
     fun getMaxBoundsOfFrame(frame: CurveFrame, xScale: Int = defaultXScale, yScale: Int = defaultYScale): Vec2d {
         val (x, y) = frame.frameSize()
         var xModified = (x - frame.frameSize().x / 2 - X_OFFSET) / xScale.toDouble()
@@ -163,14 +159,13 @@ object EllipticSimulator {
         frame.changeColor(Color.BLACK)
     }
 
-    fun drawLineOfSymmetry(frame: CurveFrame, xScale: Int = defaultXScale, yScale: Int = defaultYScale) {
+    fun drawLineOfSymmetry(frame: CurveFrame) {
         frame.changeColor(Color.RED)
         if(frame.curve is FiniteEllipticCurve) {
-            // i did the work, there are two lines of symmetry: x = 0, x = p/2
+            // i did the work, the line of symmetry is y = p/2
             val modulus = (frame.curve as FiniteEllipticCurve).modulus
-            frame.drawLineOfSymmetry(Vec2i(10, 0), Vec2i(10, frame.frameSize().y))
-            val xNeeded = (modulus/2 * frame.frameSize().x - 10)/modulus + 10
-            frame.drawLineOfSymmetry(Vec2i(xNeeded.toInt(), 0), Vec2i(xNeeded.toInt(), frame.frameSize().y))
+            val yNeeded = demodifyY(modulus/2.0, frame)
+            frame.drawLineOfSymmetry(Vec2i(0, yNeeded), Vec2i(frame.frameSize().x, yNeeded))
         } else {
             val yValue = demodifyY(0.0, frame)
             frame.drawLineOfSymmetry(Vec2i(0, yValue), Vec2i(frame.frameSize().x, yValue))

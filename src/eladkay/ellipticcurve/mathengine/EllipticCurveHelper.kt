@@ -172,6 +172,7 @@ class EllipticCurveHelper(private val curve: EllipticCurve) {
                     field = Vec2d(x + 1, Math.sqrt(lhs(x * 1.0)))
                 }
             }
+            asciiGeneratorTable = listOf()
             return field
         }
     var agreedUponPt: Vec2d = Vec2d.PT_AT_INF
@@ -186,10 +187,14 @@ class EllipticCurveHelper(private val curve: EllipticCurve) {
             }
             return field
         }
-    private val asciiGeneratorTable: List<Vec2d> by lazy {
-        val list = mutableListOf<Vec2d>()
-        for (i in 0..127) list.add(multiply(generator, i).truncate(2)) // the constant is empirically derived
-        list
+    private var asciiGeneratorTable: List<Vec2d> = listOf()
+    get() {
+        if(field.isEmpty()) {
+            val list = mutableListOf<Vec2d>()
+            for (i in 0..127) list.add(multiply(generator, i).truncate(2)) // the constant is empirically derived
+            field = list
+        }
+        return field
     }
     // the following two functions ought to be bijections, otherwise obviously one of them won't be defined (they are not exactly bijections)
     // Encoding methodology due to
