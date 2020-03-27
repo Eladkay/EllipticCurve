@@ -10,7 +10,7 @@ import javax.swing.JFrame
 import javax.swing.event.ChangeEvent
 import javax.swing.event.ChangeListener
 
-@Suppress("LeakingThis") // it's fine, trust me
+@Suppress("LeakingThis")
 open class EllipticCurveWindow(xSize: Int, ySize: Int) : JFrame(), ActionListener, ChangeListener, ItemListener {
     override fun itemStateChanged(e: ItemEvent?) {
 

@@ -37,29 +37,9 @@ open class EllipticCurve(val aValue: Long, val bValue: Long, val field: String) 
      */
     open fun difference(x: Double, y: Double) = y * y - (x * x * x) - (aValue * x) - bValue
 
-
-    // in absolute value
-    // take positive branch: y = sqrt(x^3+bx+c)
-    // take derivative: y' = (3x^2+b)/(2sqrt(x^3+bx+c))
-    // equal to 0 iff x = sqrt(-b/3) which is defined (over the reals!) if b<0
-    fun getMinMaxXValue(): Double {
-        if (bValue > 0) throw IllegalArgumentException("This function is not defined for b>0")
-        else return Math.sqrt(-bValue / 3.0)
-    }
-
-    fun intersectionWithXAxis(): Vec2d {
-        val q = Math.cbrt(sqrt3 * Math.sqrt(4.0 * aValue * aValue * aValue + 27 * bValue * bValue) - 9 * bValue)
-        val first = q / (cbrt2 * cbrt3 * cbrt3)
-        val second = cbrt2 * aValue / (cbrt3 * q)
-        return Vec2d(first - second, 0)
-    }
-
     val helper: EllipticCurveHelper by lazy { EllipticCurveHelper(this) }
 
     companion object {
         val REALS = "reals"
-        private val sqrt3 = Math.sqrt(3.0)
-        private val cbrt2 = Math.cbrt(2.0)
-        private val cbrt3 = Math.cbrt(3.0)
     }
 }

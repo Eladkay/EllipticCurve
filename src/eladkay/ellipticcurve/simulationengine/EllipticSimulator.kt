@@ -106,7 +106,7 @@ object EllipticSimulator {
         }
     }
 
-    // yeah yeah, this is a bit weird with the values, but i actually don't mind that much
+    // this is a bit weird with the values, but i actually don't mind that much, except for finite curves, for them I will fix it
     fun drawTicks(frame: CurveFrame, xScale: Int = defaultXScale, yScale: Int = defaultYScale) {
         frame.changeColor(Color.DARK_GRAY)
         val yUnit = 5 * yScale

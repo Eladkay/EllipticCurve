@@ -67,6 +67,9 @@ object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener
         return (y + 100 - panel.frameSize().y) * modulus / (100 - panel.frameSize().y).toDouble()
     }
 
+    private fun demodifyX(x: Double): Int = EllipticSimulator.demodifyX(x, panel)
+    private fun demodifyY(y: Double): Int = EllipticSimulator.demodifyY(y, panel)
+
     override fun mousePressed(e: MouseEvent) {
         val x = e.x
         val y = e.y
@@ -102,8 +105,8 @@ object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener
                 val min = EllipticSimulator.getMinBoundsOfFrame(panel)
 
                 if (sum.x > max.x && sum.x > min.x || sum.y > max.y && sum.y > min.y || sum.x < min.x && sum.x < max.x || sum.y < min.y && sum.y < max.y)
-                    JOptionPane.showMessageDialog(null, +"gui.outofbounds" + sum.map { Math.round(it * 100) / 100.0 }.toString())
-                else panel.drawPoint(Vec2i(EllipticSimulator.demodifyX(sum.x, panel), EllipticSimulator.demodifyY(sum.y, panel)), 15)
+                    JOptionPane.showMessageDialog(null, +"gui.outofbounds" + sum.round(2).toString())
+                else panel.drawPoint(Vec2i(demodifyX(sum.x), demodifyY(sum.y)), 15)
 
                 p1 = null
                 p1modified = null
@@ -404,12 +407,12 @@ object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener
                     val (x, y) = p1modified!!
                     val multiplied = panel.curve.helper.invPoint(Vec2d(x, y))
                     panel.changeColor(Color.BLUE)
-                    panel.drawPoint(Vec2i(EllipticSimulator.demodifyX(multiplied.x, panel), EllipticSimulator.demodifyY(multiplied.y, panel)), 15)
+                    panel.drawPoint(Vec2i(demodifyX(multiplied.x), demodifyY(multiplied.y)), 15)
                     panel.changeColor(Color.GREEN)
                     panel.drawPoint(p1!!, 15)
                     panel.changeColor(Color.BLACK)
                     panel.repaint()
-                    p1 = Vec2i(EllipticSimulator.demodifyX(multiplied.x, panel), EllipticSimulator.demodifyY(multiplied.y, panel))
+                    p1 = Vec2i(demodifyX(multiplied.x), demodifyY(multiplied.y))
                     p1modified = multiplied
                 }
             }
@@ -433,13 +436,13 @@ object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener
                 }
                 InformationalScreen(vec.toString()).createAndShow()
                 if (p1 == null || !autoAdd) {
-                    p1 = Vec2i(EllipticSimulator.demodifyX(vec.x, panel), EllipticSimulator.demodifyY(vec.y, panel))
+                    p1 = Vec2i(demodifyX(vec.x), demodifyY(vec.y))
                     p1modified = Vec2d(vec.x, vec.y)
                     panel.changeColor(Color.GREEN)
                     panel.drawPoint(p1!!, 15)
                     panel.changeColor(Color.BLACK)
                 } else if (p2 == null) {
-                    p2 = Vec2i(EllipticSimulator.demodifyX(vec.x, panel), EllipticSimulator.demodifyY(vec.y, panel))
+                    p2 = Vec2i(demodifyX(vec.x), demodifyY(vec.y))
 
                     panel.drawLine(p1 as Vec2i, p2 as Vec2i, 3f)
                     panel.changeColor(Color.RED)
@@ -453,7 +456,7 @@ object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener
 
                     if (sum.x > max.x && sum.x > min.x || sum.y > max.y && sum.y > min.y || sum.x < min.x && sum.x < max.x || sum.y < min.y && sum.y < max.y)
                         JOptionPane.showMessageDialog(null, +"gui.outofbounds" + sum.round(2).toString())
-                    else panel.drawPoint(Vec2i(EllipticSimulator.demodifyX(sum.x, panel), EllipticSimulator.demodifyY(sum.y, panel)), 15)
+                    else panel.drawPoint(Vec2i(demodifyX(sum.x), demodifyY(sum.y)), 15)
 
                     p1 = null
                     p1modified = null
@@ -491,7 +494,7 @@ object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener
                 }
                 panel.changeColor(Color.GREEN)
                 for (pt in panel.curve.helper.subgroup(p1modified!!).filter { !it.isInfinite() }) {
-                    val vec = Vec2i(EllipticSimulator.demodifyX(pt.x, panel), EllipticSimulator.demodifyY(pt.y, panel))
+                    val vec = Vec2i(demodifyX(pt.x), demodifyY(pt.y))
                     panel.drawPoint(vec, 15)
                 }
                 panel.changeColor(Color.BLACK)
@@ -638,11 +641,11 @@ object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener
                     panel.changeColor(Color.GREEN)
                     panel.changePointSize(5)
                     if (p1 == null || !autoAdd) {
-                        p1 = Vec2i(EllipticSimulator.demodifyX(x, panel), EllipticSimulator.demodifyY(y, panel))
+                        p1 = Vec2i(demodifyX(x), demodifyY(y))
                         p1modified = Vec2d(x, y)
                         panel.drawPoint(p1!!)
                     } else {
-                        p2 = Vec2i(EllipticSimulator.demodifyX(x, panel), EllipticSimulator.demodifyY(y, panel))
+                        p2 = Vec2i(demodifyX(x), demodifyY(y))
                         panel.drawLine(p1 as Vec2i, p2 as Vec2i, 3f)
                         panel.changeColor(Color.RED)
                         panel.drawPoint(p1 as Vec2i, 10)
@@ -653,7 +656,7 @@ object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener
                         val min = EllipticSimulator.getMinBoundsOfFrame(panel)
                         if (sum.x > max.x && sum.x > min.x || sum.y > max.y && sum.y > min.y || sum.x < min.x && sum.x < max.x || sum.y < min.y && sum.y < max.y)
                             JOptionPane.showMessageDialog(null, +"gui.outofbounds" + sum.map { Math.round(it * 100) / 100.0 }.toString())
-                        else panel.drawPoint(Vec2i(EllipticSimulator.demodifyX(sum.x, panel), EllipticSimulator.demodifyY(sum.y, panel)), 15)
+                        else panel.drawPoint(Vec2i(demodifyX(sum.x), demodifyY(sum.y)), 15)
                         p1 = null
                         p1modified = null
                         p2 = null
@@ -701,12 +704,12 @@ object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener
                     val multiplied = panel.curve.helper.multiply(p1modified!!, spinner.value as Int)
                     spinner.value = 1
                     panel.changeColor(Color.BLUE)
-                    panel.drawPoint(Vec2i(EllipticSimulator.demodifyX(multiplied.x, panel), EllipticSimulator.demodifyY(multiplied.y, panel)), 15)
+                    panel.drawPoint(Vec2i(demodifyX(multiplied.x), demodifyY(multiplied.y)), 15)
                     panel.changeColor(Color.GREEN)
                     panel.drawPoint(p1!!, 15)
                     panel.changeColor(Color.BLACK)
                     panel.repaint()
-                    p1 = Vec2i(EllipticSimulator.demodifyX(multiplied.x, panel), EllipticSimulator.demodifyY(multiplied.y, panel))
+                    p1 = Vec2i(demodifyX(multiplied.x), demodifyY(multiplied.y))
                     p1modified = multiplied
                 }
             }

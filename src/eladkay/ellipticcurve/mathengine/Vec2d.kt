@@ -7,7 +7,6 @@ class Vec2d(val x: Double, val y: Double) {
         val PT_AT_INF = Vec2d(Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY)
         private val MATCHING_REGEX = "\\(((?:-)*\\d+(?:.\\d+)*),(?:\\s)*((?:-)*\\d+(?:.\\d+)*)\\)".toRegex()
         fun of(string: String): Vec2d? {
-            //val strippedSplit = string.removeSurrounding("(", ")").split(", ").map { it.toDouble() }
             if (!isValid(string)) return null
             val groups = MATCHING_REGEX.matchEntire(string)!!.groups
             return Vec2d(groups[1]!!.value.toDouble(), groups[2]!!.value.toDouble())

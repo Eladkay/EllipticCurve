@@ -27,15 +27,7 @@ open class FiniteEllipticCurve(aValue: Long, bValue: Long, val modulus: Long) : 
     }
 
     override fun isPointOnCurve(p: Vec2d): Boolean {
-        // specific definition of the curve: pairs of elements in Fp^2 satisfying the curve equation phrased using Fp operations
-        if (p in curvePoints) return true
-        // generalized definition of the curve: pairs of elements in Z^2 satisfying the curve equation phrased using Fp operations
-        // let q be in Z^2, then there exists k natural and p in Fp^2 and on the curve such that q = k(modulus, modulus) + p (vector addition/multiplication, not group law)
-        // if and only if q is on the generalized definition of the curve. specifically, if q is in Fp^2 we let p=q, k=0.
-        // another equivalent: let (x, y) be in Z^2, then let (x mod modulus, y mod modulus) be in Fp^2, the latter is on the curve
-        // iff the former is on the curve.
-        if (Vec2d(p.x % modulus, p.y % modulus) in curvePoints) return true
-        return false
+        return p in curvePoints // how can a point be in E if it's not even in the Zp^2?
     }
 
     override fun equals(other: Any?): Boolean {
