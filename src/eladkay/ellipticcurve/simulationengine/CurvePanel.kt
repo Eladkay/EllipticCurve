@@ -49,15 +49,7 @@ class CurvePanel(private val size: Vec2i, curve: EllipticCurve) : CurveFrame, JP
      * Then (x,y) is colored in if and only if difference(x+e, y+e) is different in sign to difference(x-e, y-e)
      */
     fun errorFunction(x: Double, y: Double): Double {
-        if (curve is FiniteEllipticCurve) return 0.005
-        val withinErrorOfMinMax = if (curve.bValue < 0) Math.abs(x) + 0.3 > curve.getMinMaxXValue() && Math.abs(x) - 0.3 < curve.getMinMaxXValue() else false
-        return Math.min(Math.max(1 / Math.log(Math.abs(x * y) + 1) / 50, 0.03) + if (y > 0 && x > 0) 0.15 else if (y > 0 && x < 0) 0.02 else if (withinErrorOfMinMax) 0.15 else 0.0, 0.17)
-
-        // alternative approach (equally wrong = very)
-        /*if(x>0)
-            if(y>0) 0.2 else 0.07
-        else
-            if(x<-0.1) 0.02 else 0.045*/
+        return 0.035
     }
 
     private var redraw: Boolean = false

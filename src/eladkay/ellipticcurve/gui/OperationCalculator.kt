@@ -487,7 +487,7 @@ object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener
                     return
                 }
                 panel.changeColor(Color.GREEN)
-                for (pt in panel.curve.helper.subgroup(p1modified!!)) {
+                for (pt in panel.curve.helper.subgroup(p1modified!!).filter { !it.isInfinite() }) {
                     val vec = Vec2i(EllipticSimulator.demodifyX(pt.x, panel), EllipticSimulator.demodifyY(pt.y, panel))
                     panel.drawPoint(vec, 15)
                 }

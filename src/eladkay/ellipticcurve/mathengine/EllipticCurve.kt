@@ -47,9 +47,19 @@ open class EllipticCurve(val aValue: Long, val bValue: Long, val field: String) 
         else return Math.sqrt(-bValue / 3.0)
     }
 
+    fun intersectionWithXAxis(): Vec2d {
+        val q = Math.cbrt(sqrt3*Math.sqrt(4.0*aValue*aValue*aValue+27*bValue*bValue)-9*bValue)
+        val first = q/(cbrt2*cbrt3*cbrt3)
+        val second = cbrt2*aValue/(cbrt3*q)
+        return Vec2d(first-second, 0)
+    }
+
     val helper: EllipticCurveHelper by lazy { EllipticCurveHelper(this) }
 
     companion object {
         val REALS = "reals"
+        private val sqrt3 = Math.sqrt(3.0)
+        private val cbrt2 = Math.cbrt(2.0)
+        private val cbrt3 = Math.cbrt(3.0)
     }
 }
