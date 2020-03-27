@@ -72,7 +72,7 @@ object EllipticSimulator {
                 val s2 = ellipticCurve.difference(xModified + errorTerm, yModified - errorTerm).sign
                 val s3 = ellipticCurve.difference(xModified - errorTerm, yModified + errorTerm).sign
                 val s4 = ellipticCurve.difference(xModified + errorTerm, yModified - errorTerm).sign
-                if (!condition && Math.abs(s1+s2+s3+s4)!=4.0) // if they're not all the same sign
+                if (!condition && Math.abs(s1 + s2 + s3 + s4) != 4.0) // if they're not all the same sign
                     condition = true
                 if (condition) {
                     frame.drawPoint(Vec2i(x, y))
@@ -82,45 +82,6 @@ object EllipticSimulator {
                 }
             }
         frame.changePointSize(3)
-    }
-
-    // internal function, attempt to fix #2 that failed
-    fun drawCurveApproxAlternative(ellipticCurve: EllipticCurve, frame: CurveFrame, error: Double, xScale: Int = defaultXScale, yScale: Int = defaultYScale) {
-        if (ellipticCurve is FiniteEllipticCurve) throw IllegalArgumentException("discrete curve")
-        if (error <= 0) throw IllegalArgumentException("error must be positive!")
-        var current = -20.0
-        val maxX = getMaxBoundsOfFrame(frame, xScale, yScale).x
-        while(current < maxX) {
-            if(ellipticCurve.helper.lhs(current) >= 0) {
-                val y = Math.sqrt(ellipticCurve.helper.lhs(current))
-                val demodifiedX = demodifyX(current, frame, xScale)
-                val demodifiedY = demodifyY(y, frame, yScale)
-                val demodifiedY2 = demodifyY(-y, frame, yScale)
-                //println("($current, $y) ${Vec2i(demodifiedX, demodifiedY)}")
-                frame.drawPoint(Vec2i(demodifiedX, demodifiedY))
-                frame.drawPoint(Vec2i(demodifiedX, demodifiedY2))
-            }
-            current += error
-        }
-    }
-
-    // internal function, won't make it to the final release, shows a nice colormap of the closeness to the curve metric
-    fun drawCurveColorMap(ellipticCurve: EllipticCurve, frame: CurveFrame) {
-        if (ellipticCurve is FiniteEllipticCurve) throw IllegalArgumentException("discrete curve")
-        fun getColor(double: Double): Color {
-            val x = ((double + 1286)*0xFFFFFF/2572.0).toInt()
-            return Color((x shr 16)%256, (x shr 8)%256, x%256)
-        }
-        for (x in 0..frame.frameSize().x)
-            for (y in 0..frame.frameSize().y) {
-                val xModified = (x - frame.frameSize().x / 2 - X_OFFSET) / defaultXScale.toDouble()
-                val yModified = (-y + frame.frameSize().y / 2) / defaultYScale.toDouble()
-                val double = ellipticCurve.difference(xModified, yModified)
-                val color = getColor(double)
-                frame.changeColor(color)
-                frame.drawPoint(Vec2i(x, y))
-            }
-        frame.changeColor(Color.BLACK)
     }
 
     fun demodifyY(y: Double, frame: CurveFrame, yScale: Int = defaultYScale): Int {

@@ -74,8 +74,11 @@ object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener
         val yModified = modifyY(y)
         var condition = panel.curve.isPointOnCurve(Vec2d(xModified, yModified))
         val errorTerm = panel.errorFunction(xModified, yModified)
-        if (!condition && panel.curve.difference(xModified + errorTerm, yModified + errorTerm).sign
-                != panel.curve.difference(xModified - errorTerm, yModified - errorTerm).sign)
+        val s1 = panel.curve.difference(xModified + errorTerm, yModified + errorTerm).sign
+        val s2 = panel.curve.difference(xModified + errorTerm, yModified - errorTerm).sign
+        val s3 = panel.curve.difference(xModified - errorTerm, yModified + errorTerm).sign
+        val s4 = panel.curve.difference(xModified + errorTerm, yModified - errorTerm).sign
+        if (!condition && Math.abs(s1 + s2 + s3 + s4) != 4.0) // if they're not all the same sign
             condition = true
 
         panel.changeColor(Color.GREEN)

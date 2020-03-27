@@ -42,7 +42,7 @@ class CurvePanel(private val size: Vec2i, curve: EllipticCurve) : CurveFrame, JP
      *                                                          given by the float.
      * ----------------------------------
      */
-    private val operations: MutableList<Pair<Any, Any>> = mutableListOf() // forgive me as i have sinned
+    private val operations: MutableList<Pair<Any, Any>> = mutableListOf()
 
     /**
      * Let (x,y) be a point on the grid, and e=error(x, y) be a real number.
