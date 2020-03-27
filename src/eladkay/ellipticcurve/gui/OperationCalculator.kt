@@ -49,24 +49,8 @@ object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener
 
     }
 
-    private fun modifyX(x: Number): Double {
-        if (panel.curve !is FiniteEllipticCurve) return (x.toDouble() - panel.frameSize().x / 2 - EllipticSimulator.X_OFFSET) / EllipticSimulator.defaultXScale.toDouble()
-        @Suppress("NAME_SHADOWING")
-        val x = x.toInt()
-        val ellipticCurve = panel.curve as FiniteEllipticCurve
-        val modulus = ellipticCurve.modulus
-        return (x - 10) * modulus / (panel.frameSize().x - 10).toDouble()
-    }
-
-    private fun modifyY(y: Number): Double {
-        if (panel.curve !is FiniteEllipticCurve) return (-y.toDouble() + panel.frameSize().y / 2) / EllipticSimulator.defaultYScale.toDouble()
-        @Suppress("NAME_SHADOWING")
-        val y = y.toInt()
-        val ellipticCurve = panel.curve as FiniteEllipticCurve
-        val modulus = ellipticCurve.modulus
-        return (y + 100 - panel.frameSize().y) * modulus / (100 - panel.frameSize().y).toDouble()
-    }
-
+    private fun modifyX(x: Number): Double = EllipticSimulator.modifyX(x.toInt(), panel)
+    private fun modifyY(y: Number): Double = EllipticSimulator.modifyY(y.toInt(), panel)
     private fun demodifyX(x: Double): Int = EllipticSimulator.demodifyX(x, panel)
     private fun demodifyY(y: Double): Int = EllipticSimulator.demodifyY(y, panel)
 
@@ -76,7 +60,7 @@ object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener
         val xModified = modifyX(x)
         val yModified = modifyY(y)
         var condition = panel.curve.isPointOnCurve(Vec2d(xModified, yModified))
-        val errorTerm = panel.errorFunction(xModified, yModified)
+        val errorTerm = panel.errorFunction()
         val s1 = panel.curve.difference(xModified + errorTerm, yModified + errorTerm).sign
         val s2 = panel.curve.difference(xModified + errorTerm, yModified - errorTerm).sign
         val s3 = panel.curve.difference(xModified - errorTerm, yModified + errorTerm).sign

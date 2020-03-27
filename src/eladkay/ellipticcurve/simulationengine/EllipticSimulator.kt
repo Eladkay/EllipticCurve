@@ -23,51 +23,47 @@ object EllipticSimulator {
         }
         frame.redraw()
         frame.changePointSize(3)
-
     }
 
     fun getMaxBoundsOfFrame(frame: CurveFrame, xScale: Int = defaultXScale, yScale: Int = defaultYScale): Vec2d {
         val (x, y) = frame.frameSize()
-        var xModified = (x - frame.frameSize().x / 2 - X_OFFSET) / xScale.toDouble()
-        var yModified = (-y + frame.frameSize().y / 2) / yScale.toDouble()
-        if (frame.curve is FiniteEllipticCurve) {
-            val ellipticCurve = frame.curve as FiniteEllipticCurve
-            val modulus = ellipticCurve.modulus
-            xModified = (x - 10) * modulus / (frame.frameSize().x - 10).toDouble()
-            yModified = (y + 100 - frame.frameSize().y) * modulus / (100 - frame.frameSize().y).toDouble()
-        }
-        return Vec2d(xModified, yModified)
+        return Vec2d(modifyX(x, frame, xScale), modifyY(y, frame, yScale))
     }
 
     fun getMinBoundsOfFrame(frame: CurveFrame, xScale: Int = defaultXScale, yScale: Int = defaultYScale): Vec2d {
         val (x, y) = 0 to 0
-        var xModified = (x - frame.frameSize().x / 2 - X_OFFSET) / xScale.toDouble()
-        var yModified = (-y + frame.frameSize().y / 2) / yScale.toDouble()
-        if (frame.curve is FiniteEllipticCurve) {
-            val ellipticCurve = frame.curve as FiniteEllipticCurve
-            val modulus = ellipticCurve.modulus
-            xModified = (x - 10) * modulus / (frame.frameSize().x - 10).toDouble()
-            yModified = (y + 100 - frame.frameSize().y) * modulus / (100 - frame.frameSize().y).toDouble()
-        }
-        return Vec2d(xModified, yModified)
+        return Vec2d(modifyX(x, frame, xScale), modifyY(y, frame, yScale))
     }
 
-    // i need to fix this. i can't just keep making the error larger and larger, it results in a thick curve
-    // which is not really what i want. complex error functions like OperationCalculator.CurvePanel#errorFunction
-    // are a temporary solution that only work for one specific curve and make other curves look disproportionate
-    // i have, for posterity, attached a sketch of the function of the error part of drawCurveApprox:
-    // https://i.imgur.com/8u49qkS.jpg
-    fun drawCurveApprox(ellipticCurve: EllipticCurve, frame: CurveFrame, error: (Double, Double) -> Double, drawText: Boolean, xScale: Int = defaultXScale, yScale: Int = defaultYScale) {
+    /**
+     * This function draws a continuous, smooth and thin elliptic curve graph over the reals. The graph is 5 pts thick, and is
+     * defined by the parameters of this function and by the frame size, and by no other variable.
+     * @param [ellipticCurve] The elliptic curve to draw. which has to be an infinite elliptic curve. See [drawFiniteCurve] for finite curves.
+     * @throws [IllegalArgumentException] If the curve is not infinite.
+     * @param [frame] The frame on which to draw the elliptic curve according to the parameters.
+     * @param [error] The allowed error in the curve. The exact mechanism of this parameter is explained below.
+     *                This may not depend on x, y being drawn.
+     * @param [drawText] Whether or not to label each point with its coordinates on the curve.
+     * @param [xScale] The scale at which to draw the curve, relative to the x axis.
+     * @param [yScale] The scale at which to draw the curve, relative to the y axis.
+     * The exact mechanism of this function is as follows: First, it calculates the error term allowed using the parameter [error].
+     * This value is denoted by errorTerm in code, but for brevity I will call it e in this comment. Then, for every pair (x, y) in
+     * the visible area of the frame, as reported by the frame, we consider (x', y') modified as described in [modifyX]. [modifyY].
+     * If y' is negative, we continue, as the curve is symmetric. Now, consider a square with side length 2e, whose center is
+     * (x', y'). If any of its vertices are in different relative condition to the curve, or (x', y') is itself on the curve,
+     * we draw (x, y) and its respective inverse, drawing text if necessary according to [drawText].
+     */
+    fun drawCurveApprox(ellipticCurve: EllipticCurve, frame: CurveFrame, error: () -> Double, drawText: Boolean, xScale: Int = defaultXScale, yScale: Int = defaultYScale) {
         if (ellipticCurve is FiniteEllipticCurve) throw IllegalArgumentException("discrete curve")
         frame.changePointSize(5)
+        val errorTerm = error()
         for (x in 0..frame.frameSize().x)
             for (y in 0..frame.frameSize().y) {
-                val xModified = (x - frame.frameSize().x / 2 - X_OFFSET) / xScale.toDouble()
-                val yModified = (-y + frame.frameSize().y / 2) / yScale.toDouble()
+                val xModified = modifyX(x, frame, xScale)
+                val yModified = modifyY(y, frame, yScale)
                 if (yModified < 0) continue // elliptic curves are always symmetric
 
                 var condition = ellipticCurve.isPointOnCurve(Vec2d(xModified, yModified))
-                val errorTerm = error(xModified, yModified)
                 val s1 = ellipticCurve.difference(xModified + errorTerm, yModified + errorTerm).sign
                 val s2 = ellipticCurve.difference(xModified + errorTerm, yModified - errorTerm).sign
                 val s3 = ellipticCurve.difference(xModified - errorTerm, yModified + errorTerm).sign
@@ -96,6 +92,21 @@ object EllipticSimulator {
         return (x * (frame.frameSize().x - 10).toDouble() / modulus + 10).toInt()
     }
 
+    fun modifyY(y: Int, frame: CurveFrame, yScale: Int = defaultYScale): Double {
+        var yModified = (-y + frame.frameSize().y / 2) / yScale.toDouble()
+        if (frame.curve is FiniteEllipticCurve) {
+            yModified = (y + 100 - frame.frameSize().y) * (frame.curve as FiniteEllipticCurve).modulus / (100 - frame.frameSize().y).toDouble()
+        }
+        return yModified
+    }
+    fun modifyX(x: Int, frame: CurveFrame, xScale: Int = defaultXScale): Double {
+        var xModified = (x - frame.frameSize().x / 2 - X_OFFSET) / xScale.toDouble()
+        if (frame.curve is FiniteEllipticCurve) {
+            xModified = (x - 10) * (frame.curve as FiniteEllipticCurve).modulus / (frame.frameSize().x - 10).toDouble()
+        }
+        return xModified
+    }
+
     fun drawAxis(frame: CurveFrame) {
         if (frame.curve is FiniteEllipticCurve) {
             frame.drawLine(Vec2i(10, 0), Vec2i(10, frame.frameSize().y))
@@ -113,11 +124,8 @@ object EllipticSimulator {
         val xUnit = 1 * xScale
         var currentY = yUnit
         while (currentY < frame.frameSize().y) {
-            var yModified = Math.round((-currentY + frame.frameSize().y / 2) / yScale.toDouble() * 100) / 100.0
+            val yModified = Math.round(modifyY(currentY, frame, yScale) * 100) / 100.0
             if (frame.curve is FiniteEllipticCurve) {
-                val ellipticCurve = frame.curve as FiniteEllipticCurve
-                val modulus = ellipticCurve.modulus
-                yModified = Math.round((currentY + 100 - frame.frameSize().y) * modulus / (100 - frame.frameSize().y).toDouble() * 100) / 100.0
                 frame.drawLine(Vec2i(10 - yUnit / 5, currentY), Vec2i(10 + yUnit / 5, currentY))
                 frame.drawText(Vec2i(10 + yUnit / 5, currentY), "(0, $yModified)")
             } else {
@@ -130,11 +138,8 @@ object EllipticSimulator {
 
         var currentX = xUnit
         while (currentX < frame.frameSize().x) {
-            var xModified = Math.round((currentX - frame.frameSize().x / 2 - X_OFFSET) / xScale.toDouble() * 100) / 100.0
+            val xModified = Math.round(modifyX(currentX, frame, xScale) * 100) / 100.0
             if (frame.curve is FiniteEllipticCurve) {
-                val ellipticCurve = frame.curve as FiniteEllipticCurve
-                val modulus = ellipticCurve.modulus
-                xModified = Math.round((currentX - 10) * modulus / (frame.frameSize().x - 10).toDouble() * 100) / 100.0
                 frame.drawLine(Vec2i(currentX, frame.frameSize().y - 100 - xUnit / 20), Vec2i(currentX, frame.frameSize().y - 100 + xUnit / 20))
                 frame.drawText(Vec2i(currentX, frame.frameSize().y - 100 - xUnit / 20), "($xModified, 0)")
             } else {

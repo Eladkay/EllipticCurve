@@ -48,7 +48,7 @@ class CurvePanel(private val size: Vec2i, curve: EllipticCurve) : CurveFrame, JP
      * Let (x,y) be a point on the grid, and e=error(x, y) be a real number.
      * Then (x,y) is colored in if and only if difference(x+e, y+e) is different in sign to difference(x-e, y-e)
      */
-    fun errorFunction(x: Double, y: Double): Double {
+    fun errorFunction(): Double {
         return 0.035
     }
 

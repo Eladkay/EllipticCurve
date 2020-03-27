@@ -23,8 +23,6 @@ class Vec2d(val x: Double, val y: Double) {
         return Vec2d(x, -y)
     }
 
-    fun isNaN() = x.isNaN() || y.isNaN()
-
     override fun toString(): String {
         return "($x, $y)"
     }
