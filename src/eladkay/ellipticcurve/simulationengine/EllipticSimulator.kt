@@ -5,6 +5,7 @@ import eladkay.ellipticcurve.mathengine.FiniteEllipticCurve
 import eladkay.ellipticcurve.mathengine.Vec2d
 import eladkay.ellipticcurve.mathengine.Vec2i
 import java.awt.Color
+import kotlin.math.roundToInt
 import kotlin.math.sign
 
 object EllipticSimulator {
@@ -27,7 +28,7 @@ object EllipticSimulator {
 
     fun getMaxBoundsOfFrame(frame: CurveFrame, xScale: Int = defaultXScale, yScale: Int = defaultYScale): Vec2d {
         val (x, y) = frame.frameSize()
-        return Vec2d(modifyX(x, frame, xScale), modifyY(y, frame, yScale))
+        return Vec2d(modifyX(x, frame, xScale), if(frame.curve is FiniteEllipticCurve) -(frame.curve as FiniteEllipticCurve).modulus * 1.0 else modifyY(y, frame, yScale))
     }
 
     fun getMinBoundsOfFrame(frame: CurveFrame, xScale: Int = defaultXScale, yScale: Int = defaultYScale): Vec2d {
@@ -117,36 +118,36 @@ object EllipticSimulator {
         }
     }
 
-    // this is a bit weird with the values, but i actually don't mind that much, except for finite curves, for them I will fix it
     fun drawTicks(frame: CurveFrame, xScale: Int = defaultXScale, yScale: Int = defaultYScale) {
         frame.changeColor(Color.DARK_GRAY)
         val yUnit = 5 * yScale
         val xUnit = 1 * xScale
-        var currentY = yUnit
-        while (currentY < frame.frameSize().y) {
-            val yModified = Math.round(modifyY(currentY, frame, yScale) * 100) / 100.0
+        var currentYModified = -getMinBoundsOfFrame(frame, xScale, yScale).y.roundToInt().toDouble()
+        if(frame.curve !is FiniteEllipticCurve)
+            currentYModified -= currentYModified % 5 // makes sure it will hit y = 0
+        val bounds = getMaxBoundsOfFrame(frame, xScale, yScale)
+        while (currentYModified < -bounds.y) {
             if (frame.curve is FiniteEllipticCurve) {
-                frame.drawLine(Vec2i(10 - yUnit / 5, currentY), Vec2i(10 + yUnit / 5, currentY))
-                frame.drawText(Vec2i(10 + yUnit / 5, currentY), "(0, $yModified)")
+                frame.drawText(Vec2i(10 + yUnit / 5, demodifyY(currentYModified, frame, yScale)), "(0, $currentYModified)")
+                currentYModified += 1.0
             } else {
-                frame.drawLine(Vec2i(frame.frameSize().x / 2 + X_OFFSET - yUnit / 5, currentY), Vec2i(frame.frameSize().x / 2 + X_OFFSET + yUnit / 5, currentY))
-                frame.drawText(Vec2i(frame.frameSize().x / 2 + X_OFFSET + yUnit / 5, currentY), "(0, $yModified)")
+                frame.drawText(Vec2i(frame.frameSize().x / 2 + X_OFFSET + yUnit / 5, demodifyY(currentYModified, frame, yScale)), "(0, $currentYModified)")
+                currentYModified += 5.0
             }
-
-            currentY += yUnit
         }
 
-        var currentX = xUnit
-        while (currentX < frame.frameSize().x) {
-            val xModified = Math.round(modifyX(currentX, frame, xScale) * 100) / 100.0
-            if (frame.curve is FiniteEllipticCurve) {
-                frame.drawLine(Vec2i(currentX, frame.frameSize().y - 100 - xUnit / 20), Vec2i(currentX, frame.frameSize().y - 100 + xUnit / 20))
-                frame.drawText(Vec2i(currentX, frame.frameSize().y - 100 - xUnit / 20), "($xModified, 0)")
-            } else {
-                frame.drawLine(Vec2i(currentX, frame.frameSize().y / 2 - xUnit / 20), Vec2i(currentX, frame.frameSize().y / 2 + xUnit / 20))
-                frame.drawText(Vec2i(currentX, frame.frameSize().y / 2 - xUnit / 20), "($xModified, 0)")
+        var currentXModified = getMinBoundsOfFrame(frame, xScale, yScale).x.roundToInt().toDouble()
+        while (currentXModified < bounds.x) {
+            if(currentXModified == 0.0) {
+                currentXModified += 1
+                continue // I already drew 0,0 in the y part
             }
-            currentX += xUnit
+            if (frame.curve is FiniteEllipticCurve) {
+                frame.drawText(Vec2i(demodifyX(currentXModified, frame, xScale), frame.frameSize().y - 100 - xUnit / 20), "($currentXModified, 0)")
+            } else {
+                frame.drawText(Vec2i(demodifyX(currentXModified, frame, xScale), frame.frameSize().y / 2 - xUnit / 20), "($currentXModified, 0)")
+            }
+            currentXModified += 1.0
         }
         frame.changeColor(Color.BLACK)
     }
@@ -155,16 +156,19 @@ object EllipticSimulator {
         frame.changeColor(Color.DARK_GRAY)
         val yUnit = 5 * yScale
         val xUnit = 1 * xScale
-        var currentY = yUnit
-        while (currentY < frame.frameSize().y) {
-            frame.drawLine(Vec2i(0, currentY), Vec2i(frame.frameSize().x, currentY))
-            currentY += yUnit
+        val bounds = getMaxBoundsOfFrame(frame, xScale, yScale)
+
+        var currentYModified = -getMinBoundsOfFrame(frame, xScale, yScale).y.roundToInt().toDouble()
+        currentYModified -= currentYModified % 5 // makes sure it will hit y = 0
+        while (currentYModified < -bounds.y) {
+            frame.drawLine(Vec2i(0, demodifyY(currentYModified, frame, yScale)), Vec2i(frame.frameSize().x, demodifyY(currentYModified, frame, yScale)))
+            currentYModified += if(frame.curve is FiniteEllipticCurve) 1.0 else 5.0
         }
 
-        var currentX = xUnit
-        while (currentX < frame.frameSize().x) {
-            frame.drawLine(Vec2i(currentX, 0), Vec2i(currentX, frame.frameSize().y))
-            currentX += xUnit
+        var currentXModified = getMinBoundsOfFrame(frame, xScale, yScale).x.roundToInt().toDouble()
+        while (currentXModified < bounds.x) {
+            frame.drawLine(Vec2i(demodifyX(currentXModified, frame, xScale), 0), Vec2i(demodifyX(currentXModified, frame, xScale), frame.frameSize().y))
+            currentXModified += 1.0
         }
         frame.changeColor(Color.BLACK)
     }
