@@ -153,14 +153,13 @@ class EllipticCurveHelper(private val curve: EllipticCurve) {
     var generator: Vec2d = Vec2d.PT_AT_INF
         get() {
             if (field == Vec2d.PT_AT_INF) {
-                if (curve is FiniteEllipticCurve)
-                    field = curve.curvePoints.toList()[rand.nextInt(curve.order())]
+                field = if (curve is FiniteEllipticCurve)
+                    curve.curvePoints.toList()[rand.nextInt(curve.order())]
                 else {
                     val x = rand.nextInt(35)
-                    field = Vec2d(x + 1, Math.sqrt(lhs(x * 1.0)))
+                    Vec2d(x + 1, Math.sqrt(lhs(x * 1.0)))
                 }
             }
-            asciiGeneratorTable = listOf()
             return field
         }
     var agreedUponPt: Vec2d = Vec2d.PT_AT_INF
@@ -175,11 +174,12 @@ class EllipticCurveHelper(private val curve: EllipticCurve) {
             }
             return field
         }
-    private var asciiGeneratorTable: List<Vec2d> = listOf()
+    var asciiGeneratorTable: List<Vec2d> = listOf()
         get() {
-            if (field.isEmpty()) {
+            while (field.toSet().size != 128) {
+                generator = Vec2d.PT_AT_INF
                 val list = mutableListOf<Vec2d>()
-                for (i in 0..127) list.add(multiply(generator, i).truncate(2)) // the constant is empirically derived
+                for (i in 1..128) list.add(multiply(generator, i).truncate(2)) // the constant is empirically derived
                 field = list
             }
             return field

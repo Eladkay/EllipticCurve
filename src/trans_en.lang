@@ -63,6 +63,8 @@ gui.studyHelper=Study Helper
 
 gui.invalidnumber=Invalid number entered!
 gui.invalidpoint=Invalid point!
+gui.notascii=This string is invalid!
+gui.invalidpoints=Invalid points!
 gui.notaprime=That's not a prime number!
 gui.ok=OK
 gui.invalidcurve=Invalid elliptic curve!

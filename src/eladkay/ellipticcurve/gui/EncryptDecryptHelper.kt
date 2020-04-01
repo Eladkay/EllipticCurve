@@ -422,7 +422,12 @@ object EncryptDecryptHelper : EllipticCurveWindow(getScreenSize()), MouseListene
             when (e!!.actionCommand) {
                 "ok" -> {
                     this.isVisible = false
-                    val points = EncryptDecryptHelper.panel.curve.helper.getPointOnCurveFromString(text.text)
+                    val points = try {
+                        EncryptDecryptHelper.panel.curve.helper.getPointOnCurveFromString(text.text)
+                    } catch(e: UnsupportedOperationException) {
+                        JOptionPane.showMessageDialog(null, +"gui.notascii")
+                        return
+                    }
                     panel.changeColor(Color.RED)
                     panel.changePointSize(10)
                     for (pt in points) {
@@ -458,7 +463,17 @@ object EncryptDecryptHelper : EllipticCurveWindow(getScreenSize()), MouseListene
             when (e!!.actionCommand) {
                 "ok" -> {
                     this.isVisible = false
-                    val stringResult = EncryptDecryptHelper.panel.curve.helper.getStringFromPointOnCurve(text.text.replace("Decrypted: ", "").split("\n").mapNotNull { Vec2d.of(it) })
+                    var vectors = text.text.replace(+"decrypted"+":", "").split("\n").filterNot { it.isBlank() }.map { Vec2d.of(it) }
+                    if(vectors.any { it == null}) {
+                        JOptionPane.showMessageDialog(null, +"gui.invalidpoints")
+                        return
+                    }
+                    vectors = vectors.requireNoNulls().map { it.round(2) }
+                    if(vectors.any { it !in panel.curve.helper.asciiGeneratorTable }) {
+                        JOptionPane.showMessageDialog(null, +"gui.invalidpoints")
+                        return
+                    }
+                    val stringResult = panel.curve.helper.getStringFromPointOnCurve(vectors)
                     InformationalScreen(stringResult, true, +"gui.ptstostring").createAndShow()
                 }
             }
@@ -491,21 +506,24 @@ object EncryptDecryptHelper : EllipticCurveWindow(getScreenSize()), MouseListene
             when (e!!.actionCommand) {
                 "ok" -> {
                     this.isVisible = false
-                    if (!Vec2d.isValid(pubKey.text)) {
+                    val bobKey = Vec2d.of(pubKey.text)
+                    if (bobKey == null) {
                         InformationalScreen(+"gui.encryptdecrypthelper.invalidpubkey").createAndShow()
                         return
                     }
                     val vecs = text.text.split("\n").map {
-                        val xy = it.removeSurrounding("(", ")").split(", ").map { it.toDouble() }
-                        Vec2d(xy[0], xy[1])
+                        Vec2d.of(it)
                     }
-                    val bobKey = pubKey.text.removeSurrounding("(", ")").split(", ").map { it.toDouble() }
+                    if(vecs.any { it == null }) {
+                        JOptionPane.showMessageDialog(null, +"gui.invalidpoints")
+                        return
+                    }
                     val helper = panel.curve.helper
                     val k = if (panel.curve is FiniteEllipticCurve)
                         helper.rand.nextInt((panel.curve as FiniteEllipticCurve).modulus.toInt())
                     else helper.rand.nextInt(100)
 
-                    val encrypted = vecs.map { panel.curve.helper.encrypt(it, Vec2d(bobKey[0], bobKey[1]), helper.agreedUponPt, k) }
+                    val encrypted = vecs.requireNoNulls().map { panel.curve.helper.encrypt(it, bobKey, helper.agreedUponPt, k) }
                     val first = encrypted[0].first
                     val theRest = encrypted.map { it.second }
                     val stringText = "${+"shared"}: $first\n" + "${+"ordered"}: {${theRest.joinToString(";\n")}}"
@@ -542,15 +560,23 @@ object EncryptDecryptHelper : EllipticCurveWindow(getScreenSize()), MouseListene
             when (e!!.actionCommand) {
                 "ok" -> {
                     this.isVisible = false
-                    val clean = listOf("Ordered: ", "Shared: ", "{", "}")
+                    val clean = listOf(+"ordered", +"shared", "{", "}", ":")
                     var str = text.text
                     for (item in clean) str = str.replace(item, "")
                     val lines = str.split("\n")
                     val first = Vec2d.of(lines[0])
                     val seconds = lines.subList(1, lines.size).joinToString("").split(";")
                             .filter { !it.isBlank() }.map { it.removeSurrounding(",").trim() }
-                    val bobkey = privKey.text.toInt()
-                    val decrypted = seconds.map { panel.curve.helper.decrypt(Pair(first!!, Vec2d.of(it)!!), bobkey) }
+                    val bobkey = privKey.text.toIntOrNull()
+                    if(bobkey == null) {
+                        JOptionPane.showMessageDialog(null, +"gui.invalidnumber")
+                        return
+                    }
+                    if(seconds.any { !Vec2d.isValid(it) } || first == null) {
+                        JOptionPane.showMessageDialog(null, +"gui.invalidpoints")
+                        return
+                    }
+                    val decrypted = seconds.map { Vec2d.of(it)!! }.map { panel.curve.helper.decrypt(Pair(first, it), bobkey) }
                     val stringText = "${+"decrypted"}: \n${decrypted.joinToString("\n")}"
                     InformationalScreen(stringText, true, +"gui.decryptor").createAndShow()
                 }

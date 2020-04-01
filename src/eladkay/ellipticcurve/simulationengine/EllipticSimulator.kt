@@ -54,10 +54,9 @@ object EllipticSimulator {
      * (x', y'). If any of its vertices are in different relative condition to the curve, or (x', y') is itself on the curve,
      * we draw (x, y) and its respective inverse, drawing text if necessary according to [drawText].
      */
-    fun drawCurveApprox(ellipticCurve: EllipticCurve, frame: CurveFrame, error: () -> Double, drawText: Boolean, xScale: Int = defaultXScale, yScale: Int = defaultYScale) {
+    fun drawCurveApprox(ellipticCurve: EllipticCurve, frame: CurveFrame, errorTerm: Double, drawText: Boolean, xScale: Int = defaultXScale, yScale: Int = defaultYScale) {
         if (ellipticCurve is FiniteEllipticCurve) throw IllegalArgumentException("discrete curve")
         frame.changePointSize(5)
-        val errorTerm = error()
         for (x in 0..frame.frameSize().x)
             for (y in 0..frame.frameSize().y) {
                 val xModified = modifyX(x, frame, xScale)
@@ -68,7 +67,7 @@ object EllipticSimulator {
                 val s1 = ellipticCurve.difference(xModified + errorTerm, yModified + errorTerm).sign
                 val s2 = ellipticCurve.difference(xModified + errorTerm, yModified - errorTerm).sign
                 val s3 = ellipticCurve.difference(xModified - errorTerm, yModified + errorTerm).sign
-                val s4 = ellipticCurve.difference(xModified + errorTerm, yModified - errorTerm).sign
+                val s4 = ellipticCurve.difference(xModified - errorTerm, yModified - errorTerm).sign
                 if (!condition && Math.abs(s1 + s2 + s3 + s4) != 4.0) // if they're not all the same sign
                     condition = true
                 if (condition) {
@@ -154,8 +153,6 @@ object EllipticSimulator {
 
     fun drawGridlines(frame: CurveFrame, xScale: Int = defaultXScale, yScale: Int = defaultYScale) {
         frame.changeColor(Color.DARK_GRAY)
-        val yUnit = 5 * yScale
-        val xUnit = 1 * xScale
         val bounds = getMaxBoundsOfFrame(frame, xScale, yScale)
 
         var currentYModified = -getMinBoundsOfFrame(frame, xScale, yScale).y.roundToInt().toDouble()
