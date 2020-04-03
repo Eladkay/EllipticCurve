@@ -43,7 +43,7 @@ object MainScreen : EllipticCurveWindow((getScreenSize() * 2) / 3) {
         jComboBox.font = jComboBox.font.deriveFont(18f)
         jComboBox.actionCommand = "changelang"
         jComboBox.addActionListener(this)
-        add(jComboBox)
+        if(ALLOW_LANG_CHANGE) add(jComboBox)
     }
 
     override fun updateTextForI18n() {

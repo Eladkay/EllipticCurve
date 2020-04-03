@@ -38,7 +38,7 @@ interface CurveFrame {
         fun deserializeCurveFrame(string: String): EllipticCurve {
             val split = string.split(";")
             val field = split[2]
-            EllipticSimulator.scale = split[3].toInt()
+            EllipticSimulator.scale = split[3].toDouble()
             val generator = Vec2d.of(split[4])
             val agreedUpon = Vec2d.of(split[5])
             val curve = if (field == "R")

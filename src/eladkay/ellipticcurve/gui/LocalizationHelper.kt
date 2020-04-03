@@ -11,6 +11,7 @@ val VALID_LOCS = listOf("en", "he")
 val languages get() = VALID_LOCS.map { getTranslatedString("this", it) }
 private val languageFiles = mutableMapOf<String, List<String>>()
 var currentLoc = "en"
+const val ALLOW_LANG_CHANGE = false
 
 fun getTranslatedString(key: String) =
         getFileContents("trans_$currentLoc.lang")

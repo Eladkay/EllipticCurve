@@ -20,7 +20,14 @@ import javax.swing.filechooser.FileNameExtensionFilter
 import kotlin.math.sign
 
 
-object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener, MouseMotionListener {
+object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener, MouseMotionListener, MouseWheelListener {
+
+    override fun mouseWheelMoved(e: MouseWheelEvent) {
+        EllipticSimulator.scale = Math.max(1.0, Math.min(EllipticSimulator.scale-e.wheelRotation.sign*0.5, 10.0))
+        ScaleChanger.sliderScale.value = EllipticSimulator.scale.toInt()
+        panel.clear()
+        panel.redraw()
+    }
 
     override fun mouseDragged(e: MouseEvent?) {}
 
@@ -151,6 +158,7 @@ object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener
         contentPane.add(panel)
         panel.addMouseListener(this)
         panel.addMouseMotionListener(this)
+        panel.addMouseWheelListener(this)
         defaultCloseOperation = WindowConstants.DISPOSE_ON_CLOSE
         isResizable = true
 
@@ -374,7 +382,7 @@ object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener
                     val file = fc.selectedFile
                     panel.curve = CurveFrame.deserializeCurveFrame(file.readText())
                     panel.redraw()
-                    ScaleChanger.sliderScale.value = EllipticSimulator.scale
+                    ScaleChanger.sliderScale.value = EllipticSimulator.scale.toInt()
                     CurveChanger.sliderA.value = panel.curve.aValue.toInt()
                     CurveChanger.sliderB.value = panel.curve.bValue.toInt()
                     if (panel.curve is FiniteEllipticCurve) FieldZp.spinner.value = (panel.curve as FiniteEllipticCurve).modulus
@@ -555,7 +563,7 @@ object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener
             button.actionCommand = "copy"
             button.addActionListener(this)
             label.setBounds(size.x * 1 / 6, size.y * 2 / 6 + 60, size.x * 4 / 6, 40)
-            if (label.isVisible) {
+            if (label.isVisible && panel.curve is FiniteEllipticCurve) {
                 label.text += (panel.curve as FiniteEllipticCurve).order(p1modified!!)
             }
             add(pointInfoBox)
@@ -732,7 +740,7 @@ object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener
             val slider = e.source as? JSlider
             panel.clear()
             if (slider?.valueIsAdjusting?.not() == true) {
-                EllipticSimulator.scale = sliderScale.value
+                EllipticSimulator.scale = sliderScale.value.toDouble()
                 panel.redraw()
             }
 

@@ -10,7 +10,7 @@ import kotlin.math.sign
 
 object EllipticSimulator {
     var X_OFFSET = -500
-    var scale = 1
+    var scale = 1.0
     val defaultYScale
         get() = 15 / scale
     val defaultXScale
@@ -26,12 +26,12 @@ object EllipticSimulator {
         frame.changePointSize(3)
     }
 
-    fun getMaxBoundsOfFrame(frame: CurveFrame, xScale: Int = defaultXScale, yScale: Int = defaultYScale): Vec2d {
+    fun getMaxBoundsOfFrame(frame: CurveFrame, xScale: Double = defaultXScale, yScale: Double = defaultYScale): Vec2d {
         val (x, y) = frame.frameSize()
         return Vec2d(modifyX(x, frame, xScale), if(frame.curve is FiniteEllipticCurve) -(frame.curve as FiniteEllipticCurve).modulus * 1.0 else modifyY(y, frame, yScale))
     }
 
-    fun getMinBoundsOfFrame(frame: CurveFrame, xScale: Int = defaultXScale, yScale: Int = defaultYScale): Vec2d {
+    fun getMinBoundsOfFrame(frame: CurveFrame, xScale: Double = defaultXScale, yScale: Double = defaultYScale): Vec2d {
         val (x, y) = 0 to 0
         return Vec2d(modifyX(x, frame, xScale), modifyY(y, frame, yScale))
     }
@@ -54,7 +54,7 @@ object EllipticSimulator {
      * (x', y'). If any of its vertices are in different relative condition to the curve, or (x', y') is itself on the curve,
      * we draw (x, y) and its respective inverse, drawing text if necessary according to [drawText].
      */
-    fun drawCurveApprox(ellipticCurve: EllipticCurve, frame: CurveFrame, errorTerm: Double, drawText: Boolean, xScale: Int = defaultXScale, yScale: Int = defaultYScale) {
+    fun drawCurveApprox(ellipticCurve: EllipticCurve, frame: CurveFrame, errorTerm: Double, drawText: Boolean, xScale: Double = defaultXScale, yScale: Double = defaultYScale) {
         if (ellipticCurve is FiniteEllipticCurve) throw IllegalArgumentException("discrete curve")
         frame.changePointSize(5)
         for (x in 0..frame.frameSize().x)
@@ -80,26 +80,26 @@ object EllipticSimulator {
         frame.changePointSize(3)
     }
 
-    fun demodifyY(y: Double, frame: CurveFrame, yScale: Int = defaultYScale): Int {
+    fun demodifyY(y: Double, frame: CurveFrame, yScale: Double = defaultYScale): Int {
         if (frame.curve !is FiniteEllipticCurve) return (-yScale * y + frame.frameSize().y / 2).toInt()
         val modulus = (frame.curve as FiniteEllipticCurve).modulus
         return (y * (100 - frame.frameSize().y) / modulus - 100 + frame.frameSize().y).toInt()
     }
 
-    fun demodifyX(x: Double, frame: CurveFrame, xScale: Int = defaultXScale): Int {
+    fun demodifyX(x: Double, frame: CurveFrame, xScale: Double = defaultXScale): Int {
         if (frame.curve !is FiniteEllipticCurve) return (x * xScale + X_OFFSET + frame.frameSize().x / 2).toInt()
         val modulus = (frame.curve as FiniteEllipticCurve).modulus
         return (x * (frame.frameSize().x - 10).toDouble() / modulus + 10).toInt()
     }
 
-    fun modifyY(y: Int, frame: CurveFrame, yScale: Int = defaultYScale): Double {
+    fun modifyY(y: Int, frame: CurveFrame, yScale: Double = defaultYScale): Double {
         var yModified = (-y + frame.frameSize().y / 2) / yScale.toDouble()
         if (frame.curve is FiniteEllipticCurve) {
             yModified = (y + 100 - frame.frameSize().y) * (frame.curve as FiniteEllipticCurve).modulus / (100 - frame.frameSize().y).toDouble()
         }
         return yModified
     }
-    fun modifyX(x: Int, frame: CurveFrame, xScale: Int = defaultXScale): Double {
+    fun modifyX(x: Int, frame: CurveFrame, xScale: Double = defaultXScale): Double {
         var xModified = (x - frame.frameSize().x / 2 - X_OFFSET) / xScale.toDouble()
         if (frame.curve is FiniteEllipticCurve) {
             xModified = (x - 10) * (frame.curve as FiniteEllipticCurve).modulus / (frame.frameSize().x - 10).toDouble()
@@ -117,7 +117,7 @@ object EllipticSimulator {
         }
     }
 
-    fun drawTicks(frame: CurveFrame, xScale: Int = defaultXScale, yScale: Int = defaultYScale) {
+    fun drawTicks(frame: CurveFrame, xScale: Double = defaultXScale, yScale: Double = defaultYScale) {
         frame.changeColor(Color.DARK_GRAY)
         val yUnit = 5 * yScale
         val xUnit = 1 * xScale
@@ -127,10 +127,10 @@ object EllipticSimulator {
         val bounds = getMaxBoundsOfFrame(frame, xScale, yScale)
         while (currentYModified < -bounds.y) {
             if (frame.curve is FiniteEllipticCurve) {
-                frame.drawText(Vec2i(10 + yUnit / 5, demodifyY(currentYModified, frame, yScale)), "(0, $currentYModified)")
+                frame.drawText(Vec2i((10 + yUnit / 5).toInt(), demodifyY(currentYModified, frame, yScale)), "(0, $currentYModified)")
                 currentYModified += 1.0
             } else {
-                frame.drawText(Vec2i(frame.frameSize().x / 2 + X_OFFSET + yUnit / 5, demodifyY(currentYModified, frame, yScale)), "(0, $currentYModified)")
+                frame.drawText(Vec2i((frame.frameSize().x / 2 + X_OFFSET + yUnit / 5).toInt(), demodifyY(currentYModified, frame, yScale)), "(0, $currentYModified)")
                 currentYModified += 5.0
             }
         }
@@ -142,16 +142,16 @@ object EllipticSimulator {
                 continue // I already drew 0,0 in the y part
             }
             if (frame.curve is FiniteEllipticCurve) {
-                frame.drawText(Vec2i(demodifyX(currentXModified, frame, xScale), frame.frameSize().y - 100 - xUnit / 20), "($currentXModified, 0)")
+                frame.drawText(Vec2i(demodifyX(currentXModified, frame, xScale), (frame.frameSize().y - 100 - xUnit / 20).toInt()), "($currentXModified, 0)")
             } else {
-                frame.drawText(Vec2i(demodifyX(currentXModified, frame, xScale), frame.frameSize().y / 2 - xUnit / 20), "($currentXModified, 0)")
+                frame.drawText(Vec2i(demodifyX(currentXModified, frame, xScale), (frame.frameSize().y / 2 - xUnit / 20).toInt()), "($currentXModified, 0)")
             }
             currentXModified += 1.0
         }
         frame.changeColor(Color.BLACK)
     }
 
-    fun drawGridlines(frame: CurveFrame, xScale: Int = defaultXScale, yScale: Int = defaultYScale) {
+    fun drawGridlines(frame: CurveFrame, xScale: Double = defaultXScale, yScale: Double = defaultYScale) {
         frame.changeColor(Color.DARK_GRAY)
         val bounds = getMaxBoundsOfFrame(frame, xScale, yScale)
 
