@@ -165,11 +165,11 @@ class EllipticCurveHelper(private val curve: EllipticCurve) {
     var agreedUponPt: Vec2d = Vec2d.PT_AT_INF
         get() {
             if (field == Vec2d.PT_AT_INF) {
-                if (curve is FiniteEllipticCurve)
-                    field = curve.curvePoints.toList()[rand.nextInt(curve.order())]
+                field = if (curve is FiniteEllipticCurve)
+                    curve.curvePoints.toList()[rand.nextInt(curve.order())]
                 else {
                     val x = rand.nextInt(35)
-                    field = Vec2d(x + 1, Math.sqrt(lhs(x * 1.0)))
+                    Vec2d(x + 1, Math.sqrt(lhs(x * 1.0)))
                 }
             }
             return field

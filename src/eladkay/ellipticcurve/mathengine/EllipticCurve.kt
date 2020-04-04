@@ -40,6 +40,6 @@ open class EllipticCurve(val aValue: Long, val bValue: Long, val field: String) 
     val helper: EllipticCurveHelper by lazy { EllipticCurveHelper(this) }
 
     companion object {
-        val REALS = "reals"
+        const val REALS = "reals"
     }
 }

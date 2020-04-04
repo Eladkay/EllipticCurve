@@ -16,7 +16,7 @@ import kotlin.math.sign
 object EncryptDecryptHelper : EllipticCurveWindow(getScreenSize()), MouseListener, MouseMotionListener, MouseWheelListener {
 
     override fun mouseWheelMoved(e: MouseWheelEvent) {
-        EllipticSimulator.scale = Math.max(1.0, Math.min(EllipticSimulator.scale-e.wheelRotation.sign*0.5, 10.0))
+        EllipticSimulator.scale = Math.max(1.0, Math.min(EllipticSimulator.scale - e.wheelRotation.sign * 0.5, 10.0))
         ScaleChanger.sliderScale.value = EllipticSimulator.scale.toInt()
         panel.clear()
         panel.redraw()
@@ -434,7 +434,7 @@ object EncryptDecryptHelper : EllipticCurveWindow(getScreenSize()), MouseListene
                     this.isVisible = false
                     val points = try {
                         EncryptDecryptHelper.panel.curve.helper.getPointOnCurveFromString(text.text)
-                    } catch(e: UnsupportedOperationException) {
+                    } catch (e: UnsupportedOperationException) {
                         JOptionPane.showMessageDialog(null, +"gui.notascii")
                         return
                     }
@@ -447,7 +447,7 @@ object EncryptDecryptHelper : EllipticCurveWindow(getScreenSize()), MouseListene
                         panel.repaint()
                     }
                     panel.changeColor(Color.BLACK)
-                    val stringResult = points.map { "(${it.x}, ${it.y})" }.joinToString("\n")
+                    val stringResult = points.joinToString("\n") { "(${it.x}, ${it.y})" }
                     InformationalScreen(stringResult, true, +"gui.stringtopts").createAndShow()
                 }
             }
@@ -473,13 +473,13 @@ object EncryptDecryptHelper : EllipticCurveWindow(getScreenSize()), MouseListene
             when (e!!.actionCommand) {
                 "ok" -> {
                     this.isVisible = false
-                    var vectors = text.text.replace(+"decrypted"+":", "").split("\n").filterNot { it.isBlank() }.map { Vec2d.of(it) }
-                    if(vectors.any { it == null}) {
+                    var vectors = text.text.replace(+"decrypted" + ":", "").split("\n").filterNot { it.isBlank() }.map { Vec2d.of(it) }
+                    if (vectors.any { it == null }) {
                         JOptionPane.showMessageDialog(null, +"gui.invalidpoints")
                         return
                     }
                     vectors = vectors.requireNoNulls().map { it.round(2) }
-                    if(vectors.any { it !in panel.curve.helper.asciiGeneratorTable }) {
+                    if (vectors.any { it !in panel.curve.helper.asciiGeneratorTable }) {
                         JOptionPane.showMessageDialog(null, +"gui.invalidpoints")
                         return
                     }
@@ -524,7 +524,7 @@ object EncryptDecryptHelper : EllipticCurveWindow(getScreenSize()), MouseListene
                     val vecs = text.text.split("\n").map {
                         Vec2d.of(it)
                     }
-                    if(vecs.any { it == null }) {
+                    if (vecs.any { it == null }) {
                         JOptionPane.showMessageDialog(null, +"gui.invalidpoints")
                         return
                     }
@@ -578,11 +578,11 @@ object EncryptDecryptHelper : EllipticCurveWindow(getScreenSize()), MouseListene
                     val seconds = lines.subList(1, lines.size).joinToString("").split(";")
                             .filter { !it.isBlank() }.map { it.removeSurrounding(",").trim() }
                     val bobkey = privKey.text.toIntOrNull()
-                    if(bobkey == null) {
+                    if (bobkey == null) {
                         JOptionPane.showMessageDialog(null, +"gui.invalidnumber")
                         return
                     }
-                    if(seconds.any { !Vec2d.isValid(it) } || first == null) {
+                    if (seconds.any { !Vec2d.isValid(it) } || first == null) {
                         JOptionPane.showMessageDialog(null, +"gui.invalidpoints")
                         return
                     }

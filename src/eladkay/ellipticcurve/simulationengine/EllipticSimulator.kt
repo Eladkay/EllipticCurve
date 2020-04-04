@@ -9,11 +9,11 @@ import kotlin.math.roundToInt
 import kotlin.math.sign
 
 object EllipticSimulator {
-    var X_OFFSET = -500
+    private var X_OFFSET = -500
     var scale = 1.0
-    val defaultYScale
+    private val defaultYScale
         get() = 15 / scale
-    val defaultXScale
+    private val defaultXScale
         get() = 200 / scale
 
     fun drawFiniteCurve(ellipticCurve: FiniteEllipticCurve, frame: CurveFrame, drawText: Boolean) {
@@ -28,7 +28,7 @@ object EllipticSimulator {
 
     fun getMaxBoundsOfFrame(frame: CurveFrame, xScale: Double = defaultXScale, yScale: Double = defaultYScale): Vec2d {
         val (x, y) = frame.frameSize()
-        return Vec2d(modifyX(x, frame, xScale), if(frame.curve is FiniteEllipticCurve) -(frame.curve as FiniteEllipticCurve).modulus * 1.0 else modifyY(y, frame, yScale))
+        return Vec2d(modifyX(x, frame, xScale), if (frame.curve is FiniteEllipticCurve) -(frame.curve as FiniteEllipticCurve).modulus * 1.0 else modifyY(y, frame, yScale))
     }
 
     fun getMinBoundsOfFrame(frame: CurveFrame, xScale: Double = defaultXScale, yScale: Double = defaultYScale): Vec2d {
@@ -42,7 +42,7 @@ object EllipticSimulator {
      * @param [ellipticCurve] The elliptic curve to draw. which has to be an infinite elliptic curve. See [drawFiniteCurve] for finite curves.
      * @throws [IllegalArgumentException] If the curve is not infinite.
      * @param [frame] The frame on which to draw the elliptic curve according to the parameters.
-     * @param [error] The allowed error in the curve. The exact mechanism of this parameter is explained below.
+     * @param [errorTerm] The allowed error in the curve. The exact mechanism of this parameter is explained below.
      *                This may not depend on x, y being drawn.
      * @param [drawText] Whether or not to label each point with its coordinates on the curve.
      * @param [xScale] The scale at which to draw the curve, relative to the x axis.
@@ -93,14 +93,15 @@ object EllipticSimulator {
     }
 
     fun modifyY(y: Int, frame: CurveFrame, yScale: Double = defaultYScale): Double {
-        var yModified = (-y + frame.frameSize().y / 2) / yScale.toDouble()
+        var yModified = (-y + frame.frameSize().y / 2) / yScale
         if (frame.curve is FiniteEllipticCurve) {
             yModified = (y + 100 - frame.frameSize().y) * (frame.curve as FiniteEllipticCurve).modulus / (100 - frame.frameSize().y).toDouble()
         }
         return yModified
     }
+
     fun modifyX(x: Int, frame: CurveFrame, xScale: Double = defaultXScale): Double {
-        var xModified = (x - frame.frameSize().x / 2 - X_OFFSET) / xScale.toDouble()
+        var xModified = (x - frame.frameSize().x / 2 - X_OFFSET) / xScale
         if (frame.curve is FiniteEllipticCurve) {
             xModified = (x - 10) * (frame.curve as FiniteEllipticCurve).modulus / (frame.frameSize().x - 10).toDouble()
         }
@@ -122,22 +123,22 @@ object EllipticSimulator {
         val yUnit = 5 * yScale
         val xUnit = 1 * xScale
         var currentYModified = -getMinBoundsOfFrame(frame, xScale, yScale).y.roundToInt().toDouble()
-        if(frame.curve !is FiniteEllipticCurve)
+        if (frame.curve !is FiniteEllipticCurve)
             currentYModified -= currentYModified % 5 // makes sure it will hit y = 0
         val bounds = getMaxBoundsOfFrame(frame, xScale, yScale)
         while (currentYModified < -bounds.y) {
-            if (frame.curve is FiniteEllipticCurve) {
+            currentYModified += if (frame.curve is FiniteEllipticCurve) {
                 frame.drawText(Vec2i((10 + yUnit / 5).toInt(), demodifyY(currentYModified, frame, yScale)), "(0, $currentYModified)")
-                currentYModified += 1.0
+                1.0
             } else {
                 frame.drawText(Vec2i((frame.frameSize().x / 2 + X_OFFSET + yUnit / 5).toInt(), demodifyY(currentYModified, frame, yScale)), "(0, $currentYModified)")
-                currentYModified += 5.0
+                5.0
             }
         }
 
         var currentXModified = getMinBoundsOfFrame(frame, xScale, yScale).x.roundToInt().toDouble()
         while (currentXModified < bounds.x) {
-            if(currentXModified == 0.0) {
+            if (currentXModified == 0.0) {
                 currentXModified += 1
                 continue // I already drew 0,0 in the y part
             }
@@ -159,7 +160,7 @@ object EllipticSimulator {
         currentYModified -= currentYModified % 5 // makes sure it will hit y = 0
         while (currentYModified < -bounds.y) {
             frame.drawLine(Vec2i(0, demodifyY(currentYModified, frame, yScale)), Vec2i(frame.frameSize().x, demodifyY(currentYModified, frame, yScale)))
-            currentYModified += if(frame.curve is FiniteEllipticCurve) 1.0 else 5.0
+            currentYModified += if (frame.curve is FiniteEllipticCurve) 1.0 else 5.0
         }
 
         var currentXModified = getMinBoundsOfFrame(frame, xScale, yScale).x.roundToInt().toDouble()

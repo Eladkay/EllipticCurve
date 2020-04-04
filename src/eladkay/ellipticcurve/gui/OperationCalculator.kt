@@ -23,7 +23,7 @@ import kotlin.math.sign
 object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener, MouseMotionListener, MouseWheelListener {
 
     override fun mouseWheelMoved(e: MouseWheelEvent) {
-        EllipticSimulator.scale = Math.max(1.0, Math.min(EllipticSimulator.scale-e.wheelRotation.sign*0.5, 10.0))
+        EllipticSimulator.scale = Math.max(1.0, Math.min(EllipticSimulator.scale - e.wheelRotation.sign * 0.5, 10.0))
         ScaleChanger.sliderScale.value = EllipticSimulator.scale.toInt()
         panel.clear()
         panel.redraw()
