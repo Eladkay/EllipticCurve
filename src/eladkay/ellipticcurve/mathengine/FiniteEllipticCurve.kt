@@ -34,8 +34,6 @@ open class FiniteEllipticCurve(aValue: Long, bValue: Long, val modulus: Long) : 
         return super.equals(other) && other is FiniteEllipticCurve && other.modulus == this.modulus
     }
 
-
-    operator fun <T> invoke(function: () -> T): T = function()
     override fun hashCode(): Int {
         return modulus.toInt() + 31 * aValue.toInt() + 31 * bValue.toInt()
     }

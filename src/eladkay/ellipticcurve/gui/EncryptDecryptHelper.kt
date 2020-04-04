@@ -619,7 +619,7 @@ object EncryptDecryptHelper : EllipticCurveWindow(getScreenSize()), MouseListene
                         return
                     }
                     val k = text.text.toInt()
-                    val pt = panel.curve.helper.multiply(panel.curve.helper.agreedUponPt, k)
+                    val pt = panel.curve.helper.createPublicKey(k, panel.curve.helper.agreedUponPt)
                     InformationalScreen(pt.toString(), true, this.title).createAndShow()
                 }
             }

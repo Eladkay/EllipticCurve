@@ -112,35 +112,6 @@ object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener
 
     override fun mouseClicked(e: MouseEvent) {}
 
-    override fun updateTextForI18n() {
-        super.updateTextForI18n()
-        checkboxGridsAndTicks.text = +"gui.operationcalculator.gridsandticks"
-        checkboxPtLoc.text = +"gui.operationcalculator.checkboxPtLoc"
-        checkboxAutoadd.text = +"gui.operationcalculator.checkboxAutoadd"
-        checkboxLineOfSymmetry.text = +"gui.operationcalculator.checkboxLineOfSymmetry"
-
-        menuFile.text = +"gui.operationcalculator.file"
-        saveCurve.text = +"gui.operationcalculator.file.savecurve"
-        openCurve.text = +"gui.operationcalculator.file.opencurve"
-        exit.text = +"gui.operationcalculator.file.exit"
-
-        menuCurve.text = +"gui.operationcalculator.curve"
-        changeCurve.text = +"gui.operationcalculator.curve.changecurve"
-        changeField.text = +"gui.operationcalculator.curve.changefield"
-        realsField.text = +"fields.reals"
-        finiteField.text = +"gui.operationcalculator.curve.changetozp"
-
-        menuVisualization.text = +"gui.operationcalculator.visualization"
-        changeScale.text = +"gui.operationcalculator.changescale"
-        clear.text = +"gui.operationcalculator.clear"
-
-        menuOperation.text = +"gui.operationcalculator.operation"
-        mult.text = +"gui.operationcalculator.mult"
-        flip.text = +"gui.operationcalculator.flip"
-        select.text = +"gui.operationcalculator.selectpt"
-
-    }
-
     var panel = CurvePanel(Vec2i(size.x, size.y), EllipticCurve(-1L, 1L, EllipticCurve.REALS))
     private val checkboxGridsAndTicks = JCheckBox(+"gui.operationcalculator.gridsandticks")
     private val checkboxPtLoc = JCheckBox(+"gui.operationcalculator.checkboxPtLoc")
