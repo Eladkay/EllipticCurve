@@ -77,7 +77,7 @@ class CurvePanel(private val size: Vec2i, curve: EllipticCurve) : CurveFrame, JP
         // start drawing auxiliary shapes
 
         val g2 = g as Graphics2D
-        g2.color = Color(0, 0, 0)
+        g2.color = Color.BLACK
         var size = 3
         for (operation in operations) {
             val (first, second) = operation
@@ -105,12 +105,14 @@ class CurvePanel(private val size: Vec2i, curve: EllipticCurve) : CurveFrame, JP
         }
 
         for (line in pointLines) {
+            g2.color = Color.MAGENTA
             g2.draw(Line2D.Double(line.x.toDouble(), 0.0, line.x.toDouble(), this.size.y.toDouble()))
             g2.draw(Line2D.Double(0.0, line.y.toDouble(), this.size.x.toDouble(), line.y.toDouble()))
         }
 
         for (text in pointText) {
             g2.drawString(text.second, text.first.x + 5, text.first.y)
+            g2.color = Color.BLACK
         }
 
         for (p in linesOfSymmetry) {
@@ -136,11 +138,12 @@ class CurvePanel(private val size: Vec2i, curve: EllipticCurve) : CurveFrame, JP
     }
 
     override fun drawPoint(vec2i: Vec2i) {
-        operations.add(vec2i to vec2i)
+        val size = 3
+        operations.add(Vec2i(vec2i.x - size / 2, vec2i.y - size / 2) to Vec2i(vec2i.x - size / 2, vec2i.y - size / 2))
     }
 
     override fun drawPoint(vec2i: Vec2i, size: Int) {
-        operations.add(vec2i to size)
+        operations.add(Vec2i(vec2i.x - size / 2, vec2i.y - size / 2) to size)
     }
 
     override fun drawLine(a: Vec2i, b: Vec2i) {

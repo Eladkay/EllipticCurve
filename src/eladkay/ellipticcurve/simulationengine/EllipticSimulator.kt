@@ -132,7 +132,7 @@ object EllipticSimulator {
                 1.0
             } else {
                 frame.drawText(Vec2i((frame.frameSize().x / 2 + X_OFFSET + yUnit / 5).toInt(), demodifyY(currentYModified, frame, yScale)), "(0, $currentYModified)")
-                5.0
+                if(scale < 5.0) 5.0 else if(scale < 10) 10.0 else 15.0
             }
         }
 
@@ -147,7 +147,7 @@ object EllipticSimulator {
             } else {
                 frame.drawText(Vec2i(demodifyX(currentXModified, frame, xScale), (frame.frameSize().y / 2 - xUnit / 20).toInt()), "($currentXModified, 0)")
             }
-            currentXModified += 1.0
+            currentXModified += if(frame.curve is FiniteEllipticCurve || scale < 5.0) 1.0 else 3.0
         }
         frame.changeColor(Color.BLACK)
     }
@@ -160,13 +160,13 @@ object EllipticSimulator {
         currentYModified -= currentYModified % 5 // makes sure it will hit y = 0
         while (currentYModified < -bounds.y) {
             frame.drawLine(Vec2i(0, demodifyY(currentYModified, frame, yScale)), Vec2i(frame.frameSize().x, demodifyY(currentYModified, frame, yScale)))
-            currentYModified += if (frame.curve is FiniteEllipticCurve) 1.0 else 5.0
+            currentYModified += if (frame.curve is FiniteEllipticCurve) 1.0 else if(scale < 5.0) 5.0 else if(scale < 10) 10.0 else 15.0
         }
 
         var currentXModified = getMinBoundsOfFrame(frame, xScale, yScale).x.roundToInt().toDouble()
         while (currentXModified < bounds.x) {
             frame.drawLine(Vec2i(demodifyX(currentXModified, frame, xScale), 0), Vec2i(demodifyX(currentXModified, frame, xScale), frame.frameSize().y))
-            currentXModified += 1.0
+            currentXModified += if(frame.curve is FiniteEllipticCurve || scale < 5.0) 1.0 else 3.0
         }
         frame.changeColor(Color.BLACK)
     }

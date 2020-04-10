@@ -397,16 +397,43 @@ object EncryptDecryptHelper : EllipticCurveWindow(getScreenSize()), MouseListene
             when (e!!.actionCommand) {
                 "ok" -> {
                     this.isVisible = false
-                    if (spinner.value == 2 || spinner.value == 3) {
+                    val value = spinner.value as Int
+                    if (value == 2 || value == 3) {
                         JOptionPane.showMessageDialog(null, +"gui.curveover2or3")
                         return
                     }
-                    if (!FiniteEllipticCurve.isPrime(spinner.value as Int)) {
+                    if (!FiniteEllipticCurve.isPrime(value as Int)) {
                         JOptionPane.showMessageDialog(null, +"gui.notaprime")
                         return
                     }
-
-                    panel.curve = FiniteEllipticCurve(panel.curve.aValue, panel.curve.bValue, (spinner.value as Int).toLong())
+                    val newCurve = FiniteEllipticCurve(panel.curve.aValue, panel.curve.bValue, value.toLong())
+                    fun predicate(int: Int): Boolean {
+                        val curve = FiniteEllipticCurve(panel.curve.aValue, panel.curve.bValue, int.toLong())
+                        return curve.curvePoints.all { curve.helper.order(it) < 128 }
+                    }
+                    // all bad numbers up to 10,000: (took about 40 minutes to calculate)
+                    // [5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67, 71, 73, 79, 83, 89, 97, 101, 103, 107, 109, 167, 173, 211, 223, 1117]
+                    if (predicate(value)) {
+                        var first = 0
+                        var second: Int
+                        for(i in value.downTo(5)) {
+                            if (FiniteEllipticCurve.isPrime(i) && !predicate(i)) {
+                                first = i
+                                break
+                            }
+                        }
+                        var i = value
+                        while(true) {
+                            if(FiniteEllipticCurve.isPrime(i) && !predicate(i)) {
+                                second = i
+                                break
+                            }
+                            i+=2
+                        }
+                        JOptionPane.showMessageDialog(null, +"gui.encryptdecrypthelper.badcurve" + "${if(first != 0) "$first, " else ""}$second")
+                        return
+                    }
+                    panel.curve = newCurve
                 }
             }
         }
@@ -444,9 +471,9 @@ object EncryptDecryptHelper : EllipticCurveWindow(getScreenSize()), MouseListene
                         val x = EllipticSimulator.demodifyX(pt.x, panel)
                         val y = EllipticSimulator.demodifyY(pt.y, panel)
                         panel.drawPoint(Vec2i(x, y))
-                        panel.repaint()
                     }
                     panel.changeColor(Color.BLACK)
+                    panel.redraw()
                     val stringResult = points.joinToString("\n") { "(${it.x}, ${it.y})" }
                     InformationalScreen(stringResult, true, +"gui.stringtopts").createAndShow()
                 }

@@ -57,6 +57,7 @@ gui.encryptdecrypthelper.invalidpubkey=Invalid public key! A public key is a pai
 gui.encryptdecrypthelper.invalidprivkey=Invalid private key! A private key is an integer.
 gui.encryptdecrypthelper.createKey=Create public key...
 gui.keycreator=Create Public Key
+gui.encryptdecrypthelper.badcurve=This is a poor choice for an encrypting curve, because it doesn't have a point of high enough order. Try these: 
 
 gui.studyHelper=Study Helper
 
