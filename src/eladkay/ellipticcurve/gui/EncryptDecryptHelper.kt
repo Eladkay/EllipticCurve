@@ -224,10 +224,12 @@ object EncryptDecryptHelper : EllipticCurveWindow(getScreenSize()), MouseListene
                 if (ret == JFileChooser.APPROVE_OPTION) {
                     val file = fc.selectedFile
                     panel.curve = CurveFrame.deserializeCurveFrame(file.readText())
+                    val a = panel.curve.aValue
+                    val b = panel.curve.bValue
                     panel.redraw()
                     ScaleChanger.sliderScale.value = EllipticSimulator.scale.toInt()
-                    CurveChanger.sliderA.value = panel.curve.aValue.toInt()
-                    CurveChanger.sliderB.value = panel.curve.bValue.toInt()
+                    CurveChanger.sliderA.value = a.toInt()
+                    CurveChanger.sliderB.value = b.toInt()
                     if (panel.curve is FiniteEllipticCurve) FieldZp.spinner.value = (panel.curve as FiniteEllipticCurve).modulus
                 }
             }
@@ -402,7 +404,7 @@ object EncryptDecryptHelper : EllipticCurveWindow(getScreenSize()), MouseListene
                         JOptionPane.showMessageDialog(null, +"gui.curveover2or3")
                         return
                     }
-                    if (!FiniteEllipticCurve.isPrime(value as Int)) {
+                    if (!FiniteEllipticCurve.isPrime(value)) {
                         JOptionPane.showMessageDialog(null, +"gui.notaprime")
                         return
                     }
@@ -415,7 +417,7 @@ object EncryptDecryptHelper : EllipticCurveWindow(getScreenSize()), MouseListene
                     // [5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67, 71, 73, 79, 83, 89, 97, 101, 103, 107, 109, 167, 173, 211, 223, 1117]
                     if (predicate(value)) {
                         var first = 0
-                        var second: Int
+                        val second: Int
                         for(i in value.downTo(5)) {
                             if (FiniteEllipticCurve.isPrime(i) && !predicate(i)) {
                                 first = i
@@ -430,7 +432,7 @@ object EncryptDecryptHelper : EllipticCurveWindow(getScreenSize()), MouseListene
                             }
                             i+=2
                         }
-                        JOptionPane.showMessageDialog(null, +"gui.encryptdecrypthelper.badcurve" + "${if(first != 0) "$first, " else ""}$second")
+                        JOptionPane.showMessageDialog(null, +"gui.encryptdecrypthelper.badcurve" + "p=${if(first != 0) "$first, " else ""}$second")
                         return
                     }
                     panel.curve = newCurve

@@ -45,8 +45,9 @@ open class FiniteEllipticCurve(aValue: Long, bValue: Long, val modulus: Long) : 
     companion object {
         fun zp(p: Long) = "z$p"
         // If a modulus operation is O(1), this is O(n)
-        fun isPrime(n: Int): Boolean {
-            return n >= 2 && (2..Math.sqrt(n.toDouble()).toInt()).none { n % it == 0 }
+        fun isPrime(n: Number) = isPrime(n.toLong())
+        fun isPrime(n: Long): Boolean {
+            return n >= 2 && (2..Math.sqrt(n.toDouble()).toInt()).none { n % it == 0L }
         }
     }
 

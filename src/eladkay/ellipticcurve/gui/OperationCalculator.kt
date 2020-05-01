@@ -364,10 +364,12 @@ object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener
                 if (ret == JFileChooser.APPROVE_OPTION) {
                     val file = fc.selectedFile
                     panel.curve = CurveFrame.deserializeCurveFrame(file.readText())
+                    val a = panel.curve.aValue
+                    val b = panel.curve.bValue
                     panel.redraw()
                     ScaleChanger.sliderScale.value = EllipticSimulator.scale.toInt()
-                    CurveChanger.sliderA.value = panel.curve.aValue.toInt()
-                    CurveChanger.sliderB.value = panel.curve.bValue.toInt()
+                    CurveChanger.sliderA.value = a.toInt()
+                    CurveChanger.sliderB.value = b.toInt()
                     if (panel.curve is FiniteEllipticCurve) FieldZp.spinner.value = (panel.curve as FiniteEllipticCurve).modulus
                 }
             }
@@ -828,12 +830,12 @@ object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener
                         JOptionPane.showMessageDialog(null, +"gui.curveover2or3")
                         return
                     }
-                    if (!FiniteEllipticCurve.isPrime(spinner.value as Int)) {
+                    if (!FiniteEllipticCurve.isPrime(spinner.value as Number)) {
                         JOptionPane.showMessageDialog(null, +"gui.notaprime")
                         return
                     }
 
-                    panel.curve = FiniteEllipticCurve(panel.curve.aValue, panel.curve.bValue, (spinner.value as Int).toLong())
+                    panel.curve = FiniteEllipticCurve(panel.curve.aValue, panel.curve.bValue, (spinner.value as Number).toLong())
                 }
             }
         }
