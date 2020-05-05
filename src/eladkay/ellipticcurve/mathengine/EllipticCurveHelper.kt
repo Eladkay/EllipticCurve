@@ -1,7 +1,6 @@
 package eladkay.ellipticcurve.mathengine
 
 import java.util.*
-import javax.swing.JOptionPane
 
 class EllipticCurveHelper(private val curve: EllipticCurve) {
 
@@ -221,17 +220,12 @@ class EllipticCurveHelper(private val curve: EllipticCurve) {
     }
 
     fun encrypt(message: Vec2d, bobPublicKey: Vec2d, agreedUponPt: Vec2d = this.agreedUponPt, k: Int): Pair<Vec2d, Vec2d> {
-        if (isDebug) JOptionPane.showMessageDialog(null, "The random constant is $k")
         return Pair(multiply(agreedUponPt, k), add(message, multiply(bobPublicKey, k)))
     }
 
     fun decrypt(encryptedMessage: Pair<Vec2d, Vec2d>, bobPrivateKey: Int) = add(encryptedMessage.second, invPoint(multiply(encryptedMessage.first, bobPrivateKey)))
 
 
-    private var isDebug = false
-    fun setDebug(value: Boolean) {
-        isDebug = value
-    }
 
     /**
      * A description of the Elliptic Curve Diffie-Hellman:

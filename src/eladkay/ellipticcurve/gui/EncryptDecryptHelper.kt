@@ -257,17 +257,11 @@ object EncryptDecryptHelper : EllipticCurveWindow(getScreenSize()), MouseListene
                 val screen = InformationalScreen(text1 + text2, true)
                 screen.setSize(EllipticCurveWindow.getScreenSize() * 2 / 5)
                 screen.createAndShow()
-                if (debug) File("generators.curvelog").writeText(text1 + text2)
             }
             "createKey" -> KeyCreator.createAndShow()
         }
     }
 
-    private var debug = false // set to false in prod
-        set(value) {
-            field = value
-            panel.curve.helper.setDebug(value)
-        }
 
     private object ScaleChanger : EllipticCurveWindow((EllipticCurveWindow.getScreenSize() / 4.5).vec2i()) {
 

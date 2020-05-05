@@ -9,7 +9,7 @@ import kotlin.math.roundToInt
 import kotlin.math.sign
 
 object EllipticSimulator {
-    private var X_OFFSET = -500
+    private const val X_OFFSET = -500
     var scale = 1.0
     private val defaultYScale
         get() = 15 / scale
