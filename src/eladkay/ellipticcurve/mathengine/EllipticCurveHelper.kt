@@ -119,6 +119,7 @@ class EllipticCurveHelper(private val curve: EllipticCurve) {
         while (vector != Vec2d.PT_AT_INF) {
             vector = add(vector, vec2d)
             order++
+            if (order > curve.order()) return -1
         }
         return order
     }
@@ -224,7 +225,6 @@ class EllipticCurveHelper(private val curve: EllipticCurve) {
     }
 
     fun decrypt(encryptedMessage: Pair<Vec2d, Vec2d>, bobPrivateKey: Int) = add(encryptedMessage.second, invPoint(multiply(encryptedMessage.first, bobPrivateKey)))
-
 
 
     /**

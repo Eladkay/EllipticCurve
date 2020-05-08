@@ -39,6 +39,8 @@ open class EllipticCurve(val aValue: Long, val bValue: Long, val field: String) 
 
     val helper: EllipticCurveHelper by lazy { EllipticCurveHelper(this) }
 
+    operator fun contains(vec2d: Vec2d) = isPointOnCurve(vec2d)
+
     companion object {
         const val REALS = "reals"
     }

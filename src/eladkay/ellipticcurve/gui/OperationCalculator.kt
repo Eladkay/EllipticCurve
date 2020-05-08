@@ -23,10 +23,10 @@ import kotlin.math.sign
 object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener, MouseMotionListener, MouseWheelListener {
 
     override fun mouseWheelMoved(e: MouseWheelEvent) {
-        if(panel.curve is FiniteEllipticCurve) return
+        if (panel.curve is FiniteEllipticCurve) return
         EllipticSimulator.scale = Math.max(1.0, Math.min(EllipticSimulator.scale - e.wheelRotation.sign * 0.5, 10.0))
         ScaleChanger.sliderScale.value = EllipticSimulator.scale.toInt()
-        if(p1modified != null)
+        if (p1modified != null)
             p1 = Vec2i(EllipticSimulator.demodifyX(p1modified!!.x, panel), EllipticSimulator.demodifyY(p1modified!!.y, panel))
         panel.clear()
         panel.clearPointLines()
@@ -395,8 +395,17 @@ object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener
             }
             "select" -> PointSelector.createAndShow()
             "ptinfo" -> if (p1 == null) JOptionPane.showMessageDialog(null, +"gui.operationcalculator.choosept") else PointInfo.createAndShow()
-            "changefield_zp" -> FieldZp.createAndShow()
-            "changefield_reals" -> panel.curve = EllipticCurve(panel.curve.aValue, panel.curve.bValue, EllipticCurve.REALS)
+            "changefield_zp" -> {
+                FieldZp.createAndShow()
+                panel.shouldShowLineOfSymmetry(checkboxLineOfSymmetry.isSelected)
+            }
+            "changefield_reals" -> {
+                panel.curve = EllipticCurve(panel.curve.aValue, panel.curve.bValue, EllipticCurve.REALS)
+                p1 = null
+                p2 = null
+                p1modified = null
+                panel.shouldShowLineOfSymmetry(checkboxLineOfSymmetry.isSelected)
+            }
             "addPtsNumerically" -> PointAdder.createAndShow()
             "selectRandomPt" -> {
                 val helper = panel.curve.helper
@@ -406,8 +415,14 @@ object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener
                         curve.curvePoints.toList()[helper.rand.nextInt(curve.order())]
                     }
                     else -> {
-                        val x = helper.rand.nextInt(EllipticSimulator.getMaxBoundsOfFrame(panel).x.toInt()).toDouble() + helper.rand.nextDouble()
-                        val y = Math.sqrt(helper.lhs(x)) * if(helper.rand.nextBoolean()) 1.0 else -1.0
+                        val maxX = EllipticSimulator.getMaxBoundsOfFrame(panel).x.toInt()
+                        val minX = EllipticSimulator.getMinBoundsOfFrame(panel).x.toInt()
+                        var x: Double
+                        var y: Double
+                        do {
+                            x = (helper.rand.nextInt(maxX - minX) + minX).toDouble() + helper.rand.nextDouble()
+                            y = Math.sqrt(helper.lhs(x)) * if (helper.rand.nextBoolean()) 1.0 else -1.0
+                        } while (y.isNaN())
                         Vec2d(x, y)
                     }
                 }
@@ -421,6 +436,7 @@ object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener
                 } else if (p2 == null) {
                     p2 = Vec2i(demodifyX(vec.x), demodifyY(vec.y))
 
+                    panel.changeColor(Color.GREEN)
                     panel.drawLine(p1 as Vec2i, p2 as Vec2i, 3f)
                     panel.changeColor(Color.RED)
                     panel.drawPoint(p1 as Vec2i, 10)
@@ -549,7 +565,7 @@ object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener
             button.addActionListener(this)
             label.setBounds(size.x * 1 / 6, size.y * 2 / 6 + 60, size.x * 4 / 6, 40)
             if (label.isVisible && panel.curve is FiniteEllipticCurve) {
-                label.text += (panel.curve as FiniteEllipticCurve).order(p1modified!!)
+                label.text += (panel.curve as FiniteEllipticCurve).order(p1modified!!).takeUnless { it == -1 || p1modified!! !in panel.curve } ?: "undefined"
             }
             add(pointInfoBox)
             add(button)
@@ -726,7 +742,7 @@ object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener
             panel.clear()
             if (slider?.valueIsAdjusting?.not() == true) {
                 EllipticSimulator.scale = sliderScale.value.toDouble()
-                if(p1modified != null)
+                if (p1modified != null)
                     p1 = Vec2i(EllipticSimulator.demodifyX(p1modified!!.x, panel), EllipticSimulator.demodifyY(p1modified!!.y, panel))
                 panel.redraw()
             }
@@ -836,6 +852,9 @@ object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener
                     }
 
                     panel.curve = FiniteEllipticCurve(panel.curve.aValue, panel.curve.bValue, (spinner.value as Number).toLong())
+                    p1 = null
+                    p2 = null
+                    p1modified = null
                 }
             }
         }

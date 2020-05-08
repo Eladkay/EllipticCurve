@@ -352,7 +352,7 @@ object EncryptDecryptHelper : EllipticCurveWindow(getScreenSize()), MouseListene
                         panel.curve = EllipticCurve(sliderA.value.toLong(), sliderB.value.toLong(), EllipticCurve.REALS)
                     else panel.curve = FiniteEllipticCurve(sliderA.value.toLong(), sliderB.value.toLong(), (panel.curve as FiniteEllipticCurve).modulus)
                 } catch (e: IllegalArgumentException) {
-                    JOptionPane.showMessageDialog(null, +"gui.invalidcurve!")
+                    JOptionPane.showMessageDialog(null, +"gui.invalidcurve")
                 }
                 panel.redraw()
             }
@@ -408,25 +408,25 @@ object EncryptDecryptHelper : EllipticCurveWindow(getScreenSize()), MouseListene
                         return curve.curvePoints.all { curve.helper.order(it) < 128 }
                     }
                     // all bad numbers up to 10,000: (took about 40 minutes to calculate)
-                    // [5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67, 71, 73, 79, 83, 89, 97, 101, 103, 107, 109, 167, 173, 211, 223, 1117]
-                    if (predicate(value)) {
+                    val badNumbers = listOf(5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67, 71, 73, 79, 83, 89, 97, 101, 103, 107, 109, 167, 173, 211, 223, 1117)
+                    if (value in badNumbers || predicate(value)) {
                         var first = 0
                         val second: Int
-                        for(i in value.downTo(5)) {
-                            if (FiniteEllipticCurve.isPrime(i) && !predicate(i)) {
+                        for (i in (value - 2).downTo(5).step(2)) {
+                            if (FiniteEllipticCurve.isPrime(i) && i !in badNumbers && !predicate(i)) {
                                 first = i
                                 break
                             }
                         }
-                        var i = value
-                        while(true) {
-                            if(FiniteEllipticCurve.isPrime(i) && !predicate(i)) {
+                        var i = value + 2
+                        while (true) {
+                            if (FiniteEllipticCurve.isPrime(i) && i !in badNumbers && !predicate(i)) {
                                 second = i
                                 break
                             }
-                            i+=2
+                            i += 2
                         }
-                        JOptionPane.showMessageDialog(null, +"gui.encryptdecrypthelper.badcurve" + "p=${if(first != 0) "$first, " else ""}$second")
+                        JOptionPane.showMessageDialog(null, +"gui.encryptdecrypthelper.badcurve" + "p=${if (first != 0) "$first, " else ""}$second")
                         return
                     }
                     panel.curve = newCurve
@@ -461,15 +461,17 @@ object EncryptDecryptHelper : EllipticCurveWindow(getScreenSize()), MouseListene
                         JOptionPane.showMessageDialog(null, +"gui.notascii")
                         return
                     }
-                    panel.changeColor(Color.RED)
-                    panel.changePointSize(10)
-                    for (pt in points) {
-                        val x = EllipticSimulator.demodifyX(pt.x, panel)
-                        val y = EllipticSimulator.demodifyY(pt.y, panel)
-                        panel.drawPoint(Vec2i(x, y))
-                    }
-                    panel.changeColor(Color.BLACK)
-                    panel.redraw()
+                    if (panel.curve is FiniteEllipticCurve) {
+                        panel.changeColor(Color.RED)
+                        panel.changePointSize(10)
+                        for (pt in points) {
+                            val x = EllipticSimulator.demodifyX(pt.x, panel)
+                            val y = EllipticSimulator.demodifyY(pt.y, panel)
+                            panel.drawPoint(Vec2i(x, y))
+                        }
+                        panel.changeColor(Color.BLACK)
+                        panel.redraw()
+                    } // else, it doesn't look good because of rounding
                     val stringResult = points.joinToString("\n") { "(${it.x}, ${it.y})" }
                     InformationalScreen(stringResult, true, +"gui.stringtopts").createAndShow()
                 }
