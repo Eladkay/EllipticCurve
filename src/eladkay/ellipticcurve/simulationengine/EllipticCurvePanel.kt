@@ -1,8 +1,9 @@
 package eladkay.ellipticcurve.simulationengine
 
-import eladkay.ellipticcurve.mathengine.EllipticCurve
-import eladkay.ellipticcurve.mathengine.FiniteEllipticCurve
+import eladkay.ellipticcurve.mathengine.Curve
 import eladkay.ellipticcurve.mathengine.Vec2i
+import eladkay.ellipticcurve.mathengine.elliptic.EllipticCurve
+import eladkay.ellipticcurve.mathengine.elliptic.FiniteEllipticCurve
 import java.awt.BasicStroke
 import java.awt.Color
 import java.awt.Graphics
@@ -10,10 +11,17 @@ import java.awt.Graphics2D
 import java.awt.geom.Line2D
 import javax.swing.JPanel
 
-class CurvePanel(private val size: Vec2i, curve: EllipticCurve) : CurveFrame, JPanel() {
+class EllipticCurvePanel(private val size: Vec2i, curve: EllipticCurve) : CurveFrame, JPanel() {
+
+    override var curveRepresented: Curve
+        get() = curve
+        set(value) {
+            if(value !is EllipticCurve) throw Exception("not elliptic")
+            curve = value
+        }
 
 
-    override var curve: EllipticCurve = curve
+    var curve: EllipticCurve = curve
         set(newCurve) {
             clear()
             field = newCurve
@@ -53,26 +61,25 @@ class CurvePanel(private val size: Vec2i, curve: EllipticCurve) : CurveFrame, JP
     override fun paint(g: Graphics?) {
         super.paint(g)
 
-        // start handling by EllipticSimulator
+        // start handling by FunctionSimulator
 
         if (operations.isEmpty() || redraw) {
             if (curve is FiniteEllipticCurve) {
-                changePointSize(5)
-                EllipticSimulator.drawFiniteCurve(curve as FiniteEllipticCurve, this, false)
-            } else EllipticSimulator.drawCurveApprox(curve, this, 0.035 + (EllipticSimulator.scale - 1) / 32.0, false)
+                FunctionSimulator.drawDiscreteCurve(curve as FiniteEllipticCurve, this, false)
+            } else FunctionSimulator.drawCurveApprox(curve, this, 0.035 + (FunctionSimulator.scale - 1) / 32.0, false)
 
-            EllipticSimulator.drawAxis(this)
+            FunctionSimulator.drawAxis(this)
             if (gridsAndTicks) {
-                EllipticSimulator.drawTicks(this)
-                EllipticSimulator.drawGridlines(this)
+                FunctionSimulator.drawTicks(this)
+                FunctionSimulator.drawGridlines(this)
             }
             if (showLineOfSymmetry) {
-                EllipticSimulator.drawLineOfSymmetry(this)
+                FunctionSimulator.drawLineOfSymmetry(this)
             }
             redraw = false
         }
 
-        // end handling by EllipticSimulator
+        // end handling by FunctionSimulator
 
         // start drawing auxiliary shapes
 

@@ -1,5 +1,6 @@
-package eladkay.ellipticcurve.mathengine
+package eladkay.ellipticcurve.mathengine.elliptic
 
+import eladkay.ellipticcurve.mathengine.Vec2d
 import java.util.*
 
 class EllipticCurveHelper(private val curve: EllipticCurve) {

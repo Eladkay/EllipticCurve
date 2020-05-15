@@ -1,9 +1,13 @@
 package eladkay.ellipticcurve.gui
 
-import eladkay.ellipticcurve.mathengine.*
+import eladkay.ellipticcurve.mathengine.Vec2d
+import eladkay.ellipticcurve.mathengine.Vec2i
+import eladkay.ellipticcurve.mathengine.elliptic.EllipticCurve
+import eladkay.ellipticcurve.mathengine.elliptic.EllipticCurveHelper
+import eladkay.ellipticcurve.mathengine.elliptic.FiniteEllipticCurve
 import eladkay.ellipticcurve.simulationengine.CurveFrame
-import eladkay.ellipticcurve.simulationengine.CurvePanel
-import eladkay.ellipticcurve.simulationengine.EllipticSimulator
+import eladkay.ellipticcurve.simulationengine.EllipticCurvePanel
+import eladkay.ellipticcurve.simulationengine.FunctionSimulator
 import java.awt.Color
 import java.awt.Font
 import java.awt.event.*
@@ -16,8 +20,8 @@ import kotlin.math.sign
 object EncryptDecryptHelper : EllipticCurveWindow(getScreenSize()), MouseListener, MouseMotionListener, MouseWheelListener {
 
     override fun mouseWheelMoved(e: MouseWheelEvent) {
-        EllipticSimulator.scale = Math.max(1.0, Math.min(EllipticSimulator.scale - e.wheelRotation.sign * 0.5, 10.0))
-        ScaleChanger.sliderScale.value = EllipticSimulator.scale.toInt()
+        FunctionSimulator.scale = Math.max(1.0, Math.min(FunctionSimulator.scale - e.wheelRotation.sign * 0.5, 10.0))
+        ScaleChanger.sliderScale.value = FunctionSimulator.scale.toInt()
         panel.clear()
         panel.redraw()
     }
@@ -36,7 +40,7 @@ object EncryptDecryptHelper : EllipticCurveWindow(getScreenSize()), MouseListene
 
     override fun mouseDragged(e: MouseEvent?) {}
 
-    var panel = CurvePanel(Vec2i(size.x, size.y), EllipticCurve(-1L, 1L, EllipticCurve.REALS))
+    var panel = EllipticCurvePanel(Vec2i(size.x, size.y), EllipticCurve(-1L, 1L, EllipticCurve.REALS))
     private val fc = JFileChooser()
 
     init {
@@ -227,7 +231,7 @@ object EncryptDecryptHelper : EllipticCurveWindow(getScreenSize()), MouseListene
                     val a = panel.curve.aValue
                     val b = panel.curve.bValue
                     panel.redraw()
-                    ScaleChanger.sliderScale.value = EllipticSimulator.scale.toInt()
+                    ScaleChanger.sliderScale.value = FunctionSimulator.scale.toInt()
                     CurveChanger.sliderA.value = a.toInt()
                     CurveChanger.sliderB.value = b.toInt()
                     if (panel.curve is FiniteEllipticCurve) FieldZp.spinner.value = (panel.curve as FiniteEllipticCurve).modulus
@@ -294,7 +298,7 @@ object EncryptDecryptHelper : EllipticCurveWindow(getScreenSize()), MouseListene
             val slider = e.source as? JSlider
             panel.clear()
             if (slider?.valueIsAdjusting?.not() == true) {
-                EllipticSimulator.scale = sliderScale.value.toDouble()
+                FunctionSimulator.scale = sliderScale.value.toDouble()
                 panel.redraw()
             }
 
@@ -465,8 +469,8 @@ object EncryptDecryptHelper : EllipticCurveWindow(getScreenSize()), MouseListene
                         panel.changeColor(Color.RED)
                         panel.changePointSize(10)
                         for (pt in points) {
-                            val x = EllipticSimulator.demodifyX(pt.x, panel)
-                            val y = EllipticSimulator.demodifyY(pt.y, panel)
+                            val x = FunctionSimulator.demodifyX(pt.x, panel)
+                            val y = FunctionSimulator.demodifyY(pt.y, panel)
                             panel.drawPoint(Vec2i(x, y))
                         }
                         panel.changeColor(Color.BLACK)

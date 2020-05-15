@@ -1,7 +1,13 @@
-package eladkay.ellipticcurve.mathengine
+package eladkay.ellipticcurve.mathengine.elliptic
+
+import eladkay.ellipticcurve.mathengine.SymmetricCurve
+import eladkay.ellipticcurve.mathengine.Vec2d
 
 
-open class EllipticCurve(val aValue: Long, val bValue: Long, val field: String) {
+open class EllipticCurve(val aValue: Long, val bValue: Long, val field: String) : SymmetricCurve {
+    override val lineOfSymmetry: Double
+        get() = 0.0
+
     init {
         if (determinant() == 0.0) throw IllegalArgumentException("Invalid curve!")
     }
@@ -25,8 +31,8 @@ open class EllipticCurve(val aValue: Long, val bValue: Long, val field: String) 
 
     }
 
-    open fun isPointOnCurve(p: Vec2d): Boolean {
-        return (p.y * p.y) == (p.x * p.x * p.x) + (aValue * p.x) + bValue
+    override fun isPointOnCurve(vec2d: Vec2d): Boolean {
+        return (vec2d.y * vec2d.y) == (vec2d.x * vec2d.x * vec2d.x) + (aValue * vec2d.x) + bValue
     }
 
     /**
@@ -35,7 +41,7 @@ open class EllipticCurve(val aValue: Long, val bValue: Long, val field: String) 
      * there exists an x3 between x1 and x2 and a y3 between y1 and y2 s.t (x3, y3) is on the curve. This is a provable consequence of the
      * mean value theorem, given the curve is continuous of course, for a suitable definition of this term.
      */
-    open fun difference(x: Double, y: Double) = y * y - (x * x * x) - (aValue * x) - bValue
+    override fun difference(x: Double, y: Double) = y * y - (x * x * x) - (aValue * x) - bValue
 
     val helper: EllipticCurveHelper by lazy { EllipticCurveHelper(this) }
 

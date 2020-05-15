@@ -1,9 +1,8 @@
 package eladkay.ellipticcurve.simulationengine
 
-import eladkay.ellipticcurve.mathengine.EllipticCurve
-import eladkay.ellipticcurve.mathengine.FiniteEllipticCurve
-import eladkay.ellipticcurve.mathengine.Vec2d
-import eladkay.ellipticcurve.mathengine.Vec2i
+import eladkay.ellipticcurve.mathengine.*
+import eladkay.ellipticcurve.mathengine.elliptic.EllipticCurve
+import eladkay.ellipticcurve.mathengine.elliptic.FiniteEllipticCurve
 import java.awt.Color
 
 interface CurveFrame {
@@ -20,17 +19,23 @@ interface CurveFrame {
     fun addPointLines(vec2i: Vec2i)
     fun drawPointLineText(vec2i: Vec2i, string: String)
     fun clearPointLines()
-    fun shouldShowLineOfSymmetry(boolean: Boolean)
-    fun drawLineOfSymmetry(a: Vec2i, b: Vec2i)
+    fun shouldShowLineOfSymmetry(boolean: Boolean) {
 
-    var curve: EllipticCurve
+    }
+    fun drawLineOfSymmetry(a: Vec2i, b: Vec2i) {
+
+    }
+
+    var curveRepresented: Curve
 
     fun serializeCurveFrame(): String {
-        val scale = EllipticSimulator.scale
-        val generator = curve.helper.generator
-        val agreedUponPt = curve.helper.agreedUponPt
-        val field = if (curve.field == EllipticCurve.REALS) "R" else curve.field.substring(1)
-        return "${curve.aValue};${curve.bValue};$field;$scale;$generator;$agreedUponPt"
+        if(curveRepresented !is EllipticCurve) throw Exception("not elliptic")
+        val eCurve = curveRepresented as EllipticCurve
+        val scale = FunctionSimulator.scale
+        val generator = eCurve.helper.generator
+        val agreedUponPt = eCurve.helper.agreedUponPt
+        val field = if (eCurve.field == EllipticCurve.REALS) "R" else eCurve.field.substring(1)
+        return "${eCurve.aValue};${eCurve.bValue};$field;$scale;$generator;$agreedUponPt"
     }
 
     companion object {
@@ -38,7 +43,7 @@ interface CurveFrame {
         fun deserializeCurveFrame(string: String): EllipticCurve {
             val split = string.split(";")
             val field = split[2]
-            EllipticSimulator.scale = split[3].toDouble()
+            FunctionSimulator.scale = split[3].toDouble()
             val generator = Vec2d.of(split[4])
             val agreedUpon = Vec2d.of(split[5])
             val curve = if (field == "R")

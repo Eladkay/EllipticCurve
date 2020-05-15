@@ -1,12 +1,12 @@
 package eladkay.ellipticcurve.gui
 
-import eladkay.ellipticcurve.mathengine.EllipticCurve
-import eladkay.ellipticcurve.mathengine.FiniteEllipticCurve
 import eladkay.ellipticcurve.mathengine.Vec2d
 import eladkay.ellipticcurve.mathengine.Vec2i
+import eladkay.ellipticcurve.mathengine.elliptic.EllipticCurve
+import eladkay.ellipticcurve.mathengine.elliptic.FiniteEllipticCurve
 import eladkay.ellipticcurve.simulationengine.CurveFrame
-import eladkay.ellipticcurve.simulationengine.CurvePanel
-import eladkay.ellipticcurve.simulationengine.EllipticSimulator
+import eladkay.ellipticcurve.simulationengine.EllipticCurvePanel
+import eladkay.ellipticcurve.simulationengine.FunctionSimulator
 import java.awt.Color
 import java.awt.Font
 import java.awt.Font.BOLD
@@ -24,10 +24,10 @@ object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener
 
     override fun mouseWheelMoved(e: MouseWheelEvent) {
         if (panel.curve is FiniteEllipticCurve) return
-        EllipticSimulator.scale = Math.max(1.0, Math.min(EllipticSimulator.scale - e.wheelRotation.sign * 0.5, 10.0))
-        ScaleChanger.sliderScale.value = EllipticSimulator.scale.toInt()
+        FunctionSimulator.scale = Math.max(1.0, Math.min(FunctionSimulator.scale - e.wheelRotation.sign * 0.5, 10.0))
+        ScaleChanger.sliderScale.value = FunctionSimulator.scale.toInt()
         if (p1modified != null)
-            p1 = Vec2i(EllipticSimulator.demodifyX(p1modified!!.x, panel), EllipticSimulator.demodifyY(p1modified!!.y, panel))
+            p1 = Vec2i(FunctionSimulator.demodifyX(p1modified!!.x, panel), FunctionSimulator.demodifyY(p1modified!!.y, panel))
         panel.clear()
         panel.clearPointLines()
         panel.redraw()
@@ -59,10 +59,10 @@ object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener
 
     }
 
-    private fun modifyX(x: Number): Double = EllipticSimulator.modifyX(x.toInt(), panel)
-    private fun modifyY(y: Number): Double = EllipticSimulator.modifyY(y.toInt(), panel)
-    private fun demodifyX(x: Double): Int = EllipticSimulator.demodifyX(x, panel)
-    private fun demodifyY(y: Double): Int = EllipticSimulator.demodifyY(y, panel)
+    private fun modifyX(x: Number): Double = FunctionSimulator.modifyX(x.toInt(), panel)
+    private fun modifyY(y: Number): Double = FunctionSimulator.modifyY(y.toInt(), panel)
+    private fun demodifyX(x: Double): Int = FunctionSimulator.demodifyX(x, panel)
+    private fun demodifyY(y: Double): Int = FunctionSimulator.demodifyY(y, panel)
 
     override fun mousePressed(e: MouseEvent) {
         val x = e.x
@@ -94,8 +94,8 @@ object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener
 
 
                 val sum = panel.curve.helper.add(Vec2d(xModified, yModified), p1modified!!)
-                val max = EllipticSimulator.getMaxBoundsOfFrame(panel)
-                val min = EllipticSimulator.getMinBoundsOfFrame(panel)
+                val max = FunctionSimulator.getMaxBoundsOfFrame(panel)
+                val min = FunctionSimulator.getMinBoundsOfFrame(panel)
 
                 if (sum.x > max.x && sum.x > min.x || sum.y > max.y && sum.y > min.y || sum.x < min.x && sum.x < max.x || sum.y < min.y && sum.y < max.y)
                     JOptionPane.showMessageDialog(null, +"gui.outofbounds" + sum.round(2).toString())
@@ -124,7 +124,7 @@ object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener
 
     override fun mouseClicked(e: MouseEvent) {}
 
-    var panel = CurvePanel(Vec2i(size.x, size.y), EllipticCurve(-1L, 1L, EllipticCurve.REALS))
+    var panel = EllipticCurvePanel(Vec2i(size.x, size.y), EllipticCurve(-1L, 1L, EllipticCurve.REALS))
     private val checkboxGridsAndTicks = JCheckBox(+"gui.operationcalculator.gridsandticks")
     private val checkboxPtLoc = JCheckBox(+"gui.operationcalculator.checkboxPtLoc")
     private val checkboxAutoadd = JCheckBox(+"gui.operationcalculator.checkboxAutoadd")
@@ -367,7 +367,7 @@ object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener
                     val a = panel.curve.aValue
                     val b = panel.curve.bValue
                     panel.redraw()
-                    ScaleChanger.sliderScale.value = EllipticSimulator.scale.toInt()
+                    ScaleChanger.sliderScale.value = FunctionSimulator.scale.toInt()
                     CurveChanger.sliderA.value = a.toInt()
                     CurveChanger.sliderB.value = b.toInt()
                     if (panel.curve is FiniteEllipticCurve) FieldZp.spinner.value = (panel.curve as FiniteEllipticCurve).modulus
@@ -415,8 +415,8 @@ object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener
                         curve.curvePoints.toList()[helper.rand.nextInt(curve.order())]
                     }
                     else -> {
-                        val maxX = EllipticSimulator.getMaxBoundsOfFrame(panel).x.toInt()
-                        val minX = EllipticSimulator.getMinBoundsOfFrame(panel).x.toInt()
+                        val maxX = FunctionSimulator.getMaxBoundsOfFrame(panel).x.toInt()
+                        val minX = FunctionSimulator.getMinBoundsOfFrame(panel).x.toInt()
                         var x: Double
                         var y: Double
                         do {
@@ -444,8 +444,8 @@ object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener
                     panel.changeColor(Color.BLUE)
 
                     val sum = panel.curve.helper.add(vec, p1modified!!)
-                    val max = EllipticSimulator.getMaxBoundsOfFrame(panel)
-                    val min = EllipticSimulator.getMinBoundsOfFrame(panel)
+                    val max = FunctionSimulator.getMaxBoundsOfFrame(panel)
+                    val min = FunctionSimulator.getMinBoundsOfFrame(panel)
 
                     if (sum.x > max.x && sum.x > min.x || sum.y > max.y && sum.y > min.y || sum.x < min.x && sum.x < max.x || sum.y < min.y && sum.y < max.y)
                         JOptionPane.showMessageDialog(null, +"gui.outofbounds" + sum.round(2).toString())
@@ -645,8 +645,8 @@ object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener
                         panel.drawPoint(p2 as Vec2i, 10)
                         panel.changeColor(Color.BLUE)
                         val sum = panel.curve.helper.add(Vec2d(x, y), p1modified!!)
-                        val max = EllipticSimulator.getMaxBoundsOfFrame(panel)
-                        val min = EllipticSimulator.getMinBoundsOfFrame(panel)
+                        val max = FunctionSimulator.getMaxBoundsOfFrame(panel)
+                        val min = FunctionSimulator.getMinBoundsOfFrame(panel)
                         if (sum.x > max.x && sum.x > min.x || sum.y > max.y && sum.y > min.y || sum.x < min.x && sum.x < max.x || sum.y < min.y && sum.y < max.y)
                             JOptionPane.showMessageDialog(null, +"gui.outofbounds" + sum.map { Math.round(it * 100) / 100.0 }.toString())
                         else panel.drawPoint(Vec2i(demodifyX(sum.x), demodifyY(sum.y)), 15)
@@ -741,9 +741,9 @@ object OperationCalculator : EllipticCurveWindow(getScreenSize()), MouseListener
             val slider = e.source as? JSlider
             panel.clear()
             if (slider?.valueIsAdjusting?.not() == true) {
-                EllipticSimulator.scale = sliderScale.value.toDouble()
+                FunctionSimulator.scale = sliderScale.value.toDouble()
                 if (p1modified != null)
-                    p1 = Vec2i(EllipticSimulator.demodifyX(p1modified!!.x, panel), EllipticSimulator.demodifyY(p1modified!!.y, panel))
+                    p1 = Vec2i(FunctionSimulator.demodifyX(p1modified!!.x, panel), FunctionSimulator.demodifyY(p1modified!!.y, panel))
                 panel.redraw()
             }
 
