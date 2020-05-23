@@ -31,10 +31,6 @@ open class EllipticCurve(val aValue: Long, val bValue: Long, val field: String) 
 
     }
 
-    override fun isPointOnCurve(vec2d: Vec2d): Boolean {
-        return (vec2d.y * vec2d.y) == (vec2d.x * vec2d.x * vec2d.x) + (aValue * vec2d.x) + bValue
-    }
-
     /**
      * 0 if and only if (x, y) is on the curve.
      * Let wlog y be constant anc consider difference(x). For every x1, x2, y1, y2 s.t. sgn(difference(x1,y1)) != sgn(difference(x2,y2))

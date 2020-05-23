@@ -32,10 +32,6 @@ open class FiniteEllipticCurve(aValue: Long, bValue: Long, override val modulus:
         return (y - (x * x * x) - (aValue * x) - bValue) % modulus
     }
 
-    override fun isPointOnCurve(vec2d: Vec2d): Boolean {
-        return vec2d in curvePoints // how can a point be in E if it's not even in the Zp^2?
-    }
-
     override fun equals(other: Any?): Boolean {
         return super.equals(other) && other is FiniteEllipticCurve && other.modulus == this.modulus
     }

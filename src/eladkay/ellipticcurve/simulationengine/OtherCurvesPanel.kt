@@ -28,10 +28,9 @@ class OtherCurvesPanel(private val size: Vec2i, override var curveRepresented: C
         super.paint(g)
 
         if (redraw) {
-            println("hi")
             if (curveRepresented is DiscreteCurve) {
                 FunctionSimulator.drawDiscreteCurve(curveRepresented as DiscreteCurve, this, false)
-            } else FunctionSimulator.drawCurveApprox(curveRepresented, this, 0.035 + (FunctionSimulator.scale - 1) / 32.0, false)
+            } else FunctionSimulator.drawCurveApprox(curveRepresented, this, curveRepresented.error() + (FunctionSimulator.scale - 1) / 32.0, false)
 
             FunctionSimulator.drawAxis(this)
             if (gridsAndTicks) {
