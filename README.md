@@ -2,7 +2,7 @@
 
 ![Adding Points](https://i.imgur.com/XCRvi3S.png)
 
-[Project File](https://drive.google.com/file/d/14xt8lg5Z65VLMniyOxPDevjozZ8Hs4AT/view?usp=sharing) contains full information about the project (in Hebrew). This project was written as part of the requirements for the Computer Science - Academy & Industry program at the Davidson Institute in the 2019-2020 school year.
+[Project File](https://drive.google.com/file/d/14xt8lg5Z65VLMniyOxPDevjozZ8Hs4AT/view?usp=sharing) contains full information about the project (in Hebrew). This project was written as part of the requirements for the [Computer Science - Academy & Industry](https://davidson.weizmann.ac.il/programs/cs) program at the Davidson Institute in the 2019-2020 school year.
 
 ## Features:
 * Visualization of curves over finite fields as well as over the reals
