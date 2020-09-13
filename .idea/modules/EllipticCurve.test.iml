@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module version="4">
+  <component name="FacetManager">
+    <facet type="kotlin-language" name="Kotlin">
+      <configuration version="3" platform="JavaScript " allPlatforms="JS []" useProjectSettings="false" isTestModule="true" externalProjectId="EllipticCurve" pureKotlinSourceFolders="C:\Users\eladk\Desktop\EllipticCurve\src\test\kotlin;C:\Users\eladk\Desktop\EllipticCurve\src\main\kotlin;C:\Users\eladk\Desktop\EllipticCurve\build\externals\EllipticCurve\src">
+        <sourceSets>
+          <sourceSet>EllipticCurve.main</sourceSet>
+        </sourceSets>
+        <newMppModelJpsModuleKind>COMPILATION_AND_SOURCE_SET_HOLDER</newMppModelJpsModuleKind>
+        <externalSystemTestTasks>
+          <externalSystemTestTask>browserTest|EllipticCurve:test|js</externalSystemTestTask>
+        </externalSystemTestTasks>
+        <testOutputPath>$MODULE_DIR$/../../build/js/packages/EllipticCurve-test/kotlin/EllipticCurve-test.js</testOutputPath>
+        <compilerSettings />
+        <compilerArguments>
+          <option name="outputFile" value="$MODULE_DIR$/../../build/js/packages/EllipticCurve-test/kotlin/EllipticCurve-test.js" />
+          <option name="noStdlib" value="true" />
+          <option name="sourceMap" value="true" />
+          <option name="metaInfo" value="true" />
+          <option name="target" value="v5" />
+          <option name="moduleKind" value="umd" />
+          <option name="main" value="call" />
+          <option name="languageVersion" value="1.4" />
+          <option name="apiVersion" value="1.4" />
+          <option name="pluginOptions">
+            <array />
+          </option>
+          <option name="pluginClasspaths">
+            <array />
+          </option>
+          <option name="multiPlatform" value="true" />
+          <option name="errors">
+            <ArgumentParseErrors />
+          </option>
+        </compilerArguments>
+      </configuration>
+    </facet>
+  </component>
+</module>
