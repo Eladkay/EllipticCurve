@@ -114,7 +114,7 @@
       canvas.width = window.screen.width;
       closure$body.appendChild(canvas);
       var curve = new EllipticCurve(L1, L_1, EllipticCurve$Companion_getInstance().REALS);
-      set_panel(new CurvePanelJs(curve, new Vec2i(closure$body.clientHeight, closure$body.clientWidth)));
+      set_panel(new CurvePanelJs(curve, new Vec2i(window.screen.width, (window.screen.height * 5 | 0) / 6 | 0)));
       set_aSlider(Kotlin.isType(tmp$_0 = document.createElement('INPUT'), HTMLInputElement) ? tmp$_0 : throwCCE());
       get_aSlider().setAttribute('id', 'aslider');
       get_aSlider().setAttribute('type', 'range');
