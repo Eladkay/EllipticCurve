@@ -21,7 +21,7 @@ fun main() {
         canvas.width = window.screen.width
         body.appendChild(canvas)
         val curve = EllipticCurve(1, -1, REALS)
-        panel = CurvePanelJs(curve, Vec2i(body.clientHeight, body.clientWidth))
+        panel = CurvePanelJs(curve, Vec2i(window.screen.width, (window.screen.height*5)/6))
 
         aSlider = document.createElement("INPUT") as HTMLInputElement
         aSlider.setAttribute("id", "aslider")
